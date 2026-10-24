@@ -1,0 +1,9 @@
+{
+  "targets": [
+    {
+      "source": "ashby",
+      "tenant": "openai",
+      "company": "OpenAI"
+    }
+  ]
+}

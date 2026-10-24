@@ -1,0 +1,24 @@
+{
+  "name": "applysmooth-data-fetch",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "rehearsal": "tsx ingest/online.ts"
+  },
+  "dependencies": {
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5",
+    "tsx": "^4.23.15",
+    "vitest": "^4.1.5"
+  },
+  "type": "module"
+}
