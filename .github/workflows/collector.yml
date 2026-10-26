@@ -54,27 +54,39 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - name: Start Sentry check-in
+        id: monitor-start
+        env:
+          SENTRY_CRON_URL: ${{ secrets.SENTRY_CRON_URL }}
+        run: node ingest/monitor.mjs start
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
       - run: corepack enable && corepack prepare pnpm@10.32.1 --activate
       - run: pnpm install --frozen-lockfile
+      - name: Restore encrypted runner cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ingest/data/runner-cache.bin
+          key: collector-encrypted-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: collector-encrypted-v1-
       - run: pnpm exec tsx ingest/scheduled.ts
         env:
+          COLLECTOR_CACHE_KEY: ${{ secrets.COLLECTOR_CACHE_KEY }}
           COLLECTOR_ENDPOINT: ${{ secrets.COLLECTOR_ENDPOINT }}
           COLLECTOR_TOKEN: ${{ secrets.COLLECTOR_TOKEN }}
           COLLECTOR_VERCEL_BYPASS: ${{ secrets.COLLECTOR_VERCEL_BYPASS }}
-      - name: Notify external dead-man monitor
-        if: always()
+      - name: Save encrypted runner cache
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ingest/data/runner-cache.bin
+          key: collector-encrypted-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Complete Sentry check-in
+        if: always() && steps.monitor-start.outcome == 'success'
         env:
-          MONITOR_PING_URL: ${{ secrets.MONITOR_PING_URL }}
-          RESULT: ${{ job.status }}
-        run: |
-          if [ -n "$MONITOR_PING_URL" ]; then
-            suffix=""
-            if [ "$RESULT" != success ]; then suffix="/fail"; fi
-            curl --fail --silent --max-time 15 --retry 2 "$MONITOR_PING_URL$suffix" > /dev/null 2>&1 || { echo "Monitor ping failed"; exit 1; }
-          fi
+          SENTRY_CRON_URL: ${{ secrets.SENTRY_CRON_URL }}
+          COLLECTOR_RESULT: ${{ job.status }}
+        run: node ingest/monitor.mjs finish
 
-# Add schedule: [{cron: '17 10 * * *'}] and allow schedule in publish condition
-# only after controlled online validation and independent 36-hour monitoring pass.
+# Activation gate: add schedule [{cron: '17 4,10,16,22 * * *'}] and permit
+# schedule in publish only after cloud drills and recipient email delivery pass.

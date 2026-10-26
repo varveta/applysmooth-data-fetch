@@ -1,3 +1,4 @@
+import { restoreRunnerCache, saveRunnerCache } from "./lib/runner-cache";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync } from "node:fs";
 import { openStore, startRun, finishRun } from "./lib/store";
@@ -18,16 +19,29 @@ async function main() {
   )
     throw Error("Untrusted runner context");
   const endpoint = process.env.COLLECTOR_ENDPOINT,
-    token = process.env.COLLECTOR_TOKEN;
-  if (!endpoint || !token || token.length < 32)
+    token = process.env.COLLECTOR_TOKEN,
+    cacheKey = process.env.COLLECTOR_CACHE_KEY;
+  if (!endpoint || !token || token.length < 32 || !cacheKey)
     throw Error("Missing configuration");
   const lease = randomUUID(),
     state = remoteState(endpoint + "/state", token, lease);
   const initial = await state.acquire();
   let generation = initial.generation;
+  let manifest = initial.manifest;
   mkdirSync("ingest/data", { recursive: true });
   const file = "ingest/data/online.sqlite";
-  await restoreCheckpoint(file, initial.manifest, state.storage);
+  const cacheFile = "ingest/data/runner-cache.bin";
+  const cacheHit = restoreRunnerCache(cacheFile, file, manifest, cacheKey);
+  if (!cacheHit) await restoreCheckpoint(file, manifest, state.storage);
+  console.log(
+    JSON.stringify({
+      checkpointCache: cacheHit ? "verified-hit" : "private-storage-fallback",
+      restoredGeneration: generation,
+      privateDownloadBytes: cacheHit
+        ? 0
+        : manifest.chunks.reduce((n, c) => n + c.bytes, 0),
+    }),
+  );
   let db = openStore(file);
   let fetchedOK = false,
     publishedOK = false;
@@ -41,6 +55,7 @@ async function main() {
     db.close();
     const m = await saveCheckpoint(file, generation, state.storage);
     generation = m.generation;
+    manifest = m;
     db = openStore(file);
   };
   try {
@@ -111,6 +126,7 @@ async function main() {
       db.close();
     } catch {}
     await state.finish(fetchedOK, publishedOK, !publishedOK);
+    if (publishedOK) saveRunnerCache(file, cacheFile, manifest, cacheKey);
   }
 }
 main().catch(() => {
