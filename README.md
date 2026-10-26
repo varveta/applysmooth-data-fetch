@@ -129,6 +129,47 @@ from this contract; requisition-based historical matching is a separate backend 
 Missing/invalid/unsupported snapshot responses fail the board before any batch or completion.
 This is a required backend integration change; the collector does not assume it is deployed.
 
+### Pipeline 2: verification
+
+After pipeline 1 and the matching backend are deployed, run the manual **Verify jobs**
+workflow on `main`. It uses the same three endpoint secrets and TEST restrictions, with
+concurrency group `verify`. The prepared `47 6 * * *` schedule remains commented out.
+`VERIFY_LIMIT` defaults to 500 and can lower the cap (1–500); the backend owns queue priority,
+age eligibility, withdrawal policy and consecutive-failure counters.
+
+`ingest/verify.ts` checks Greenhouse/Lever individual posting endpoints, then the apply link
+only when the source confirms the posting. It reads each Ashby board once per tenant and
+validates all posting identities before treating absence as closed. Ashby's documented
+[public API](https://developers.ashbyhq.com/docs/public-job-posting-api) exposes the board
+list; its [individual-posting API](https://developers.ashbyhq.com/reference/jobpostinginfo)
+requires `jobsRead` permission, so this collector uses the public list method.
+
+Requests share global concurrency 8 and per-host concurrency 4, including every redirect
+destination. Static board pools and dynamic verification use the same scheduler. Source
+checks have a 15-second timeout and one attempt; transient failures report uncertain for
+the next daily run. Apply checks use GET, a 15-second timeout per admitted request, and at
+most five redirects. Waiting for a host slot does not consume network timeout. Generic
+careers/login redirects (including `job-boards.greenhouse.io`), access denial, timeouts, transient
+DNS resolution errors and invalid responses are uncertain. Source-confirmed jobs with
+404/410 apply links or definitive DNS name-not-found errors are link_broken. Only definitive
+source evidence reports closed; an unavailable or empty Ashby board never closes all its
+jobs. A board smaller than half the tenant's distinct queued source IDs is also held
+uncertain. Queue size is a conservative lower bound, not a substitute for backend board
+history; persistent uncertainty stays available for manual review rather than auto-withdrawal.
+
+Results contain only ID, classification, optional HTTP status and a short reason. No content
+is rewritten. Results are sent in batches of 100 and each acknowledgment must record the
+full batch. Backend retries must be idempotent on run ID and job ID so a retried result does
+not advance consecutive-failure counters twice. Result events contain stage, board, job
+ID, classification and detail. Error-shaped events are reserved for failures;
+the final summary records classifications, jobs checked, requests, payload bytes and duration.
+
+Local validation: 54 verification tests use offline synthetic API fixtures matching each
+source's response shape. They cover open/closed/transient errors, apply-link failures,
+redirect limits, concurrent Ashby board sharing, and per-host/global pacing. No live calls
+run in CI. Pending acceptance: seed known open/closed jobs in TEST, confirm classifications
+and backend counters, and record Actions job duration and billed minutes in the PR.
+
 Create the `test` GitHub environment restricted to `main`, then set these environment secrets:
 
 - `COLLECTOR_ENDPOINT`: TEST backend URL ending in `/api/jobs-collector`.

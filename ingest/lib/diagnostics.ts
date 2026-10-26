@@ -1,6 +1,6 @@
 import { ZodError } from "zod";
 
-export type Stage = "restore" | "checkpoint" | "fetch" | "publish" | "complete";
+export type Stage = "restore" | "checkpoint" | "fetch" | "publish" | "complete" | "verify_queue" | "verify_source" | "verify_link" | "verify_results";
 /** Use only for locally authored messages, never response text or request data. */
 export class CollectorError extends Error {}
 
@@ -22,14 +22,19 @@ export function safeReason(error: unknown): string {
   return "Unexpected error (details suppressed)";
 }
 
-export function errorLine(stage: Stage, board: string, error: unknown): string {
-  // Defense in depth: even trusted messages and board labels may coincide with a secret.
-  const redact = (value: string) => {
+/** Flat structured events; every string is redacted before serialization. */
+export function eventLine(event: Record<string, string | number | boolean | undefined>): string {
+  const redact = (value: string | number | boolean | undefined) => {
+    if (typeof value !== "string") return value;
     for (const name of ["COLLECTOR_ENDPOINT", "COLLECTOR_TOKEN", "COLLECTOR_VERCEL_BYPASS"]) {
       const secret = process.env[name];
       if (secret) value = value.split(secret).join("[redacted]");
     }
     return value;
   };
-  return JSON.stringify({ stage, board: redact(board), reason: redact(safeReason(error)) });
+  return JSON.stringify(Object.fromEntries(Object.entries(event).map(([key, value]) => [key, redact(value)])));
+}
+
+export function errorLine(stage: Stage, board: string, error: unknown, jobId?: string): string {
+  return eventLine({ stage, board, ...(jobId ? { job_id: jobId } : {}), reason: safeReason(error) });
 }
