@@ -19,10 +19,115 @@ The pilot configuration contains one Ashby board; Greenhouse and Lever adapters 
 
 ## Online publishing
 
-The manual `Collector` workflow supports `rehearsal` and `publish` on `main`.
+The manual `Collector` workflow supports `rehearsal`, legacy `publish`, and `stateless` on `main`.
 **Scheduling stays disabled until cloud monitoring drills and email delivery pass.**
 Prepared cadence: `17 4,10,16,22 * * *` (04:17, 10:17, 16:17, 22:17 UTC; every six hours).
 GitHub may delay scheduled runs; these are target start times.
+
+### Pipeline 1: stateless fetch
+
+Select `stateless` to run `ingest/stateless.ts`. It requires only `COLLECTOR_ENDPOINT`,
+`COLLECTOR_TOKEN`, and optional `COLLECTOR_VERCEL_BYPASS` in the `test` environment.
+It does not restore or save a cache, acquire an archive lease, or open SQLite. The old
+`publish` mode remains available with its existing secrets and archive behavior.
+
+Each invocation generates one UUID. Each complete board is normalized, deduplicated within
+that board using backend identity history, and filtered using the existing quality gates. Invalid source identities,
+normalization failures, conflicting duplicate identities, or an explicit total mismatch
+report `board_fetch_failed` without publishing or completing that board. Valid rejected
+jobs still count toward `fetched_count`. Empty valid boards complete with zero batches;
+the backend owns zero-result and large-drop withdrawal guards.
+
+Accepted rows are split into serialized UTF-8 requests of at most 900,000 bytes, including
+the envelope. Retried requests preserve the exact body and batch number. Every row must be
+acknowledged exactly once before `complete_board`; HTTP 409 stops immediately. Other boards
+may finish after a board fails, but the workflow fails overall. A workflow rerun has a new
+UUID; backend upserts must preserve original first-seen and publication dates across runs.
+Stateless first_seen_at is this run's observation time for new rows, never authority to
+replace an existing backend date. No cross-source matching or historical ledger is inferred.
+
+JSON logs separate fetch, publish and completion stages. The final summary reports request
+counts (including retries), collector payload bytes (including retries), source response
+bytes from successful fetches, and processing duration. GitHub job duration/billed minutes
+must be read from the actual Actions run; local timing is not billing evidence.
+
+Only the legacy and stateless publisher jobs share `collector-online` concurrency while
+both modes exist, so comparison runs cannot interleave writes. CI and rehearsal do not
+enter that queue; a push to main cannot displace a pending publication run. The publishers
+use `queue: max` with `cancel-in-progress: false` (up to 100 pending jobs; further arrivals
+are canceled if that queue is full). The prepared schedule targets stateless mode and
+remains commented out. Before activation:
+
+- Deploy the matching backend operations and preserve the main-only TEST environment policy.
+- Merge and manually run `stateless` on `main`; verify no cache/archive steps execute.
+- Compare with legacy `publish` on TEST. Legacy uses historical canonical identities,
+  expiry state and a 40-live-row cap; stateless sends every currently accepted row to the
+  backend. Explain any count/identity differences before accepting the replacement.
+- Verify retries preserve dates, failed snapshots cause no withdrawals, and missing jobs
+  require two successful runs with zero-result/large-drop guards enforced by the backend.
+- Record job duration, billed minutes, requests and payload bytes in the PR. Verify a
+  main-branch failure email reaches the designated account address.
+- Enable the schedule only through a separately approved change.
+
+Pre-review validation (2026-10-26): 51 tests and typechecking passed. A public fetch-only probe of
+`ashby:openai` fetched 794 postings, accepted 313, and rejected 481 in 6.56 seconds. It made
+one source request (13,883,942 response bytes), prepared four batches totaling 2,886,448
+bytes, and had a largest batch of 895,522 bytes. No collector endpoint was called. These
+measurements do not establish TEST publishing acceptance or GitHub billed minutes.
+
+#### Required identity snapshot contract (added after review)
+
+Before publishing a fetched board, the collector requests the server's complete identity
+history. The backend implementation of pipeline 1 must add this read-only operation:
+
+```jsonc
+{ "operation": "board_identities", "run_id": "uuid", "source": "greenhouse", "tenant": "example" }
+// Response:
+{ "source": "greenhouse", "tenant": "example", "complete": true, "identities": [
+  { "id": "existing public catalog ID", "source_job_id": "5",
+    "first_seen_at": "2026-10-23T12:00:00Z", "duplicate_posting_ids": ["greenhouse:example:3"] }
+] }
+```
+
+The snapshot must include published, withdrawn, archived and tombstoned identity anchors,
+not just the current live rows. The backend must retain the original source posting key,
+first-seen date and all known duplicate member aliases even after content deletion. Seed
+this metadata from the legacy publication ledger before migration; an unknown/incomplete
+history must not be returned as a successful empty snapshot. Validate the collector token
+and board allowlist as for publication. `publish_batch` must persist alias metadata even
+when content is unchanged, and must independently preserve existing publication/expiry dates.
+Stateless rows additionally carry `observed_source_job_id`: the current source posting used
+for the content and apply link. `source_job_id` remains the original canonical key. The
+backend must validate and persist this observed reference with each batch, and `verify_queue`
+must return it as the source ID to check, while keeping `id` as the canonical catalog ID.
+Otherwise a surviving sibling could be withdrawn merely because its original anchor closed.
+This metadata extension is stateless-only; legacy publication requests remain compatible.
+
+An existing anchor wins over a newly discovered lower-ID sibling. Known sibling aliases
+retain the same catalog ID and first-seen date even if the original posting leaves the
+board. Historical ownership takes priority over current duplicate matching:
+
+- If two established identities look like duplicates now, publish both under their existing
+  IDs. Do not merge their dates, aliases or locations. Quarantine only new unanchored members
+  whose ownership cannot be determined.
+- If one identity's aliases split into distinct current groups, publish one eligible
+  representative under the existing ID. Prefer the eligible original posting, then a
+  known eligible alias, then a newly attached candidate; order ties deterministically by
+  posting ID. Keep known aliases, but merge locations and adopt new
+  aliases only from that representative's own current duplicate group.
+- Other eligible members of an unselected split branch are quarantined. The board still
+  publishes unrelated jobs and completes normally. Fetch logs include `identity_resolution`
+  counts for splits, merges and quarantined postings so the ambiguity remains visible.
+
+If the original is absent and surviving aliases have diverged into distinct roles, the
+snapshot has no previous observed ID/content to identify the preferred role. The deterministic
+fallback is reported as a split for review; it does not infer that those roles are equivalent.
+Malformed snapshots or overlapping historical alias ownership still fail the board. Those
+are invalid history, unlike ordinary changes in current duplicate matching.
+Unknown new siblings with no shared source identity or recorded alias cannot be inferred
+from this contract; requisition-based historical matching is a separate backend extension.
+Missing/invalid/unsupported snapshot responses fail the board before any batch or completion.
+This is a required backend integration change; the collector does not assume it is deployed.
 
 Create the `test` GitHub environment restricted to `main`, then set these environment secrets:
 
