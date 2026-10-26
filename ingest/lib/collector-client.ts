@@ -20,12 +20,15 @@ export function collectorClient(config: {
   const metrics: RequestMetrics = { requests: 0, payload_bytes: 0 };
   return {
     metrics,
-    async call(body: unknown): Promise<unknown> {
+    async call(body: unknown, options: { attempts?: number } = {}): Promise<unknown> {
+      const attempts = options.attempts ?? 4;
+      if (!Number.isInteger(attempts) || attempts < 1 || attempts > 4)
+        throw new CollectorError("Invalid collector attempt limit");
       const json = JSON.stringify(body);
       const bytes = Buffer.byteLength(json, "utf8");
       if (bytes > MAX_BATCH_BYTES) throw new CollectorError("Collector batch too large");
       let reason = "Collector unavailable";
-      for (let attempt = 0; attempt < 4; attempt++) {
+      for (let attempt = 0; attempt < attempts; attempt++) {
         let wait = (config.baseDelayMs ?? 1000) * 2 ** attempt;
         try {
           metrics.requests++;
@@ -63,7 +66,7 @@ export function collectorClient(config: {
           if (error instanceof CollectorError) throw error;
           reason = safeReason(error);
         }
-        if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, wait));
+        if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, wait));
       }
       throw new CollectorError(`Collector retries exhausted: ${reason}`);
     },

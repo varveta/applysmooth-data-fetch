@@ -170,6 +170,28 @@ redirect limits, concurrent Ashby board sharing, and per-host/global pacing. No 
 run in CI. Pending acceptance: seed known open/closed jobs in TEST, confirm classifications
 and backend counters, and record Actions job duration and billed minutes in the PR.
 
+### Pipeline 3: lifecycle
+
+Run the manual **Job lifecycle** workflow on `main`. The `apply` input defaults to false.
+`ingest/lifecycle.ts` always requests and logs a dry run first. Counts above 5,000 archives
+or 1,000 deletions fail before any apply call. `LIFECYCLE_ARCHIVE_LIMIT` and
+`LIFECYCLE_DELETE_LIMIT` can configure those limits. An explicit `apply=true` performs one
+apply request after the dry-run gate and logs actual counts. Apply requests are not retried
+automatically because this endpoint contract has no idempotency key; inspect backend state
+after an ambiguous failure, then start a new dry run.
+
+The collector never changes `delete_after_archive_days`: unset remains deletion disabled.
+The backend owns expiry, archival, deletion and tombstones. A response with deletion
+disabled and nonzero deleted count is invalid. Archive/delete limits gate the dry-run result;
+transactional enforcement and any changes between preview and apply belong to the backend.
+
+The workflow uses the same TEST secrets and main-only restriction, concurrency group
+`lifecycle`, and a commented `37 8 * * *` schedule. Scheduled runs would apply after the
+dry-run gate once explicitly enabled. Pending TEST acceptance: compare dry counts with the
+database, apply to known expired jobs, verify archived content remains stored and hidden
+from users, verify deleted=0/delete_enabled=false while retention is unset, and record
+Actions duration and billed minutes. Scheduling and deletion remain separate decisions.
+
 Create the `test` GitHub environment restricted to `main`, then set these environment secrets:
 
 - `COLLECTOR_ENDPOINT`: TEST backend URL ending in `/api/jobs-collector`.

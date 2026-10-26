@@ -1,6 +1,6 @@
 import { ZodError } from "zod";
 
-export type Stage = "restore" | "checkpoint" | "fetch" | "publish" | "complete" | "verify_queue" | "verify_source" | "verify_link" | "verify_results";
+export type Stage = "restore" | "checkpoint" | "fetch" | "publish" | "complete" | "verify_queue" | "verify_source" | "verify_link" | "verify_results" | "lifecycle_dry_run" | "lifecycle_apply";
 /** Use only for locally authored messages, never response text or request data. */
 export class CollectorError extends Error {}
 
