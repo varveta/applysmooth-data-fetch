@@ -6,9 +6,9 @@ on:
         description: Apply lifecycle changes after a dry run within limits
         type: boolean
         default: false
-  # Scheduled runs apply after the dry-run gate. Enable only after TEST acceptance.
-  # schedule:
-  #   - cron: '37 8 * * *'
+  # Apply only after the bounded dry-run gate; deletion remains disabled in the backend.
+  schedule:
+    - cron: '37 8 * * *'
 permissions:
   contents: read
 concurrency:

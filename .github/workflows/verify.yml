@@ -1,9 +1,9 @@
 name: Verify jobs
 on:
   workflow_dispatch:
-  # Enable only after TEST acceptance and explicit schedule approval.
-  # schedule:
-  #   - cron: '47 6 * * *'
+  # Daily verification follows the 04:17 UTC collection.
+  schedule:
+    - cron: '47 6 * * *'
 permissions:
   contents: read
 concurrency:

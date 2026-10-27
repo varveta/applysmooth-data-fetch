@@ -20,8 +20,8 @@ The pilot configuration contains one Ashby board; Greenhouse and Lever adapters 
 ## Online publishing
 
 The manual `Collector` workflow supports `rehearsal`, legacy `publish`, and `stateless` on `main`.
-**Scheduling stays disabled until cloud monitoring drills and email delivery pass.**
-Prepared cadence: `17 4,10,16,22 * * *` (04:17, 10:17, 16:17, 22:17 UTC; every six hours).
+**Owner-approved stateless scheduling is enabled after live ingestion and maintenance validation.**
+Cadence: `17 4,10,16,22 * * *` (04:17, 10:17, 16:17, 22:17 UTC; every six hours).
 GitHub may delay scheduled runs; these are target start times.
 
 ### Pipeline 1: stateless fetch
@@ -55,8 +55,9 @@ Only the legacy and stateless publisher jobs share `collector-online` concurrenc
 both modes exist, so comparison runs cannot interleave writes. CI and rehearsal do not
 enter that queue; a push to main cannot displace a pending publication run. The publishers
 use `queue: max` with `cancel-in-progress: false` (up to 100 pending jobs; further arrivals
-are canceled if that queue is full). The prepared schedule targets stateless mode and
-remains commented out. Before activation:
+are canceled if that queue is full). The schedule targets stateless mode. Daily verification runs at 06:47 UTC; lifecycle runs at
+08:37 UTC with a dry-run gate and deletion disabled. The activation record is in
+`docs/rollout-2026-10-27.md`. Acceptance checklist used before activation:
 
 - Deploy the matching backend operations and preserve the main-only TEST environment policy.
 - Merge and manually run `stateless` on `main`; verify no cache/archive steps execute.
@@ -67,7 +68,7 @@ remains commented out. Before activation:
   require two successful runs with zero-result/large-drop guards enforced by the backend.
 - Record job duration, billed minutes, requests and payload bytes in the PR. Verify a
   main-branch failure email reaches the designated account address.
-- Enable the schedule only through a separately approved change.
+- Enable schedules through the owner-authorized rollout change.
 
 Pre-review validation (2026-10-26): 51 tests and typechecking passed. A public fetch-only probe of
 `ashby:openai` fetched 794 postings, accepted 313, and rejected 481 in 6.56 seconds. It made
