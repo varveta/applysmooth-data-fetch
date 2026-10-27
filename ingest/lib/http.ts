@@ -14,6 +14,53 @@ export type FetchResult =
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Shared limits for board fetches and verification requests. */
+export const HTTP_CONCURRENCY = 8;
+export const HTTP_PER_HOST = 4;
+
+/** One scheduler for static pools and dynamic HTTP work. */
+function keyedLimiter(limit: number, perHost: number) {
+  if (!Number.isInteger(limit) || limit < 1 || !Number.isInteger(perHost) || perHost < 1)
+    throw new Error("Concurrency limits must be positive integers");
+  const active = new Map<string, number>();
+  const queue: { host: string; start(): void }[] = [];
+  let running = 0;
+  const drain = () => {
+    for (let i = 0; i < queue.length && running < limit;) {
+      const task = queue[i];
+      if ((active.get(task.host) ?? 0) >= perHost) { i++; continue; }
+      queue.splice(i, 1);
+      running++;
+      active.set(task.host, (active.get(task.host) ?? 0) + 1);
+      task.start();
+    }
+  };
+  return {
+    run<T>(host: string, operation: () => Promise<T>): Promise<T> {
+      return new Promise<T>((resolve, reject) => {
+        queue.push({ host, start: () => {
+          Promise.resolve().then(operation).then(resolve, reject).finally(() => {
+            running--;
+            active.set(host, (active.get(host) ?? 1) - 1);
+            drain();
+          });
+        } });
+        drain();
+      });
+    },
+  };
+}
+
+/** Hold a host slot until the operation consumes/cancels its body. */
+export function hostLimiter(limit = HTTP_CONCURRENCY, perHost = HTTP_PER_HOST) {
+  const limiter = keyedLimiter(limit, perHost);
+  return {
+    run<T>(url: string, operation: () => Promise<T>) {
+      return limiter.run(new URL(url).hostname, operation);
+    },
+  };
+}
+
 /**
  * GET JSON with timeout, size cap and bounded retries (network errors, 408, 429, 5xx).
  * 404/410 and other 4xx are terminal. Honors Retry-After up to 60s.
@@ -128,32 +175,7 @@ export async function pool<T>(
   perKey: number,
   run: (t: T) => Promise<void>,
 ): Promise<{ item: T; error: unknown }[]> {
-  const errors: { item: T; error: unknown }[] = [];
-  const active = new Map<string, number>();
-  const queue = [...items];
-  let running = 0;
-  await new Promise<void>((resolve) => {
-    const next = () => {
-      if (!queue.length && !running) return resolve();
-      for (let i = 0; i < queue.length && running < limit; ) {
-        const k = key(queue[i]);
-        if ((active.get(k) ?? 0) >= perKey) {
-          i++;
-          continue;
-        }
-        const [item] = queue.splice(i, 1);
-        running++;
-        active.set(k, (active.get(k) ?? 0) + 1);
-        run(item)
-          .catch((error) => errors.push({ item, error }))
-          .finally(() => {
-            running--;
-            active.set(k, (active.get(k) ?? 1) - 1);
-            next();
-          });
-      }
-    };
-    next();
-  });
-  return errors;
+  const limiter = keyedLimiter(limit, perKey);
+  const results = await Promise.allSettled(items.map((item) => limiter.run(key(item), () => run(item))));
+  return results.flatMap((result, i) => result.status === "rejected" ? [{ item: items[i], error: result.reason }] : []);
 }

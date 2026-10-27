@@ -1,0 +1,39 @@
+name: Job lifecycle
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply lifecycle changes after a dry run within limits
+        type: boolean
+        default: false
+  # Scheduled runs apply after the dry-run gate. Enable only after TEST acceptance.
+  # schedule:
+  #   - cron: '37 8 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: lifecycle
+  cancel-in-progress: false
+jobs:
+  lifecycle:
+    if: github.repository == 'varveta/applysmooth-data-fetch' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+    environment: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - run: corepack enable && corepack prepare pnpm@10.32.1 --activate
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test && pnpm typecheck
+      - name: Preview and optionally apply job lifecycle
+        run: pnpm exec tsx ingest/lifecycle.ts
+        env:
+          LIFECYCLE_APPLY: ${{ github.event_name == 'schedule' || inputs.apply }}
+          COLLECTOR_ENDPOINT: ${{ secrets.COLLECTOR_ENDPOINT }}
+          COLLECTOR_TOKEN: ${{ secrets.COLLECTOR_TOKEN }}
+          COLLECTOR_VERCEL_BYPASS: ${{ secrets.COLLECTOR_VERCEL_BYPASS }}

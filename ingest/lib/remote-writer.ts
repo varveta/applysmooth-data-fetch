@@ -1,4 +1,5 @@
 import type { CatalogWriter } from "./publish";
+import { CollectorError, safeReason } from "./diagnostics";
 /** Narrow HTTP credential. Never a Supabase key. No table reads or arbitrary RPCs. */
 export function remoteWriter(
   endpoint: string,
@@ -14,12 +15,13 @@ export function remoteWriter(
     url.search ||
     url.hash
   )
-    throw new Error("Invalid collector endpoint");
-  if (token.length < 32) throw new Error("Missing collector credential");
+    throw new CollectorError("Invalid collector endpoint");
+  if (token.length < 32) throw new CollectorError("Missing collector credential");
   const call = async <T>(body: unknown): Promise<T> => {
     const json = JSON.stringify(body);
     if (Buffer.byteLength(json) > 1_000_000)
-      throw new Error("Collector batch too large");
+      throw new CollectorError("Collector batch too large");
+    let lastReason = "Collector unavailable";
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
         const response = await fetch(url, {
@@ -40,19 +42,21 @@ export function remoteWriter(
         });
         if (response.ok) return (await response.json()) as T;
         await response.body?.cancel();
+        lastReason = `HTTP ${response.status}`;
         if (response.status !== 429 && response.status < 500)
-          throw new Error(`Terminal collector HTTP ${response.status}`);
+          throw new CollectorError(`Terminal collector HTTP ${response.status}`);
       } catch (error) {
         if (error instanceof Error && error.message.startsWith("Terminal"))
           throw error;
+        lastReason = safeReason(error);
       }
       if (attempt < 3)
         await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
     }
-    throw new Error("Collector unavailable; retry identical batch");
+    throw new CollectorError(`Collector retries exhausted: ${lastReason}`);
   };
   const unsupported = async (): Promise<never> => {
-    throw new Error("Operation not exposed by collector endpoint");
+    throw new CollectorError("Operation not exposed by collector endpoint");
   };
   return {
     label,

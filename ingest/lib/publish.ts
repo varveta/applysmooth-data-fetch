@@ -1,3 +1,4 @@
+import { CollectorError } from "./diagnostics";
 import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
 import { publicJobId, toCatalogRow } from "@/lib/jobs-ingest/catalog";
@@ -55,7 +56,7 @@ function acknowledgments<T extends { id: string }>(
     new Set(parsed.data.map((result) => result.id)).size !== expected.size ||
     parsed.data.some((result) => !expected.has(result.id))
   )
-    throw new Error(
+    throw new CollectorError(
       `${operation} acknowledgment mismatch; retry the same batch to reconcile target state`,
     );
   return parsed.data;
@@ -141,7 +142,7 @@ export function createCatalogResolver(db: Store) {
   for (const row of rows) {
     const job = loadJob(row.normalized_json);
     if (row.catalog_id !== publicJobId(row.id))
-      throw new Error(
+      throw new CollectorError(
         "Publication ledger contains an inconsistent catalog identity",
       );
     const anchor = {
@@ -186,12 +187,12 @@ export function createCatalogResolver(db: Store) {
     const req = key(job);
     const group = req ? byRequisition.get(req) : undefined;
     if (group && group.size > 1)
-      throw new Error(
+      throw new CollectorError(
         "Multiple published identities exist for one requisition; reconcile them before publishing",
       );
     const anchor = byPosting.get(job.id) ?? group?.values().next().value;
     if (!anchor && unknownBoards.has(`${job.source}:${job.tenant}`))
-      throw new Error(
+      throw new CollectorError(
         "Original publication identity is unknown for this source board; reconcile its ledger before publishing new identities",
       );
     const row = toCatalogRow(job, {
@@ -206,7 +207,7 @@ export function createCatalogResolver(db: Store) {
     }
     const prior = resolvedPostings.get(row.id);
     if (prior && prior !== job.id)
-      throw new Error(
+      throw new CollectorError(
         "Multiple current postings resolve to one catalog identity; reconcile the conflicting requisition before publishing",
       );
     resolvedPostings.set(row.id, job.id);
@@ -231,7 +232,7 @@ export function buildPlan(
   only?: Set<string>,
 ): PublishPlan {
   if (!Number.isSafeInteger(maxLiveRows) || maxLiveRows < 0)
-    throw new Error("maxLiveRows must be a non-negative safe integer");
+    throw new CollectorError("maxLiveRows must be a non-negative safe integer");
   const nowMs = now.getTime();
   const ended = (t: TargetState | undefined) =>
     !!t &&
@@ -358,7 +359,7 @@ export async function applyPlan(
   batchSize = 100,
 ) {
   if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 500)
-    throw new Error("batchSize must be an integer between 1 and 500");
+    throw new CollectorError("batchSize must be an integer between 1 and 500");
   const publishIds = plan.publish.map((item) => item.row.id);
   const withdrawIds = plan.withdraw.map((item) => item.id);
   if (
@@ -366,7 +367,7 @@ export async function applyPlan(
     new Set(withdrawIds).size !== withdrawIds.length ||
     withdrawIds.some((id) => publishIds.includes(id))
   )
-    throw new Error(
+    throw new CollectorError(
       "Publish plan contains conflicting catalog identities; nothing sent",
     );
   const tally: Record<string, number> = {};
@@ -435,7 +436,7 @@ export async function applyPlan(
             ? publicationIdentityKey(JSON.parse(original.normalized_json))
             : null);
         if (!identity)
-          throw new Error(
+          throw new CollectorError(
             "Cannot publish without original publication identity evidence",
           );
         return [postingId, identity];
@@ -451,7 +452,7 @@ export async function applyPlan(
     tx(db, () => {
       for (const r of results) {
         const sent = byCatalogId.get(r.id);
-        if (!sent) throw new Error(`publish returned unknown id ${r.id}`);
+        if (!sent) throw new CollectorError("Publish returned an unknown catalog identity");
         tally[r.outcome] = (tally[r.outcome] ?? 0) + 1;
         const state =
           r.outcome === "skipped_expired"

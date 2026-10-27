@@ -1,3 +1,4 @@
+import { CollectorError } from "./diagnostics";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { gzipSync, gunzipSync } from "node:zlib";
@@ -20,12 +21,12 @@ export interface CheckpointStorage {
 }
 export function checkDatabase(path: string) {
   if (!existsSync(path))
-    throw new Error("Missing checkpoint; explicit operator bootstrap required");
+    throw new CollectorError("Missing checkpoint; explicit operator bootstrap required");
   const db = new DatabaseSync(path, { readOnly: true });
   try {
     const integrity = db.prepare("pragma integrity_check").get();
     if (!integrity || Object.values(integrity)[0] !== "ok")
-      throw new Error("Corrupt checkpoint");
+      throw new CollectorError("Corrupt checkpoint");
     for (const table of [
       "postings",
       "publish_targets",
@@ -46,12 +47,12 @@ export async function saveCheckpoint(
 ) {
   checkDatabase(path);
   if (existsSync(`${path}-wal`) && readFileSync(`${path}-wal`).length)
-    throw new Error("Checkpoint requires closed SQLite WAL");
+    throw new CollectorError("Checkpoint requires closed SQLite WAL");
   const raw = readFileSync(path);
   const compressed = gzipSync(raw);
   const chunks: Manifest["chunks"] = [];
   if (raw.length > 600_000_000 || compressed.length > 180_000_000)
-    throw new Error("Archive storage budget exceeded");
+    throw new CollectorError("Archive storage budget exceeded");
   for (let offset = 0; offset < compressed.length; offset += 16_000_000) {
     const bytes = compressed.subarray(offset, offset + 16_000_000);
     const key = digest(bytes);
@@ -75,19 +76,19 @@ export async function restoreCheckpoint(
 ) {
   const manifest = ManifestSchema.parse(input);
   if (existsSync(path))
-    throw new Error("Refusing to overwrite local checkpoint");
+    throw new CollectorError("Refusing to overwrite local checkpoint");
   const chunks = [];
   for (const chunk of manifest.chunks) {
     const bytes = await storage.get(chunk.key);
     if (bytes.length !== chunk.bytes || digest(bytes) !== chunk.key)
-      throw new Error("Corrupt checkpoint chunk");
+      throw new CollectorError("Corrupt checkpoint chunk");
     chunks.push(bytes);
   }
   const raw = gunzipSync(Buffer.concat(chunks), {
     maxOutputLength: 600_000_000,
   });
   if (raw.length !== manifest.rawBytes || digest(raw) !== manifest.rawHash)
-    throw new Error("Corrupt checkpoint archive");
+    throw new CollectorError("Corrupt checkpoint archive");
   const temp = `${path}.restore`;
   writeFileSync(temp, raw, { flag: "wx", mode: 0o600 });
   checkDatabase(temp);

@@ -1,3 +1,4 @@
+import { pathToFileURL } from "node:url";
 import { restoreRunnerCache, saveRunnerCache } from "./lib/runner-cache";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync } from "node:fs";
@@ -8,6 +9,18 @@ import { restoreCheckpoint, saveCheckpoint } from "./lib/checkpoint";
 import { buildPlan, applyPlan, type PublishPlan } from "./lib/publish";
 import { fetchAll, syncTargets, type Target } from "./lib/fetch";
 import { gateAll } from "./lib/gate";
+import { CollectorError, errorLine, type Stage } from "./lib/diagnostics";
+
+// Diagnostics only: preserve the archive-backed path until stateless acceptance passes.
+let stage: Stage = "restore";
+let board = "run";
+
+const reportedErrors = new Set<unknown>();
+function reportOnce(error: unknown) {
+  if (reportedErrors.has(error)) return;
+  reportedErrors.add(error);
+  console.error(errorLine(stage, board, error));
+}
 
 async function main() {
   if (
@@ -17,12 +30,12 @@ async function main() {
       process.env.GITHUB_EVENT_NAME ?? "",
     )
   )
-    throw Error("Untrusted runner context");
+    throw new CollectorError("Untrusted runner context");
   const endpoint = process.env.COLLECTOR_ENDPOINT,
     token = process.env.COLLECTOR_TOKEN,
     cacheKey = process.env.COLLECTOR_CACHE_KEY;
   if (!endpoint || !token || token.length < 32 || !cacheKey)
-    throw Error("Missing configuration");
+    throw new CollectorError("Missing configuration");
   const lease = randomUUID(),
     state = remoteState(endpoint + "/state", token, lease);
   const initial = await state.acquire();
@@ -52,11 +65,14 @@ async function main() {
     lease,
   );
   const persist = async () => {
+    const previousStage = stage;
+    stage = "checkpoint";
     db.close();
     const m = await saveCheckpoint(file, generation, state.storage);
     generation = m.generation;
     manifest = m;
     db = openStore(file);
+    stage = previousStage;
   };
   try {
     db.exec(
@@ -67,6 +83,7 @@ async function main() {
       .prepare("select run_id,plan from online_pending where id=1")
       .get() as { run_id: number; plan: string } | undefined;
     if (pending) {
+      stage = "publish";
       await applyPlan(
         db,
         pending.run_id,
@@ -77,21 +94,27 @@ async function main() {
       db.exec("delete from online_pending");
       await persist();
     }
+    stage = "fetch";
     const targets = (
       JSON.parse(readFileSync("ingest/config/targets.json", "utf8")) as {
         targets: Target[];
       }
     ).targets;
+    board = targets.map((target) => `${target.source}:${target.tenant}`).join(",");
     syncTargets(db, targets);
     const run = startRun(db, "daily", {});
-    const fetched = await fetchAll(db, run, { only: targets }, () => {});
+    const fetched = await fetchAll(db, run, { only: targets }, (line) => {
+      const failure = /^(?:FAIL|ERROR) (\S+) (.*)/.exec(line);
+      if (failure) console.error(errorLine("fetch", failure[1], new Error(failure[2])));
+    });
     fetchedOK = fetched.failed === 0 && fetched.errors === 0;
     if (!fetchedOK) {
       finishRun(db, run, { failed: true, fetch: fetched });
       await persist();
-      throw Error("Incomplete fetch; publication skipped");
+      throw new CollectorError("Incomplete fetch; publication skipped");
     }
     const gate = gateAll(db, run);
+    stage = "publish";
     const scoped = new Set<string>();
     for (const target of targets)
       for (const row of db
@@ -99,13 +122,14 @@ async function main() {
         .all(target.source, target.tenant))
         scoped.add(String(row.id));
     const plan = buildPlan(db, new Date(), 40, writer.label, true, scoped);
-    if (plan.withdraw.length > 10) throw Error("Withdrawal circuit breaker");
+    if (plan.withdraw.length > 10) throw new CollectorError("Withdrawal circuit breaker");
     db.prepare("insert into online_pending(id,run_id,plan) values(1,?,?)").run(
       run,
       JSON.stringify(plan),
     );
     await persist();
     const result = await applyPlan(db, run, plan, writer, 10);
+    stage = "complete";
     db.exec("delete from online_pending");
     const counts = {
       fetched: fetched.listed,
@@ -121,17 +145,30 @@ async function main() {
     await persist();
     publishedOK = true;
     console.log(JSON.stringify(counts));
+  } catch (error) {
+    // Preserve the original failure even if finishing the remote lease also fails.
+    reportOnce(error);
+    throw error;
   } finally {
     try {
       db.close();
     } catch {}
+    stage = "complete";
     await state.finish(fetchedOK, publishedOK, !publishedOK);
-    if (publishedOK) saveRunnerCache(file, cacheFile, manifest, cacheKey);
+    if (publishedOK) {
+      stage = "checkpoint";
+      saveRunnerCache(file, cacheFile, manifest, cacheKey);
+    }
   }
 }
-main().catch(() => {
-  console.error(
-    "Collector failed; checkpoint retained; inspect backend status before retry",
-  );
-  process.exitCode = 1;
-});
+export async function runScheduled() {
+  stage = "restore";
+  board = "run";
+  reportedErrors.clear();
+  try { await main(); }
+  catch (error) { reportOnce(error); throw error; }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  runScheduled().catch(() => { process.exitCode = 1; });
+}

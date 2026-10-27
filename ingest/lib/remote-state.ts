@@ -1,4 +1,5 @@
 import type { CheckpointStorage, Manifest } from "./checkpoint";
+import { CollectorError, safeReason } from "./diagnostics";
 export function remoteState(endpoint: string, token: string, lease: string) {
   const url = new URL(endpoint);
   if (
@@ -8,8 +9,9 @@ export function remoteState(endpoint: string, token: string, lease: string) {
     url.search ||
     url.hash
   )
-    throw Error("Invalid state endpoint");
+    throw new CollectorError("Invalid state endpoint");
   const call = async <T>(body: object): Promise<T> => {
+    let lastReason = "State unavailable";
     for (let n = 0; n < 4; n++) {
       let response: Response | undefined;
       try {
@@ -29,18 +31,20 @@ export function remoteState(endpoint: string, token: string, lease: string) {
           },
           body: JSON.stringify({ ...body, lease }),
         });
-      } catch {
-        if (n === 3) throw Error("State unavailable");
+      } catch (error) {
+        lastReason = safeReason(error);
+        if (n === 3) throw new CollectorError(`State retries exhausted: ${lastReason}`);
       }
       if (response?.ok) return (await response.json()) as T;
       if (response) {
         await response.body?.cancel();
+        lastReason = `HTTP ${response.status}`;
         if (response.status !== 429 && response.status < 500)
-          throw Error(`State HTTP ${response.status}`);
+          throw new CollectorError(`State HTTP ${response.status}`);
       }
       if (n < 3) await new Promise((r) => setTimeout(r, 1000 * 2 ** n));
     }
-    throw Error("State unavailable");
+    throw new CollectorError(`State retries exhausted: ${lastReason}`);
   };
   const signed = (raw: string) => {
     const u = new URL(raw);
@@ -48,7 +52,7 @@ export function remoteState(endpoint: string, token: string, lease: string) {
       u.protocol !== "https:" ||
       u.hostname !== "qhilcyvwvesqfuykdows.supabase.co"
     )
-      throw Error("Unexpected storage destination");
+      throw new CollectorError("Unexpected storage destination");
     return u;
   };
   const storage: CheckpointStorage = {
@@ -61,7 +65,7 @@ export function remoteState(endpoint: string, token: string, lease: string) {
         redirect: "error",
         signal: AbortSignal.timeout(120_000),
       });
-      if (!response.ok) throw Error("Checkpoint download failed");
+      if (!response.ok) throw new CollectorError(`Checkpoint download HTTP ${response.status}`);
       const reader = response.body!.getReader();
       let size = 0;
       const chunks = [];
@@ -70,7 +74,7 @@ export function remoteState(endpoint: string, token: string, lease: string) {
           const { value, done } = await reader.read();
           if (done) break;
           size += value.length;
-          if (size > 16_000_000) throw Error("Checkpoint chunk too large");
+          if (size > 16_000_000) throw new CollectorError("Checkpoint chunk too large");
           chunks.push(value);
         }
       } finally {
@@ -85,7 +89,7 @@ export function remoteState(endpoint: string, token: string, lease: string) {
       });
       if (info.exists) {
         if (info.bytes !== bytes.length)
-          throw Error("Checkpoint size conflict");
+          throw new CollectorError("Checkpoint size conflict");
         return;
       }
       const { url } = await call<{ url: string }>({ operation: "upload", key });
@@ -97,7 +101,7 @@ export function remoteState(endpoint: string, token: string, lease: string) {
         signal: AbortSignal.timeout(120_000),
       });
       await response.body?.cancel();
-      if (!response.ok) throw Error("Checkpoint upload failed");
+      if (!response.ok) throw new CollectorError(`Checkpoint upload HTTP ${response.status}`);
     },
     commit: async (expectedGeneration, manifest) => {
       await call({ operation: "commit", expectedGeneration, manifest });

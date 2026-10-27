@@ -1,3 +1,4 @@
+import { CollectorError } from "./diagnostics";
 import {
   createCipheriv,
   createDecipheriv,
@@ -20,9 +21,9 @@ const MAX_CACHE_BYTES = 180_000_064;
 const hash = (b: Uint8Array) => createHash("sha256").update(b).digest("hex");
 function keyFrom(secret: string) {
   if (!/^[A-Za-z0-9+/]{43}=$/.test(secret))
-    throw Error("Invalid runner cache key");
+    throw new CollectorError("Invalid runner cache key");
   const key = Buffer.from(secret, "base64");
-  if (key.length !== 32) throw Error("Invalid runner cache key");
+  if (key.length !== 32) throw new CollectorError("Invalid runner cache key");
   return key;
 }
 function context(manifest: Manifest) {
@@ -41,7 +42,7 @@ export function restoreRunnerCache(
   const manifest = ManifestSchema.parse(input),
     key = keyFrom(secret);
   if (existsSync(databasePath))
-    throw Error("Refusing to overwrite local checkpoint");
+    throw new CollectorError("Refusing to overwrite local checkpoint");
   if (!existsSync(cachePath)) return false;
   const temp = `${databasePath}.${randomBytes(8).toString("hex")}.restore`;
   try {
@@ -84,14 +85,14 @@ export function saveRunnerCache(
   const manifest = ManifestSchema.parse(input),
     key = keyFrom(secret);
   if (existsSync(`${databasePath}-wal`) && statSync(`${databasePath}-wal`).size)
-    throw Error("Runner cache requires closed SQLite");
+    throw new CollectorError("Runner cache requires closed SQLite");
   const raw = readFileSync(databasePath);
   if (raw.length !== manifest.rawBytes || hash(raw) !== manifest.rawHash)
-    throw Error("Runner cache does not match committed checkpoint");
+    throw new CollectorError("Runner cache does not match committed checkpoint");
   const compressed = gzipSync(raw),
     nonce = randomBytes(12);
   if (compressed.length + 36 > MAX_CACHE_BYTES)
-    throw Error("Runner cache budget exceeded");
+    throw new CollectorError("Runner cache budget exceeded");
   const cipher = createCipheriv("aes-256-gcm", key, nonce);
   cipher.setAAD(context(manifest));
   const encrypted = Buffer.concat([cipher.update(compressed), cipher.final()]);
