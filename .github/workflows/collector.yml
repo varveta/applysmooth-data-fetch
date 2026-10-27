@@ -10,9 +10,9 @@ on:
         type: choice
         options: [rehearsal, publish, stateless]
         default: rehearsal
-  # Enable only after stateless acceptance and explicit schedule approval.
-  # schedule:
-  #   - cron: '17 4,10,16,22 * * *'
+  # Validated and owner-approved rollout; schedule runs stateless mode only.
+  schedule:
+    - cron: '17 4,10,16,22 * * *'
 permissions:
   contents: read
 jobs:
