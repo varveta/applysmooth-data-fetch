@@ -28,6 +28,8 @@ describe("historical identities survive changes in current duplicate groups", ()
       duplicate_posting_ids: [posting(3)],
     });
     expect(prepared.identity_resolution).toMatchObject({ splits: 1, quarantined: 1 });
+    expect(prepared.quarantined_posting_ids).toEqual([posting(3)]);
+    expect(prepared.quarantined_count).toBe(1);
     checkCounts(prepared);
   });
 
@@ -109,6 +111,40 @@ describe("historical identities survive changes in current duplicate groups", ()
       get: async () => ({ ok: true, status: 200, body: { jobs }, bytes: 1000, attempts: 1 }) });
     expect(summary.failed).toBe(0);
     expect(calls.map((body) => body.operation)).toEqual(["board_identities", "publish_batch", "complete_board"]);
-    expect(calls.at(-1)).toMatchObject({ fetched_count: 3, accepted_count: mode === "split" ? 2 : 3 });
+    expect(calls.at(-1)).toMatchObject({ fetched_count: 3, accepted_count: mode === "split" ? 2 : 3,
+      quarantined_posting_ids: mode === "split" ? [posting(3)] : [], quarantined_count: mode === "split" ? 1 : 0 });
   });
+});
+
+it("reports only identity conflicts, excluding ordinary duplicates and quality failures", () => {
+  const prepared = prepare([job(5), job(3), {...job(7),content:"too short"}, job(9,"Analytics Engineer")], [anchor(5,[3,7,9])]);
+  expect(prepared.quarantined_posting_ids).toEqual([posting(9)]);
+  expect(prepared.quarantined_count).toBe(1);
+});
+it("caps completion IDs at 500 while preserving the full count", async () => {
+  const aliases = Array.from({length:501},(_,i)=>i+10);
+  const jobs = [job(5),...aliases.map((id)=>job(id,`Separate role ${id}`))];
+  let completion: Record<string, unknown> | undefined;
+  await runStateless({ targets:[target],now,log:()=>{},
+    get:async()=>({ok:true,status:200,body:{jobs},bytes:1000,attempts:1}),
+    client:{metrics:{requests:0,payload_bytes:0},async call(input) {
+      const body = input as Record<string, unknown>;
+      if(body.operation === "board_identities") return snapshot([anchor(5,aliases)]);
+      if(body.operation === "publish_batch") {
+        const rows = body.rows as StatelessCatalogRow[];
+        return {accepted:rows.length,results:rows.map(row=>({id:row.id,outcome:"unchanged"}))};
+      }
+      completion=body;
+      return {complete:true,missing:0,withdrawn:0,marked_uncertain:0,guard:"none"};
+    }} });
+  expect(completion?.quarantined_count).toBe(501);
+  expect(completion?.quarantined_posting_ids).toEqual(aliases.map(posting).sort().slice(0,500));
+});
+it("publishes a released alias under its own ID while preserving the original identity", () => {
+  const before = prepare([job(5),job(3,"Analytics Engineer")],[anchor(5,[3])]);
+  const after = prepare([job(5),job(3,"Analytics Engineer")],[anchor(5)]);
+  expect(before.rows).toHaveLength(1); expect(after.rows).toHaveLength(2);
+  expect(after.rows.find(row=>row.source_job_id==='5')).toMatchObject({id:anchor(5).id,first_seen_at:anchor(5).first_seen_at});
+  expect(after.rows.find(row=>row.source_job_id==='3')?.id).toBe(publicJobId(posting(3)));
+  expect(after.quarantined_posting_ids).toEqual([]);
 });

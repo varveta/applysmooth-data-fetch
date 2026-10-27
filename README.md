@@ -277,3 +277,9 @@ No local daemon, laptop cron, or Codex recurring automation is needed.
 Email activation is deliberately separate: verify the recipient in Sentry, route this
 organization's notification email to it, test actual delivery, then enable the prepared
 schedule and dedicated alert. A Sentry-accepted check-in alone is not proof of email delivery.
+
+### Reporting split-off postings
+
+`complete_board` includes `quarantined_posting_ids` (up to 500 full posting keys, for example `greenhouse:example:123`) and `quarantined_count` (the full count). These identify postings set aside because historical duplicate ownership conflicts with today's grouping. Ordinary duplicate copies and jobs rejected by quality gates are excluded. Both fields are sent together, including an empty array and zero when no identity conflict exists.
+
+Deploy endpoint support before this collector change. The endpoint may release a persistent split-off alias after four trusted complete runs; the next identity snapshot then allows that posting to become a separate job. Original IDs and first-seen dates remain stable. The collector does not release ownership itself or enable schedules.
