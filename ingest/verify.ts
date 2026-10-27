@@ -15,6 +15,9 @@ export const VerifyJobSchema = z.object({
   apply_url: z.string().max(2000), reason: z.string().min(1).max(120),
 });
 export type VerifyJob = z.infer<typeof VerifyJobSchema>;
+export const VerifyBoardSchema = VerifyJobSchema.pick({ source: true, tenant: true }).extend({
+  last_complete_fetched_count: count,
+});
 type Check = { status: "open" | "closed" | "link_broken" | "uncertain"; http_status?: number; detail: string };
 export type VerificationResult = Check & { id: string; stage: "verify_source" | "verify_link" };
 
@@ -49,7 +52,10 @@ function dnsNotFound(error: unknown): boolean {
   return false;
 }
 
-export function verifier(options: { perHost?: number; concurrency?: number; queuedJobs?: VerifyJob[] } = {}) {
+export function verifier(options: {
+  perHost?: number; concurrency?: number; queuedJobs?: VerifyJob[];
+  boardCounts?: ReadonlyMap<string, number>;
+} = {}) {
   const limiter = hostLimiter(options.concurrency, options.perHost);
   const queuedIds = new Map<string, Set<string>>();
   for (const job of options.queuedJobs ?? []) {
@@ -58,7 +64,7 @@ export function verifier(options: { perHost?: number; concurrency?: number; queu
     ids.add(job.source_job_id);
     queuedIds.set(job.tenant, ids);
   }
-  const ashbyBoards = new Map<string, Promise<{ ids: Set<string> } | Check>>();
+  const ashbyBoards = new Map<string, Promise<{ ids: Set<string>; closureGuard?: Check } | Check>>();
   const metrics = { requests: 0 };
   const read = async (url: string) => limiter.run(url, async () => {
     // A failed daily check is uncertain; next run retries. No minute-long backoff per job.
@@ -77,9 +83,13 @@ export function verifier(options: { perHost?: number; concurrency?: number; queu
             const listing = ADAPTERS.ashby.parseListing(response.body);
             // Validate every identity before absence can mean closed.
             const ids = new Set(listing.map((raw) => ADAPTERS.ashby.postingId(raw)));
-            // An empty or implausibly small snapshot cannot bypass fetch-pipeline guards.
+            const previousCount = options.boardCounts?.get(`ashby:${job.tenant}`);
+            // Small snapshots weaken absence evidence, but still confirm postings
+            // they contain. Keep empty/queue guards even without board history.
+            if (ids.size && previousCount !== undefined && ids.size * 2 < previousCount)
+              return { ids, closureGuard: { status: "uncertain" as const, http_status: response.status, detail: "Source board dropped over 50%; closure withheld" } };
             if (!ids.size || ids.size * 2 < (queuedIds.get(job.tenant)?.size ?? 0))
-              return { status: "uncertain" as const, http_status: response.status, detail: "Source board empty or unexpectedly small; closure withheld" };
+              return { ids, closureGuard: { status: "uncertain" as const, http_status: response.status, detail: "Source board empty or unexpectedly small; closure withheld" } };
             return { ids };
           } catch { return { status: "uncertain" as const, detail: "Source board validation failed" }; }
         })();
@@ -89,7 +99,7 @@ export function verifier(options: { perHost?: number; concurrency?: number; queu
       if (!("ids" in board)) return board;
       return board.ids.has(job.source_job_id)
         ? { status: "open", http_status: 200, detail: "Source confirms posting" }
-        : { status: "closed", http_status: 200, detail: "Absent from complete source board" };
+        : board.closureGuard ?? { status: "closed", http_status: 200, detail: "Absent from complete source board" };
     }
     const tenant = encodeURIComponent(job.tenant), id = encodeURIComponent(job.source_job_id);
     const url = job.source === "greenhouse"
@@ -164,12 +174,18 @@ export async function runVerification(options: {
   const started = Date.now();
   let stage: Stage = "verify_queue";
   try {
-    const queue = z.object({ run_id: z.uuid(), jobs: z.array(VerifyJobSchema).max(limit) }).parse(
+    const queue = z.object({ run_id: z.uuid(), jobs: z.array(VerifyJobSchema).max(limit), boards: z.array(VerifyBoardSchema).optional() }).parse(
       await options.client.call({ operation: "verify_queue", limit }),
     );
     if (new Set(queue.jobs.map((job) => job.id)).size !== queue.jobs.length)
       throw new CollectorError("Duplicate jobs in verification queue");
-    const checker = options.checker ?? verifier({ queuedJobs: queue.jobs });
+    const boardCounts = new Map<string, number>();
+    for (const board of queue.boards ?? []) {
+      const key = `${board.source}:${board.tenant}`;
+      if (boardCounts.has(key)) throw new CollectorError("Duplicate boards in verification queue");
+      boardCounts.set(key, board.last_complete_fetched_count);
+    }
+    const checker = options.checker ?? verifier({ queuedJobs: queue.jobs, boardCounts });
     stage = "verify_source";
     const results = await Promise.all(queue.jobs.map(async (job) => {
       let result: VerificationResult;

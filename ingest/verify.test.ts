@@ -53,11 +53,14 @@ describe("source-specific evidence", () => {
     expect(results.map((result) => result.status)).toEqual(Array(5).fill("uncertain"));
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
-  it("holds a board whose size falls below half its distinct queued postings", async () => {
+  it("withholds closure below half the distinct queue while still checking present jobs", async () => {
     const jobs = Array.from({ length: 5 }, (_, i) => ({ ...job("ashby", String(i)), source_job_id: String(i) }));
-    mockFetch.mockResolvedValue(json({ jobs: [{ ...ashbyFixture, id: "0" }, { ...ashbyFixture, id: "1" }] }));
+    mockFetch.mockImplementation(async (url) => String(url).includes("posting-api")
+      ? json({ jobs: [{ ...ashbyFixture, id: "0" }, { ...ashbyFixture, id: "1" }] }) : new Response("Apply"));
     const checker = verifier({ queuedJobs: jobs });
-    expect((await Promise.all(jobs.map((job) => checker.check(job)))).every((result) => result.status === "uncertain")).toBe(true);
+    expect((await Promise.all(jobs.map((job) => checker.check(job)))).map((result) => result.status))
+      .toEqual(["open", "open", "uncertain", "uncertain", "uncertain"]);
+    expect(mockFetch).toHaveBeenCalledTimes(3);
   });
   it("fetches each Ashby tenant once, sharing even concurrent requests", async () => {
     mockFetch.mockImplementation(async (url) => String(url).includes("posting-api")
@@ -85,6 +88,98 @@ describe("source-specific evidence", () => {
     mockFetch.mockResolvedValueOnce(json({}, 410));
     expect((await verifier().check(job(source))).status).toBe("closed");
   });
+});
+
+describe("verification board history", () => {
+  const board = (last_complete_fetched_count: unknown) => ({ source: "ashby", tenant: "example", last_complete_fetched_count });
+  const listing = (size: number) => ({ jobs: Array.from({ length: size }, (_, i) => ({ ...ashbyFixture, id: String(i) })) });
+  const absent = { ...job("ashby"), source_job_id: "missing" };
+  const queueClient = (jobs: VerifyJob[], boards?: unknown) => {
+    const reports: Record<string, unknown>[] = [];
+    const client = { metrics: { requests: 0, payload_bytes: 0 }, call: async (body: any) => {
+      if (body.operation === "verify_queue") return { run_id: runId, jobs, ...(boards === undefined ? {} : { boards }) };
+      reports.push(...body.results);
+      return { recorded: body.results.length, withdrawn: 0, flagged: 0 };
+    } };
+    return { client, reports };
+  };
+  it.each([[200, "uncertain"], [600, "closed"], [397, "closed"], [396, "uncertain"]] as const)(
+    "uses the prior complete count when %s unique postings remain from 794", async (size, status) => {
+      mockFetch.mockResolvedValueOnce(json(listing(size)));
+      const { client, reports } = queueClient([absent], [board(794)]);
+      await runVerification({ client, log: () => {} });
+      expect(reports[0]).toMatchObject({ status, http_status: 200, detail: status === "uncertain"
+        ? "Source board dropped over 50%; closure withheld" : "Absent from complete source board" });
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    },
+  );
+  it.each([[200, "open"], [404, "link_broken"]] as const)(
+    "checks the apply link for a present job on a truncated board (HTTP %s)", async (httpStatus, status) => {
+      mockFetch.mockResolvedValueOnce(json(listing(200))).mockResolvedValueOnce(new Response("Apply", { status: httpStatus }));
+      const present = { ...job("ashby", "present"), source_job_id: "0" };
+      const { client, reports } = queueClient([present, absent], [board(794)]);
+      await runVerification({ client, log: () => {} });
+      expect(reports).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: present.id, status }),
+        expect.objectContaining({ id: absent.id, status: "uncertain", detail: "Source board dropped over 50%; closure withheld" }),
+      ]));
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    },
+  );
+  it("counts unique identities rather than duplicate entries in a truncated response", async () => {
+    mockFetch.mockResolvedValueOnce(json({ jobs: Array.from({ length: 600 }, (_, i) => ({ ...ashbyFixture, id: String(i % 200) })) }));
+    const { client, reports } = queueClient([absent], [board(794)]);
+    await runVerification({ client, log: () => {} });
+    expect(reports[0]).toMatchObject({ status: "uncertain", detail: "Source board dropped over 50%; closure withheld" });
+  });
+  it.each([undefined, [], [{ source: "greenhouse", tenant: "example", last_complete_fetched_count: 794 }]])(
+    "retains existing behavior without matching Ashby history (%j)", async (boards) => {
+      mockFetch.mockResolvedValueOnce(json(listing(200)));
+      const { client, reports } = queueClient([absent], boards);
+      await runVerification({ client, log: () => {} });
+      expect(reports[0]).toMatchObject({ status: "closed" });
+    },
+  );
+  it.each([0, 794])("retains the empty-board guard with a prior count of %s", async (previous) => {
+    mockFetch.mockResolvedValueOnce(json(listing(0)));
+    const { client, reports } = queueClient([absent], [board(previous)]);
+    await runVerification({ client, log: () => {} });
+    expect(reports[0]).toMatchObject({ status: "uncertain", detail: "Source board empty or unexpectedly small; closure withheld" });
+  });
+  it("uses the queue lower bound even when the prior complete count is zero", async () => {
+    const jobs = Array.from({ length: 5 }, (_, i) => ({ ...absent, id: String(i), source_job_id: `missing-${i}` }));
+    mockFetch.mockResolvedValueOnce(json(listing(2)));
+    const { client, reports } = queueClient(jobs, [board(0)]);
+    await runVerification({ client, log: () => {} });
+    expect(reports.every((result) => result.status === "uncertain")).toBe(true);
+  });
+  it("permits absence from a nonempty board with a zero baseline when queue evidence is sufficient", async () => {
+    mockFetch.mockResolvedValueOnce(json(listing(1)));
+    const { client, reports } = queueClient([absent], [board(0)]);
+    await runVerification({ client, log: () => {} });
+    expect(reports[0]).toMatchObject({ status: "closed" });
+  });
+  it.each([undefined, null, -1, 1.5, "794", Number.MAX_SAFE_INTEGER + 1, Number.POSITIVE_INFINITY])(
+    "rejects malformed complete counts (%s) before source requests or results", async (value) => {
+      const { client, reports } = queueClient([absent], [board(value)]);
+      await expect(runVerification({ client, log: () => {} })).rejects.toThrow();
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(reports).toEqual([]);
+    },
+  );
+  it.each([794, 600])("rejects duplicate board metadata even when counts repeat (%s)", async (second) => {
+    const { client, reports } = queueClient([absent], [board(794), board(second)]);
+    await expect(runVerification({ client, log: () => {} })).rejects.toThrow("Duplicate boards");
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(reports).toEqual([]);
+  });
+  it.each([null, {}, [{ ...board(794), source: "unsupported" }], [{ ...board(794), tenant: "bad:tenant" }]])(
+    "rejects malformed board metadata before source requests (%j)", async (boards) => {
+      const { client } = queueClient([absent], boards);
+      await expect(runVerification({ client, log: () => {} })).rejects.toThrow();
+      expect(mockFetch).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("apply links", () => {

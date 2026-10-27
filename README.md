@@ -153,9 +153,17 @@ careers/login redirects (including `job-boards.greenhouse.io`), access denial, t
 DNS resolution errors and invalid responses are uncertain. Source-confirmed jobs with
 404/410 apply links or definitive DNS name-not-found errors are link_broken. Only definitive
 source evidence reports closed; an unavailable or empty Ashby board never closes all its
-jobs. A board smaller than half the tenant's distinct queued source IDs is also held
-uncertain. Queue size is a conservative lower bound, not a substitute for backend board
-history; persistent uncertainty stays available for manual review rather than auto-withdrawal.
+jobs. `verify_queue` may include `boards[]` entries with `source`, `tenant`, and a safe,
+nonnegative integer `last_complete_fetched_count`. When an Ashby snapshot contains fewer
+than half that count of unique posting IDs, absent jobs report uncertain with
+`Source board dropped over 50%; closure withheld`. Exactly half remains valid absence
+evidence. Present jobs still proceed to their apply-link checks on a truncated board.
+
+Without matching board metadata, verification keeps the existing empty-board guard and
+the lower bound from the tenant's distinct queued source IDs. That queue guard also stays
+in force when a supplied prior count is zero. Duplicate board entries or malformed counts
+fail the queue before source requests or result submission. Queue size remains a
+conservative lower bound; persistent uncertainty stays available for manual review.
 
 Results contain only ID, classification, optional HTTP status and a short reason. No content
 is rewritten. Results are sent in batches of 100 and each acknowledgment must record the
@@ -164,9 +172,10 @@ not advance consecutive-failure counters twice. Result events contain stage, boa
 ID, classification and detail. Error-shaped events are reserved for failures;
 the final summary records classifications, jobs checked, requests, payload bytes and duration.
 
-Local validation: 54 verification tests use offline synthetic API fixtures matching each
+Local validation: verification tests use offline synthetic API fixtures matching each
 source's response shape. They cover open/closed/transient errors, apply-link failures,
-redirect limits, concurrent Ashby board sharing, and per-host/global pacing. No live calls
+redirect limits, concurrent Ashby board sharing, prior board counts and the 50% boundary,
+metadata validation, and per-host/global pacing. No live calls
 run in CI. Pending acceptance: seed known open/closed jobs in TEST, confirm classifications
 and backend counters, and record Actions job duration and billed minutes in the PR.
 
