@@ -97,10 +97,12 @@ function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, 
     evaluateGates(job, { now, open: true, lastSeenAt: seenAt, duplicateOf: null }).status,
   ]));
   const identity_resolution = { splits: 0, merges: 0, quarantined: 0 };
+  const quarantinedPostingIds = new Set<string>();
   const quarantine = (job: NormalizedJob) => {
     if (decisions.get(job.id) !== "accepted") return;
     decisions.set(job.id, "quarantined");
     identity_resolution.quarantined++;
+    quarantinedPostingIds.add(job.id);
   };
   const fresh: Group[] = [];
   for (const ids of members.values()) {
@@ -160,7 +162,9 @@ function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, 
   const gates: Record<string, number> = {};
   for (const status of decisions.values()) gates[status] = (gates[status] ?? 0) + 1;
   rows.sort((a, b) => a.id.localeCompare(b.id));
-  return { rows, fetched_count: jobs.size, gates, identity_resolution };
+  return { rows, fetched_count: jobs.size, gates, identity_resolution,
+    quarantined_posting_ids: [...quarantinedPostingIds].sort(),
+    quarantined_count: quarantinedPostingIds.size };
 }
 
 /** Offline preparation requires an explicit identity snapshot too; an empty snapshot means a new board. */
@@ -226,6 +230,8 @@ export async function runStateless(options: {
       const complete = CompleteAck.parse(await options.client.call({
         operation: "complete_board", ...identity, batches_expected: batches.length,
         fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length,
+        quarantined_posting_ids: prepared.quarantined_posting_ids.slice(0, 500),
+        quarantined_count: prepared.quarantined_count,
       }));
       log(JSON.stringify({ stage, board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, outcomes, ...complete }));
     } catch (error) {
