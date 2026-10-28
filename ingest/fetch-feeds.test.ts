@@ -84,6 +84,15 @@ describe("bounded public feed fetching", () => {
     expect(result.body).toBe(xml);
     expect(result.discovery).toEqual({ pages: 1, capped: false, policy: "observations" });
   });
+  it("reports quarantined WWR identity conflicts in discovery metrics", async () => {
+    const item = '<item><title>Acme: Engineer</title><link>https://weworkremotely.com/remote-jobs/acme</link>' +
+      '<guid>https://weworkremotely.com/remote-jobs/acme</guid><description>Headquarters: Texas</description>' +
+      '<country>United States</country><expires_at>Wed, 25 Nov 2026 12:00:00 GMT</expires_at></item>';
+    const body = '<rss><channel><title>We Work Remotely</title><link>https://weworkremotely.com</link>' +
+      item + item.replace("Texas", "Minnesota") + '</channel></rss>';
+    const result = await loadFeedBoard(target("weworkremotely"), vi.fn(async () => ok(body)));
+    expect(result.discovery).toEqual({ policy: "observations", pages: 1, capped: false, conflictingPostings: 1 });
+  });
   it("fetches single-page Remotive and Remote OK feeds once", async () => {
     const remotiveGet = vi.fn(async () => ok({ jobs: [], "job-count": 0 }));
     const remoteokGet = vi.fn(async () => ok([{ legal: "Credit Remote OK", last_updated: 1 }]));
