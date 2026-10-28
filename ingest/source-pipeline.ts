@@ -15,6 +15,14 @@ export function resolveMode(source: SourceId, requested: string, activeJson: str
   return mode === "publish" || (mode === "auto" && active.includes(source)) ? "publish" : "dry-run";
 }
 
+/** One-time provider polling budgets can postpone a run without performing a fetch. */
+export function sourceNotBefore(source: SourceId, raw: string, now = new Date()) {
+  const values = z.record(z.string(), z.iso.datetime({ offset: true })).parse(JSON.parse(raw));
+  for (const key of Object.keys(values)) z.enum(SOURCE_IDS).parse(key);
+  const value = values[source];
+  return value && Date.parse(value) > now.getTime() ? value : null;
+}
+
 export function targetsFor(source: SourceId) {
   const config = JSON.parse(readFileSync("ingest/config/sources.json", "utf8"));
   const targets = z.array(TargetSchema).min(1).parse(config.sources[source]?.targets);
@@ -75,6 +83,16 @@ export async function runSource(source: SourceId, mode: "dry-run" | "publish") {
 
 async function main() {
   const source = z.enum(SOURCE_IDS).parse(process.argv[2]);
+  const notBefore = sourceNotBefore(source, process.env.COLLECTOR_SOURCE_NOT_BEFORE ?? "{}");
+  if (notBefore) {
+    const report = { source, success: true, mode: "cooldown", next_allowed_at: notBefore, writes: 0, requests: 0 };
+    mkdirSync("ingest/data", { recursive: true });
+    writeFileSync(`ingest/data/source-${source}.json`, JSON.stringify(report, null, 2) + "\n");
+    console.log(JSON.stringify(report));
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+      `## ${source}\n\nProvider polling cooldown until ${notBefore}. No requests or database writes.\n`);
+    return;
+  }
   const mode = resolveMode(source, process.env.COLLECTOR_SOURCE_MODE ?? "dry-run", process.env.COLLECTOR_ACTIVE_SOURCES ?? "[]");
   await runSource(source, mode);
 }
