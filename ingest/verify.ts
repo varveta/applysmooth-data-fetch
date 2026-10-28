@@ -2,10 +2,11 @@ import { isIP } from "node:net";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
-import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS, type NormalizedJob } from "@/lib/jobs-ingest/contract";
 import { assertRunnerContext, clientFromEnv, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, eventLine, safeReason, type Stage } from "./lib/diagnostics";
 import { getJson, hostLimiter, USER_AGENT } from "./lib/http";
+import { loadBoard } from "./lib/load-board";
 
 const count = z.number().int().nonnegative().safe();
 export const VerifyJobSchema = z.object({
@@ -65,6 +66,7 @@ export function verifier(options: {
     queuedIds.set(job.tenant, ids);
   }
   const ashbyBoards = new Map<string, Promise<{ ids: Set<string>; closureGuard?: Check } | Check>>();
+  const observationBoards = new Map<string, Promise<Map<string, NormalizedJob>>>();
   const metrics = { requests: 0 };
   const read = async (url: string) => limiter.run(url, async () => {
     // A failed daily check is uncertain; next run retries. No minute-long backoff per job.
@@ -101,10 +103,42 @@ export function verifier(options: {
         ? { status: "open", http_status: 200, detail: "Source confirms posting" }
         : board.closureGuard ?? { status: "closed", http_status: 200, detail: "Absent from complete source board" };
     }
+    if (!["greenhouse", "lever", "smartrecruiters"].includes(job.source)) {
+      const key = `${job.source}:${job.tenant}`;
+      let pending = observationBoards.get(key);
+      if (!pending) {
+        pending = (async () => {
+          const response = await loadBoard({ source: job.source, tenant: job.tenant, company: job.tenant },
+            (url, opts) => limiter.run(url, async () => {
+              const result = await getJson(url, { ...opts, attempts: 1, timeoutMs: 15_000 });
+              metrics.requests += result.attempts;
+              return result;
+            }));
+          const adapter = ADAPTERS[job.source];
+          const postings = new Map<string, NormalizedJob>();
+          for (const raw of adapter.parseListing(response.body)) {
+            const normalized = adapter.normalize(raw, job.tenant);
+            if (postings.has(normalized.sourceJobId)) throw new Error("Duplicate source identity");
+            postings.set(normalized.sourceJobId, normalized);
+          }
+          return postings;
+        })();
+        observationBoards.set(key, pending);
+      }
+      try {
+        const posting = (await pending).get(job.source_job_id);
+        if (!posting) return { status: "uncertain", detail: "Absent from observation feed; closure withheld" };
+        if (posting.sourceExpiresAt && Date.parse(posting.sourceExpiresAt) <= Date.now())
+          return { status: "closed", http_status: 200, detail: "Source explicitly reports expired posting" };
+        return { status: "open", http_status: 200, detail: "Source feed confirms posting" };
+      } catch { return { status: "uncertain", detail: "Observation feed validation failed; closure withheld" }; }
+    }
     const tenant = encodeURIComponent(job.tenant), id = encodeURIComponent(job.source_job_id);
     const url = job.source === "greenhouse"
       ? `https://boards-api.greenhouse.io/v1/boards/${tenant}/jobs/${id}`
-      : `https://api.lever.co/v0/postings/${tenant}/${id}?mode=json`;
+      : job.source === "lever"
+        ? `https://api.lever.co/v0/postings/${tenant}/${id}?mode=json`
+        : `https://api.smartrecruiters.com/v1/companies/${tenant}/postings/${id}`;
     const response = await read(url);
     if (!response.ok) {
       if (response.status === 404 || response.status === 410)
