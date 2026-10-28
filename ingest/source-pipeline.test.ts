@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
-import { resolveMode, targetsFor } from "./source-pipeline";
+import { resolveMode, targetsFor, sourceNotBefore } from "./source-pipeline";
 
 it("requires explicit activation before publishing while allowing secret-free testing", () => {
   expect(resolveMode("jobicy", "auto", "[]")).toBe("dry-run");
@@ -32,4 +32,12 @@ it("keeps all writers in the existing serialized queue and retains source report
   expect(workflow).toContain("JOBS_ACTIVE_SOURCES");
   expect(workflow).toContain("if: always()");
   expect(workflow).toContain("path: ingest/data/source-*.json");
+});
+
+it("skips early polling without blocking other sources or future eligible runs", () => {
+  const budget = '{"remotive":"2026-10-29T04:30:00Z"}';
+  expect(sourceNotBefore("remotive", budget, new Date("2026-10-28T05:00:00Z"))).toBe("2026-10-29T04:30:00Z");
+  expect(sourceNotBefore("ashby", budget, new Date("2026-10-28T05:00:00Z"))).toBeNull();
+  expect(sourceNotBefore("remotive", budget, new Date("2026-10-29T05:00:00Z"))).toBeNull();
+  expect(() => sourceNotBefore("remotive", '{"remotive":"invalid"}')).toThrow();
 });
