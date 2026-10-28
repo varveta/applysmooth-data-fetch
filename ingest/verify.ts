@@ -7,6 +7,7 @@ import { assertRunnerContext, clientFromEnv, type RequestMetrics } from "./lib/c
 import { CollectorError, errorLine, eventLine, safeReason, type Stage } from "./lib/diagnostics";
 import { getJson, hostLimiter, USER_AGENT } from "./lib/http";
 import { loadBoard } from "./lib/load-board";
+import { createJobicyVerifier } from "./lib/verify-feeds";
 
 const count = z.number().int().nonnegative().safe();
 export const VerifyJobSchema = z.object({
@@ -74,7 +75,9 @@ export function verifier(options: {
     metrics.requests += result.attempts;
     return result;
   });
+  const jobicyStatus = createJobicyVerifier(options.queuedJobs ?? [], read);
   const source = async (job: VerifyJob): Promise<Check> => {
+    if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
     if (job.source === "ashby") {
       let pending = ashbyBoards.get(job.tenant);
       if (!pending) {
