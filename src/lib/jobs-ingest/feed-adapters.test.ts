@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { FEED_ADAPTERS, himalayas, jobicy, remotive, remoteok, weworkremotely } from "./feed-adapters";
 import { prepareBoard } from "../../../ingest/stateless";
@@ -76,6 +77,37 @@ describe("public feed normalization", () => {
   it("does not infer Remote OK currency or interval", () => {
     expect(remoteok.normalize({ ...remoteokJob, salary_min: 100000, salary_max: 120000 }, "public").salary)
       .toMatchObject({ currency: null, period: null });
+  });
+  it("publishes canonical Remote OK attribution while preserving path and query case", () => {
+    const sourceSuffix = "/Remote-Jobs/AbC%2fDef?JobID=ABC#ApplyHere";
+    const applySuffix = "/Remote-Jobs/AbC%2fDef?JobID=ABC&next=%2FJobs%2FHi#ApplyHere";
+    const body = [{ legal: "Credit Remote OK", last_updated: 1 }, {
+      ...remoteokJob,
+      url: `https://remoteOK.com${sourceSuffix}`,
+      apply_url: `https://remoteOK.com${applySuffix}`,
+      description: "Design reliable software services, collaborate with engineers, test production releases, and maintain systems. ".repeat(4),
+    }];
+    const prepared = prepareBoard({ source: "remoteok", tenant: "public", company: "Remote OK" }, body,
+      new Date("2026-10-28T00:00:00Z"), { source: "remoteok", tenant: "public", complete: true, identities: [] });
+    expect(prepared.rows).toHaveLength(1);
+    expect(prepared.rows[0]).toMatchObject({
+      source_job_id: "89",
+      source_url: `https://remoteok.com${sourceSuffix}`,
+      apply_url: `https://remoteok.com${applySuffix}`,
+      attribution_name: "Remote OK",
+      attribution_url: `https://remoteok.com${sourceSuffix}`,
+    });
+    // Mirrors the existing DB provider-host restriction that rejected mixed-case input.
+    expect(prepared.rows[0].attribution_url).toMatch(/^https:\/\/(www\.)?remoteok\.com(\/|$)/);
+  });
+  it("canonicalizes outbound URLs without changing raw GUID-derived identities", () => {
+    const guid = "https://HIMALAYAS.app/companies/Acme/jobs/CaseSensitiveRole";
+    const job = himalayas.normalize({ ...himalayasJob, guid,
+      applicationLink: "https://HIMALAYAS.app/companies/Acme/jobs/CaseSensitiveRole?utm_source=API",
+    }, "public");
+    expect(job.sourceJobId).toBe(`guid-${createHash("sha256").update(guid).digest("hex")}`);
+    expect(job.sourceUrl).toBe("https://himalayas.app/companies/Acme/jobs/CaseSensitiveRole");
+    expect(job.applyUrl).toBe("https://himalayas.app/companies/Acme/jobs/CaseSensitiveRole?utm_source=API");
   });
 
   it("prioritizes WWR country restrictions over Worldwide and keeps expiry", () => {
