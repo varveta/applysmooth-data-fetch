@@ -67,9 +67,14 @@ describe("public ATS normalization", () => {
       postedAt: "2026-10-20T12:00:00.000Z", sourceUrl: "https://example.jobs.personio.com/job/00123?language=en",
     });
   });
+  it("decodes standard XML entities and tolerates formatted feed whitespace", () => {
+    const [raw] = parsePersonioXml(personio(`\n  ${position.replace("Software Engineer", "R&amp;D Engineer")}\n`));
+    expect(ATS_ADAPTERS.personio.normalize(raw, "example").title).toBe("R&D Engineer");
+  });
   it("accepts a well-formed empty Personio snapshot", () => {
     expect(parsePersonioXml("<workzag-jobs/>" )).toEqual([]);
     expect(parsePersonioXml(personio(""))).toEqual([]);
+    expect(parsePersonioXml(personio("\n  "))).toEqual([]);
   });
   it.each([
     "<html><body>Upstream error</body></html>", "<workzag-jobs><position></workzag-jobs>",
