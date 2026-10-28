@@ -1,4 +1,4 @@
-import type { NormalizedJob } from "./contract";
+import { SOURCE_IDS, type NormalizedJob } from "./contract";
 import { isSafeHttpsUrl } from "./text";
 
 /**
@@ -47,7 +47,7 @@ export const DEFAULT_GATES: GateConfig = {
   maxDescriptionChars: 50_000,
   maxPostedAgeDays: 60,
   maxHoursSinceSeen: 36,
-  permittedSources: ["greenhouse", "lever", "ashby"],
+  permittedSources: SOURCE_IDS,
 };
 
 export type GateContext = {
@@ -73,7 +73,8 @@ export function evaluateGates(
   const reasons: GateReason[] = [];
   if (!cfg.permittedSources.includes(job.source))
     reasons.push("source_not_permitted");
-  if (!ctx.open) reasons.push("closed_at_source");
+  if (!ctx.open || (job.sourceExpiresAt && Date.parse(job.sourceExpiresAt) <= ctx.now.getTime()))
+    reasons.push("closed_at_source");
   if (ctx.duplicateOf) reasons.push("duplicate");
   if (!job.title.trim()) reasons.push("missing_title");
   if (!job.company.trim()) reasons.push("missing_company");
