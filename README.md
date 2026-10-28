@@ -38,8 +38,11 @@ report `board_fetch_failed` without publishing or completing that board. Valid r
 jobs still count toward `fetched_count`. Empty valid boards complete with zero batches;
 the backend owns zero-result and large-drop withdrawal guards.
 
-Accepted rows are split into serialized UTF-8 requests of at most 900,000 bytes, including
-the envelope. Retried requests preserve the exact body and batch number. Every row must be
+Accepted rows are split into transactions of at most 25 rows, targeting at most 250,000
+serialized UTF-8 bytes including the envelope. This bounds database work independently of
+the unchanged 900,000-byte HTTP ceiling. A single larger valid row is sent alone if its
+complete request still fits that hard ceiling; legitimate descriptions and identity aliases
+are never truncated to meet the target. Retried requests preserve the exact body and batch number. Every row must be
 acknowledged exactly once before `complete_board`; HTTP 409 stops immediately. Other boards
 may finish after a board fails, but the workflow fails overall. A workflow rerun has a new
 UUID; backend upserts must preserve original first-seen and publication dates across runs.
