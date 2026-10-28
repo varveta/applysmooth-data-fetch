@@ -9,11 +9,12 @@ import { dedupe } from "@/lib/jobs-ingest/dedupe";
 import { evaluateGates, type GateStatus } from "@/lib/jobs-ingest/gates";
 import { sha256 } from "@/lib/jobs-ingest/text";
 import { getJson, pool } from "./lib/http";
+import { loadBoard, DISCOVERY_SOURCES } from "./lib/load-board";
 import { assertRunnerContext, clientFromEnv, MAX_BATCH_BYTES, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, safeReason, type Stage } from "./lib/diagnostics";
 import { boardIdentities, type BoardIdentity as CatalogIdentity } from "./lib/board-identities";
 
-const TargetSchema = z.object({
+export const TargetSchema = z.object({
   source: z.enum(SOURCE_IDS),
   tenant: z.string().min(1).max(120).regex(/^[a-z0-9_-]+$/),
   company: z.string().min(1).max(250),
@@ -30,7 +31,7 @@ const PublishAck = z.object({
 });
 const CompleteAck = z.object({
   complete: z.literal(true), missing: count, withdrawn: count, marked_uncertain: count,
-  guard: z.enum(["none", "zero_result", "large_drop"]),
+  guard: z.enum(["none", "zero_result", "large_drop", "partial_snapshot"]),
 });
 
 /** Include the complete envelope, batch number, JSON escaping and UTF-8 in the limit. */
@@ -146,7 +147,9 @@ function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, 
     const row: StatelessCatalogRow = { ...toCatalogRow(job, {
       firstSeenAt: anchor?.first_seen_at ?? seenAt,
       duplicates: ownedDuplicates.filter((candidate) => candidate.id !== job.id),
-      attribution: adapter.attribution(target.tenant),
+      attribution: { ...adapter.attribution(target.tenant),
+        ...(DISCOVERY_SOURCES.includes(target.source) ? { url: job.sourceUrl } : {}),
+      },
     }), observed_source_job_id: job.sourceJobId };
     if (anchor) {
       row.id = anchor.id;
@@ -195,9 +198,8 @@ export async function runStateless(options: {
     try {
       let jobs: Map<string, NormalizedJob>;
       try {
-        const response = await (options.get ?? getJson)(ADAPTERS[target.source].listUrl(target.tenant));
+        const response = await loadBoard(target, options.get ?? getJson);
         fetchRequests += response.attempts;
-        if (!response.ok) throw new Error(response.error);
         fetchedBytes += response.bytes;
         jobs = normalizeBoard(target, response.body);
       } catch (error) {
@@ -210,7 +212,9 @@ export async function runStateless(options: {
         throw new CollectorError("Board fetch failed; failure recorded");
       }
       stage = "publish";
-      const snapshot = await options.client.call({ operation: "board_identities", ...identity });
+      const snapshot = await options.client.call({ operation: "board_identities", ...identity,
+        ...(DISCOVERY_SOURCES.includes(target.source) ? { posting_ids: [...jobs.keys()] } : {}),
+      });
       const prepared = prepareJobs(target, jobs, now, boardIdentities(snapshot, target.source, target.tenant));
       log(JSON.stringify({ stage: "fetch", board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, gates: prepared.gates, identity_resolution: prepared.identity_resolution }));
       // Preflight every row before sending the first batch.
