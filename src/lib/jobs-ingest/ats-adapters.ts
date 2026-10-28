@@ -139,9 +139,9 @@ export function parsePersonioXml(body: unknown): z.infer<typeof PersonioJob>[] {
   const validated = XMLValidator.validate(body);
   if (validated !== true) throw new Error(`Invalid Personio XML: ${validated.err.msg}`);
   const parsed = z.object({ "workzag-jobs": z.union([
-    z.literal(""), z.object({ position: z.array(PersonioJob).optional() }).strict(),
+    z.string().regex(/^\s*$/), z.object({ position: z.array(PersonioJob).optional(), "#text": z.string().regex(/^\s*$/).optional() }).strict(),
   ]) }).parse(xmlParser.parse(body))["workzag-jobs"];
-  return snapshot(parsed === "" ? [] : parsed.position ?? [], (job) => job.id);
+  return snapshot(typeof parsed === "string" ? [] : parsed.position ?? [], (job) => job.id);
 }
 const personio: SourceAdapter = {
   source: "personio",
