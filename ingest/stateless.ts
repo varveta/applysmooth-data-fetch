@@ -34,7 +34,12 @@ const CompleteAck = z.object({
   guard: z.enum(["none", "zero_result", "large_drop", "partial_snapshot"]),
 });
 
-/** Include the complete envelope, batch number, JSON escaping and UTF-8 in the limit. */
+// Bound transaction work independently of the HTTP protocol ceiling. A single
+// legitimate large row may exceed the target, but must still fit the hard limit.
+export const MAX_PUBLISH_BATCH_ROWS = 25;
+export const TARGET_PUBLISH_BATCH_BYTES = 250_000;
+
+/** Include the complete envelope, batch number, JSON escaping and UTF-8 in both limits. */
 export function splitBatches(identity: BoardIdentity, rows: CatalogRow[]): PublishBatch[] {
   const batches: PublishBatch[] = [];
   const make = (batch_no: number): PublishBatch => ({ operation: "publish_batch", ...identity, batch_no, rows: [] });
@@ -42,12 +47,14 @@ export function splitBatches(identity: BoardIdentity, rows: CatalogRow[]): Publi
   let bytes = Buffer.byteLength(JSON.stringify(batch));
   for (const row of rows) {
     const size = Buffer.byteLength(JSON.stringify(row));
-    if (bytes + size + (batch.rows.length ? 1 : 0) > MAX_BATCH_BYTES && batch.rows.length) {
+    if (batch.rows.length && (batch.rows.length >= MAX_PUBLISH_BATCH_ROWS ||
+        bytes + size + 1 > TARGET_PUBLISH_BATCH_BYTES)) {
       batches.push(batch);
       batch = make(batches.length);
       bytes = Buffer.byteLength(JSON.stringify(batch));
     }
-    if (bytes + size > MAX_BATCH_BYTES) throw new CollectorError("Single catalog row exceeds batch byte limit");
+    if (bytes + size + (batch.rows.length ? 1 : 0) > MAX_BATCH_BYTES)
+      throw new CollectorError("Single catalog row exceeds batch byte limit");
     bytes += size + (batch.rows.length ? 1 : 0);
     batch.rows.push(row);
   }

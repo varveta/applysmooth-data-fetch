@@ -4,7 +4,7 @@ import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
 import { toCatalogRow } from "@/lib/jobs-ingest/catalog";
 import { assertRunnerContext, collectorClient, MAX_BATCH_BYTES } from "./lib/collector-client";
 import { CollectorError, errorLine } from "./lib/diagnostics";
-import { prepareBoard, runStateless, splitBatches, type StatelessTarget } from "./stateless";
+import { MAX_PUBLISH_BATCH_ROWS, TARGET_PUBLISH_BATCH_BYTES, prepareBoard, runStateless, splitBatches, type StatelessTarget } from "./stateless";
 import { ashbyFixture, greenhouseFixture, leverFixture } from "./synthetic-fixtures";
 
 const endpoint = "https://collector.example.test/private-endpoint";
@@ -200,9 +200,54 @@ describe("stateless board processing", () => {
     const batches = bodies.map((body) => JSON.parse(body)).filter((body) => body.operation === "publish_batch");
     expect(batches.length).toBeGreaterThan(1);
     expect(batches.map((batch) => batch.batch_no)).toEqual(batches.map((_, i) => i));
-    for (const body of bodies) expect(Buffer.byteLength(body)).toBeLessThanOrEqual(MAX_BATCH_BYTES);
+    for (const body of bodies) expect(Buffer.byteLength(body)).toBeLessThanOrEqual(TARGET_PUBLISH_BATCH_BYTES);
+    for (const batch of batches) expect(batch.rows.length).toBeLessThanOrEqual(MAX_PUBLISH_BATCH_ROWS);
     expect(new Set(batches.flatMap((batch) => batch.rows.map((row: Payload) => row.id))).size).toBe(18);
     expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ accepted_count: 18, fetched_count: 18, batches_expected: batches.length });
+  });
+
+  it("caps small-row transactions and keeps contiguous completion counts", async () => {
+    listings = { jobs: manyJobs(53).map((job) => ({ ...job, content: greenhouseFixture.content })) };
+    await run();
+    const batches = bodies.map((body) => JSON.parse(body)).filter((body) => body.operation === "publish_batch");
+    expect(batches.map((batch) => batch.rows.length)).toEqual([25, 25, 3]);
+    expect(batches.map((batch) => batch.batch_no)).toEqual([0, 1, 2]);
+    expect(new Set(batches.flatMap((batch) => batch.rows.map((row: Payload) => row.id))).size).toBe(53);
+    expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ batches_expected: 3, accepted_count: 53, fetched_count: 53 });
+  });
+
+  it("keeps retries byte-identical across row-bounded transactions", async () => {
+    listings = { jobs: manyJobs(26).map((job) => ({ ...job, content: greenhouseFixture.content })) };
+    const committed = new Map<number, string>();
+    endpointHandler = (body, call) => {
+      if (body.operation === "complete_board") return json(complete);
+      const serialized = JSON.stringify(body);
+      if (committed.has(body.batch_no)) expect(serialized).toBe(committed.get(body.batch_no));
+      else committed.set(body.batch_no, serialized);
+      if (call === 1) return json({}, 503);
+      return json({ accepted: body.rows.length, results: body.rows.map((row: Payload) => ({ id: row.id, outcome: "unchanged" })) });
+    };
+    await run();
+    expect(bodies[0]).toBe(bodies[1]);
+    expect(committed.size).toBe(2);
+    expect([...committed.values()].map((body) => JSON.parse(body).rows.length)).toEqual([25, 1]);
+    expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ batches_expected: 2, accepted_count: 26 });
+  });
+
+  it("keeps a large legitimate row alone without reducing the protocol allowance", () => {
+    const base = toCatalogRow(ADAPTERS.greenhouse.normalize(greenhouseFixture, "example", "Example"), {
+      firstSeenAt: now.toISOString(), duplicates: [], attribution: ADAPTERS.greenhouse.attribution("example"),
+    });
+    const large = { ...base, description: "数".repeat(45_000),
+      duplicate_posting_ids: Array.from({ length: 5_000 }, (_, i) => `greenhouse:example:${i}${"x".repeat(40)}`),
+    };
+    const small = { ...base, id: "small-after-large" };
+    const rows = [base, large, small];
+    const batches = splitBatches({ run_id: runId, source: "greenhouse", tenant: "example" }, rows);
+    expect(batches.map((batch) => batch.rows.length)).toEqual([1, 1, 1]);
+    expect(batches.flatMap((batch) => batch.rows)).toEqual(rows);
+    expect(Buffer.byteLength(JSON.stringify(batches[1]))).toBeGreaterThan(TARGET_PUBLISH_BATCH_BYTES);
+    expect(Buffer.byteLength(JSON.stringify(batches[1]))).toBeLessThanOrEqual(MAX_BATCH_BYTES);
   });
 
   it("fails before publication if a single row cannot fit", () => {
