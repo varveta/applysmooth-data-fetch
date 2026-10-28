@@ -198,7 +198,20 @@ export const weworkremotely: SourceAdapter = {
     if (XMLValidator.validate(body) !== true) throw new Error("Malformed WWR XML");
     const parsed = z.object({ rss: z.object({ channel: z.object({ title: nonempty, link: z.string(), item: z.array(WwrJob).optional() }) }) })
       .parse(xmlParser.parse(body));
-    return unique(parsed.rss.channel.item ?? [], (job) => job.guid);
+    // WWR sometimes repeats one guid with different regional descriptions. Do not
+    // choose a location arbitrarily or fail unrelated jobs: retain its identity,
+    // but force the conflicting posting through the existing quarantine gate.
+    type WwrPosting = z.infer<typeof WwrJob> & { collectorIdentityConflict?: true };
+    const postings = new Map<string, WwrPosting>();
+    const fingerprint = (job: WwrPosting) => sha256({ ...job,
+      description: htmlToText(job.description), collectorIdentityConflict: undefined,
+    });
+    for (const job of parsed.rss.channel.item ?? []) {
+      const prior = postings.get(job.guid);
+      if (!prior) postings.set(job.guid, job);
+      else if (fingerprint(prior) !== fingerprint(job)) prior.collectorIdentityConflict = true;
+    }
+    return [...postings.values()];
   },
   normalize(raw, tenant) {
     const job = WwrJob.parse(raw);
@@ -207,6 +220,10 @@ export const weworkremotely: SourceAdapter = {
     // WWR may label region as Worldwide while restricting country to Canada, etc.
     const rawLocation = cleanText(job.country) || cleanText(job.region);
     const values = draft("weworkremotely", tenant, guidId(job.guid), job.title.slice(split + 1), job.title.slice(0, split), job.description, job.link, rawLocation);
+    if ((raw as { collectorIdentityConflict?: unknown }).collectorIdentityConflict === true) {
+      values.locations = [];
+      values.rawLocation = "Provider returned conflicting copies of this posting";
+    }
     return buildJob({ ...values, sourceUrl: job.guid, jobType: jobTypeFromStructured(job.type, "type"),
       postedAt: toIso(job.pubDate), sourceExpiresAt: toIso(job.expires_at),
     });
