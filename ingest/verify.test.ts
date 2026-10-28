@@ -347,7 +347,7 @@ describe("new source closure safeguards", () => {
     },
   );
   it("does not close a job absent from the rolling Remotive feed", async () => {
-    mockFetch.mockResolvedValue(json({ jobs: [], "total-job-count": 0 }));
+    mockFetch.mockResolvedValue(json({ jobs: [], "job-count": 0, "total-job-count": 0 }));
     const result = await verifier().check({ ...job(), source: "remotive", tenant: "public" });
     expect(result).toMatchObject({ status: "uncertain", detail: "Absent from observation feed; closure withheld" });
   });
