@@ -36,6 +36,7 @@ jobs:
           SOURCE: ${{ inputs.source }}
           COLLECTOR_SOURCE_MODE: ${{ inputs.mode }}
           COLLECTOR_ACTIVE_SOURCES: ${{ vars.JOBS_ACTIVE_SOURCES || '[]' }}
+          COLLECTOR_SOURCE_NOT_BEFORE: ${{ vars.JOBS_SOURCE_NOT_BEFORE || '{}' }}
           COLLECTOR_ENDPOINT: ${{ secrets.COLLECTOR_ENDPOINT }}
           COLLECTOR_TOKEN: ${{ secrets.COLLECTOR_TOKEN }}
           COLLECTOR_VERCEL_BYPASS: ${{ secrets.COLLECTOR_VERCEL_BYPASS }}
