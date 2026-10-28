@@ -11,7 +11,7 @@ const response = (jobs: { id: number; status: Status }[], extra = {}): FetchResu
 
 describe("Jobicy dedicated status verification", () => {
   it("uses one shared request for active, closed and unknown queued jobs", async () => {
-    const read = vi.fn(async () => response([{ id: 1, status: "active" }, { id: 2, status: "closed" }, { id: 3, status: "unknown" }]));
+    const read = vi.fn(async (_url: string) => response([{ id: 1, status: "active" }, { id: 2, status: "closed" }, { id: 3, status: "unknown" }]));
     const verify = createJobicyVerifier(queued("1", "2", "3"), read);
     const results = await Promise.all([verify("1"), verify("2"), verify("3"), verify("2")]);
     expect(results.map((result) => result.status)).toEqual(["open", "closed", "uncertain", "closed"]);
