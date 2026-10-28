@@ -65,6 +65,7 @@ export function toCatalogRow(
     posted_at: job.postedAt,
     first_seen_at: opts.firstSeenAt,
     source_updated_at: job.sourceUpdatedAt,
+    ...(job.sourceExpiresAt ? { source_expires_at: job.sourceExpiresAt } : {}),
     content_hash: "",
     duplicate_posting_ids: opts.duplicates.map((d) => d.id).sort(),
   };
