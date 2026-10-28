@@ -202,6 +202,7 @@ export async function runStateless(options: {
         fetchRequests += response.attempts;
         fetchedBytes += response.bytes;
         jobs = normalizeBoard(target, response.body);
+        if ("discovery" in response) log(JSON.stringify({ stage: "fetch", board, run_id, discovery: response.discovery }));
       } catch (error) {
         log(errorLine("fetch", board, error));
         stage = "publish";
