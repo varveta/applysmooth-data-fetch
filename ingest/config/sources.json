@@ -1,0 +1,309 @@
+{
+  "sources": {
+    "ashby": {
+      "schedule_utc": "17 4,10,16,22 * * *",
+      "targets": [
+        {
+          "source": "ashby",
+          "tenant": "cohere",
+          "company": "Cohere"
+        },
+        {
+          "source": "ashby",
+          "tenant": "decagon",
+          "company": "Decagon"
+        },
+        {
+          "source": "ashby",
+          "tenant": "elevenlabs",
+          "company": "ElevenLabs"
+        },
+        {
+          "source": "ashby",
+          "tenant": "harvey",
+          "company": "Harvey"
+        },
+        {
+          "source": "ashby",
+          "tenant": "modal",
+          "company": "Modal"
+        },
+        {
+          "source": "ashby",
+          "tenant": "openai",
+          "company": "OpenAI"
+        },
+        {
+          "source": "ashby",
+          "tenant": "ramp",
+          "company": "Ramp"
+        },
+        {
+          "source": "ashby",
+          "tenant": "replit",
+          "company": "Replit"
+        },
+        {
+          "source": "ashby",
+          "tenant": "sierra",
+          "company": "Sierra"
+        },
+        {
+          "source": "ashby",
+          "tenant": "snowflake",
+          "company": "Snowflake"
+        }
+      ]
+    },
+    "greenhouse": {
+      "schedule_utc": "27 4,10,16,22 * * *",
+      "targets": [
+        {
+          "source": "greenhouse",
+          "tenant": "airbnb",
+          "company": "Airbnb"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "andurilindustries",
+          "company": "Anduril"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "anthropic",
+          "company": "Anthropic"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "asana",
+          "company": "Asana"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "cloudflare",
+          "company": "Cloudflare"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "coinbase",
+          "company": "Coinbase"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "databricks",
+          "company": "Databricks"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "doordashusa",
+          "company": "DoorDash"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "duolingo",
+          "company": "Duolingo"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "gusto",
+          "company": "Gusto"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "lyft",
+          "company": "Lyft"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "okta",
+          "company": "Okta"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "peloton",
+          "company": "Peloton"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "reddit",
+          "company": "Reddit"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "robinhood",
+          "company": "Robinhood"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "roblox",
+          "company": "Roblox"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "samsara",
+          "company": "Samsara"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "scaleai",
+          "company": "Scale AI"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "squarespace",
+          "company": "Squarespace"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "stripe",
+          "company": "Stripe"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "toast",
+          "company": "Toast"
+        },
+        {
+          "source": "greenhouse",
+          "tenant": "waymo",
+          "company": "Waymo"
+        }
+      ]
+    },
+    "lever": {
+      "schedule_utc": "37 4,10,16,22 * * *",
+      "targets": [
+        {
+          "source": "lever",
+          "tenant": "aledade",
+          "company": "Aledade"
+        },
+        {
+          "source": "lever",
+          "tenant": "shieldai",
+          "company": "Shield AI"
+        },
+        {
+          "source": "lever",
+          "tenant": "spotify",
+          "company": "Spotify"
+        },
+        {
+          "source": "lever",
+          "tenant": "veeva",
+          "company": "Veeva"
+        },
+        {
+          "source": "lever",
+          "tenant": "zoox",
+          "company": "Zoox"
+        }
+      ]
+    },
+    "smartrecruiters": {
+      "schedule_utc": "7 5,17 * * *",
+      "targets": [
+        {
+          "source": "smartrecruiters",
+          "tenant": "expeditors",
+          "company": "Expeditors"
+        },
+        {
+          "source": "smartrecruiters",
+          "tenant": "socotec",
+          "company": "Socotec"
+        }
+      ]
+    },
+    "workable": {
+      "schedule_utc": "17 5,17 * * *",
+      "targets": [
+        {
+          "source": "workable",
+          "tenant": "esgusa",
+          "company": "ESG USA"
+        },
+        {
+          "source": "workable",
+          "tenant": "jacobian",
+          "company": "Jacobian"
+        }
+      ]
+    },
+    "personio": {
+      "schedule_utc": "27 5,17 * * *",
+      "targets": [
+        {
+          "source": "personio",
+          "tenant": "ailylabs",
+          "company": "Aily Labs"
+        }
+      ]
+    },
+    "recruitee": {
+      "schedule_utc": "37 5,17 * * *",
+      "targets": [
+        {
+          "source": "recruitee",
+          "tenant": "natuvion",
+          "company": "Natuvion"
+        },
+        {
+          "source": "recruitee",
+          "tenant": "framestore",
+          "company": "Framestore"
+        }
+      ]
+    },
+    "jobicy": {
+      "schedule_utc": "47 5 * * *",
+      "targets": [
+        {
+          "source": "jobicy",
+          "tenant": "usa",
+          "company": "Jobicy"
+        }
+      ]
+    },
+    "himalayas": {
+      "schedule_utc": "57 5 * * *",
+      "targets": [
+        {
+          "source": "himalayas",
+          "tenant": "usa",
+          "company": "Himalayas"
+        }
+      ]
+    },
+    "weworkremotely": {
+      "schedule_utc": "7 6 * * *",
+      "targets": [
+        {
+          "source": "weworkremotely",
+          "tenant": "public",
+          "company": "We Work Remotely"
+        }
+      ]
+    },
+    "remoteok": {
+      "schedule_utc": "17 6 * * *",
+      "targets": [
+        {
+          "source": "remoteok",
+          "tenant": "public",
+          "company": "Remote OK"
+        }
+      ]
+    },
+    "remotive": {
+      "schedule_utc": "27 6 * * *",
+      "targets": [
+        {
+          "source": "remotive",
+          "tenant": "public",
+          "company": "Remotive"
+        }
+      ]
+    }
+  }
+}
