@@ -99,7 +99,21 @@ const workable: SourceAdapter = {
   listUrl: (tenant) => `https://www.workable.com/api/accounts/${encodeURIComponent(tenant)}?details=true`,
   parseListing(body) {
     const envelope = z.object({ name: title, jobs: z.array(WorkableJob) }).parse(body);
-    return snapshot(envelope.jobs, (job) => job.shortcode).map((job) => ({ ...job, employerName: envelope.name }));
+    // Workable repeats one shortcode once per location on some multi-country boards.
+    // Merge only location variants; conflicting job content is not a trusted snapshot.
+    const jobs = new Map<string, z.infer<typeof WorkableJob>>();
+    const content = ({ locations: _locations, country: _country, city: _city, state: _state, ...job }: z.infer<typeof WorkableJob>) => JSON.stringify(job);
+    const places = (job: z.infer<typeof WorkableJob>) => job.locations?.length
+      ? job.locations : [{ city: job.city, region: job.state, country: job.country }];
+    for (const job of envelope.jobs) {
+      const prior = jobs.get(job.shortcode);
+      if (!prior) jobs.set(job.shortcode, job);
+      else {
+        if (content(prior) !== content(job)) throw new Error(`Conflicting Workable posting ID: ${job.shortcode}`);
+        jobs.set(job.shortcode, { ...prior, locations: [...places(prior), ...places(job)] });
+      }
+    }
+    return [...jobs.values()].map((job) => ({ ...job, employerName: envelope.name }));
   },
   postingId: (raw) => id.parse(z.object({ shortcode: z.unknown() }).parse(raw).shortcode),
   attribution: (tenant) => ({ name: "Workable job board", url: `https://apply.workable.com/${encodeURIComponent(tenant)}/` }),
