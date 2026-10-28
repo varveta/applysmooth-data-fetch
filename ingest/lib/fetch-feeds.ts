@@ -4,7 +4,7 @@ import { getJson } from "./http";
 
 /** Discovery budgets, never evidence that unseen jobs have closed. */
 export const MAX_FEED_PAGES = 10;
-export type FeedDiscovery = { policy: "observations"; pages: number; capped: boolean };
+export type FeedDiscovery = { policy: "observations"; pages: number; capped: boolean; conflictingPostings?: number };
 
 export async function loadFeedBoard(
   target: { source: SourceId; tenant: string; company: string },
@@ -34,7 +34,11 @@ export async function loadFeedBoard(
   };
   const first = await read(initial);
   if (target.source !== "jobicy" && target.source !== "himalayas") {
-    return { body: first.body, attempts, bytes, discovery: { policy: "observations", pages, capped: false } };
+    const conflictingPostings = first.jobs.filter((job) =>
+      typeof job === "object" && job !== null && "collectorIdentityConflict" in job && job.collectorIdentityConflict === true).length;
+    return { body: first.body, attempts, bytes, discovery: { policy: "observations", pages, capped: false,
+      ...(conflictingPostings ? { conflictingPostings } : {}),
+    } };
   }
 
   const jobs: unknown[] = [];
