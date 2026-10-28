@@ -128,8 +128,8 @@ const PersonioJob = z.object({
 });
 const xmlParser = new XMLParser({
   ignoreAttributes: false, parseTagValue: false, trimValues: false,
-  processEntities: false,
-  isArray: (_name, path) => ["workzag-jobs.position", "workzag-jobs.position.additionalOffices.office", "workzag-jobs.position.jobDescriptions.jobDescription"].includes(path),
+  processEntities: true,
+  isArray: (_name, path) => typeof path === "string" && ["workzag-jobs.position", "workzag-jobs.position.additionalOffices.office", "workzag-jobs.position.jobDescriptions.jobDescription"].includes(path),
 });
 
 /** XML declarations are allowed; DTDs and entity declarations are never interpreted. */
