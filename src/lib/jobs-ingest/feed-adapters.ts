@@ -21,6 +21,10 @@ function providerUrl(host: string) {
   }, `Expected an HTTPS ${host} URL`);
 }
 
+// DNS names are case-insensitive, but stored provider-credit constraints use
+// canonical lowercase hosts. Preserve case-sensitive paths, queries and raw GUIDs.
+const canonicalProviderUrl = (value: string) => new URL(value).href;
+
 function unique<T>(jobs: T[], key: (job: T) => string): T[] {
   const seen = new Set<string>();
   for (const job of jobs) {
@@ -66,7 +70,8 @@ function structuredSalary(min: number | null | undefined, max: number | null | u
 function draft(source: DraftJob["source"], tenant: string, sourceJobId: string,
   title: string, company: string, description: string, url: string, rawLocation: string): DraftJob {
   const descriptionText = htmlToText(description);
-  return { source, tenant, sourceJobId, title, company, descriptionText, applyUrl: url, sourceUrl: url,
+  return { source, tenant, sourceJobId, title, company, descriptionText,
+    applyUrl: canonicalProviderUrl(url), sourceUrl: canonicalProviderUrl(url),
     requisitionKey: null, department: null, rawLocation, locations: remoteLocations(rawLocation),
     workMode: workModeFromStructured("Remote", "feed.remote"), jobType: null,
     salary: salaryFromText(descriptionText), postedAt: null, sourceUpdatedAt: null };
@@ -127,7 +132,7 @@ export const himalayas: SourceAdapter = {
     const locations = permitsUs && !compatibleTimezone ? [location(`${rawLocation}; timezone eligibility unconfirmed`, null)]
       : countries.length ? countries.map((value) => location(value, countryFromField(value))) : [location("Worldwide", "US")];
     return buildJob({ ...draft("himalayas", tenant, guidId(job.guid), job.title, job.companyName, job.description, job.applicationLink, rawLocation),
-      sourceUrl: job.guid, locations, jobType: jobTypeFromStructured(job.employmentType, "employmentType"),
+      sourceUrl: canonicalProviderUrl(job.guid), locations, jobType: jobTypeFromStructured(job.employmentType, "employmentType"),
       // Himalayas documents pubDate as last updated, not the original publication date.
       postedAt: null, sourceUpdatedAt: job.pubDate == null ? null : toIso(job.pubDate * 1000),
       sourceExpiresAt: toIso(job.expiryDate * 1000),
@@ -152,7 +157,7 @@ export const remoteok: SourceAdapter = {
   normalize(raw, tenant) {
     const job = RemoteOkJob.parse(raw);
     return buildJob({ ...draft("remoteok", tenant, job.id, job.position, job.company, job.description, job.apply_url || job.url, job.location ?? ""),
-      sourceUrl: job.url, postedAt: toIso(job.date) ?? (job.epoch == null ? null : toIso(job.epoch * 1000)),
+      sourceUrl: canonicalProviderUrl(job.url), postedAt: toIso(job.date) ?? (job.epoch == null ? null : toIso(job.epoch * 1000)),
       // Remote OK does not identify a salary currency or interval in these fields.
       salary: structuredSalary(job.salary_min, job.salary_max, null, null, "salary_min/salary_max") ?? salaryFromText(htmlToText(job.description)),
     });
@@ -224,7 +229,7 @@ export const weworkremotely: SourceAdapter = {
       values.locations = [];
       values.rawLocation = "Provider returned conflicting copies of this posting";
     }
-    return buildJob({ ...values, sourceUrl: job.guid, jobType: jobTypeFromStructured(job.type, "type"),
+    return buildJob({ ...values, sourceUrl: canonicalProviderUrl(job.guid), jobType: jobTypeFromStructured(job.type, "type"),
       postedAt: toIso(job.pubDate), sourceExpiresAt: toIso(job.expires_at),
     });
   },
