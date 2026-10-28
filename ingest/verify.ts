@@ -22,6 +22,12 @@ export const VerifyBoardSchema = VerifyJobSchema.pick({ source: true, tenant: tr
 });
 type Check = { status: "open" | "closed" | "link_broken" | "uncertain"; http_status?: number; detail: string };
 export type VerificationResult = Check & { id: string; stage: "verify_source" | "verify_link" };
+export function createVerificationCache() {
+  return {
+    ashbyBoards: new Map<string, Promise<{ ids: Set<string>; closureGuard?: Check } | Check>>(),
+    observationBoards: new Map<string, Promise<Map<string, NormalizedJob>>>(),
+  };
+}
 
 function publicLink(value: string): URL | null {
   try {
@@ -57,6 +63,7 @@ function dnsNotFound(error: unknown): boolean {
 export function verifier(options: {
   perHost?: number; concurrency?: number; queuedJobs?: VerifyJob[];
   boardCounts?: ReadonlyMap<string, number>;
+  cache?: ReturnType<typeof createVerificationCache>;
 } = {}) {
   const limiter = hostLimiter(options.concurrency, options.perHost);
   const queuedIds = new Map<string, Set<string>>();
@@ -66,8 +73,8 @@ export function verifier(options: {
     ids.add(job.source_job_id);
     queuedIds.set(job.tenant, ids);
   }
-  const ashbyBoards = new Map<string, Promise<{ ids: Set<string>; closureGuard?: Check } | Check>>();
-  const observationBoards = new Map<string, Promise<Map<string, NormalizedJob>>>();
+  const ashbyBoards = options.cache?.ashbyBoards ?? createVerificationCache().ashbyBoards;
+  const observationBoards = options.cache?.observationBoards ?? createVerificationCache().observationBoards;
   const metrics = { requests: 0 };
   const read = async (url: string) => limiter.run(url, async () => {
     // A failed daily check is uncertain; next run retries. No minute-long backoff per job.
@@ -133,6 +140,8 @@ export function verifier(options: {
         if (!posting) return { status: "uncertain", detail: "Absent from observation feed; closure withheld" };
         if (posting.sourceExpiresAt && Date.parse(posting.sourceExpiresAt) <= Date.now())
           return { status: "closed", http_status: 200, detail: "Source explicitly reports expired posting" };
+        if (posting.usEligibility !== "us")
+          return { status: "uncertain", http_status: 200, detail: "Source posting eligibility changed or is conflicting; confirmation withheld" };
         return { status: "open", http_status: 200, detail: "Source feed confirms posting" };
       } catch { return { status: "uncertain", detail: "Observation feed validation failed; closure withheld" }; }
     }
@@ -205,6 +214,8 @@ export async function runVerification(options: {
   limit?: number;
   log?: (line: string) => void;
   checker?: ReturnType<typeof verifier>;
+  cache?: ReturnType<typeof createVerificationCache>;
+  seenIds?: Set<string>;
 }) {
   const limit = z.number().int().min(1).max(500).parse(options.limit ?? 500);
   const log = options.log ?? console.log;
@@ -216,13 +227,16 @@ export async function runVerification(options: {
     );
     if (new Set(queue.jobs.map((job) => job.id)).size !== queue.jobs.length)
       throw new CollectorError("Duplicate jobs in verification queue");
+    if (queue.jobs.some((job) => options.seenIds?.has(job.id)))
+      throw new CollectorError("Verification queue repeated a job in the same sweep");
+    for (const job of queue.jobs) options.seenIds?.add(job.id);
     const boardCounts = new Map<string, number>();
     for (const board of queue.boards ?? []) {
       const key = `${board.source}:${board.tenant}`;
       if (boardCounts.has(key)) throw new CollectorError("Duplicate boards in verification queue");
       boardCounts.set(key, board.last_complete_fetched_count);
     }
-    const checker = options.checker ?? verifier({ queuedJobs: queue.jobs, boardCounts });
+    const checker = options.checker ?? verifier({ queuedJobs: queue.jobs, boardCounts, cache: options.cache });
     stage = "verify_source";
     const results = await Promise.all(queue.jobs.map(async (job) => {
       let result: VerificationResult;
