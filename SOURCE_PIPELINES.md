@@ -27,7 +27,7 @@ GitHub schedules can start late. They run on GitHub infrastructure. Codex monito
 
 Set repository variable `JOBS_ACTIVE_SOURCES` to a JSON array of individually validated source IDs. Scheduled `auto` runs publish only those IDs. Unactivated sources run without writes. An explicit `publish` dispatch fails if the source is not activated. Publication also requires the trusted main-branch runner context, authenticated preview collector, exact server allowlist and completed identity import.
 
-The original Collector schedule remains a fallback while `ashby` is inactive. Once activated, its scheduled OpenAI write is skipped to avoid duplicate collection. Verification and lifecycle workflows remain separate. Do not enable the legacy stateful publisher for expanded sources.
+The original Collector schedule remains a fallback while `ashby` is inactive. Once activated, its scheduled OpenAI write is skipped to avoid duplicate collection. Verification and lifecycle workflows remain separate. Daily verification drains up to 20 batches of 500 due jobs, sharing each provider feed response across the whole sweep. The backend enforces a 24-hour retry cooldown; repeated IDs or capacity exhaustion fail visibly. Do not enable the legacy stateful publisher for expanded sources.
 
 Before activation, deploy the additive backend migration and provider-credit UI, configure every exact source/tenant, seed identity history, verify anonymous writes remain denied, and review the per-source dry run. Preserve all historical IDs and dates. A successful dry run or green CI alone does not prove Supabase ingestion.
 
