@@ -1,0 +1,20 @@
+name: Jobs - lever
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Auto publishes only explicitly activated sources
+        type: choice
+        options: [auto, dry-run, publish]
+        default: dry-run
+  schedule:
+    - cron: '37 4,10,16,22 * * *'
+permissions:
+  contents: read
+jobs:
+  source:
+    uses: ./.github/workflows/source-pipeline.yml
+    with:
+      source: lever
+      mode: ${{ github.event_name == 'schedule' && 'auto' || inputs.mode }}
+    secrets: inherit
