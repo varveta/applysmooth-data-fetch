@@ -5,7 +5,7 @@ import { ashbyFixture, greenhouseFixture, leverFixture } from "./synthetic-fixtu
 
 const fixtures = { greenhouse: greenhouseFixture, lever: leverFixture, ashby: ashbyFixture };
 const runId = "c2f5c7ab-11e6-4b70-b803-f76bd7d98df5";
-const job = (source: VerifyJob["source"] = "greenhouse", id = "catalog-1"): VerifyJob => ({
+const job = (source: keyof typeof fixtures = "greenhouse", id = "catalog-1"): VerifyJob => ({
   id, source, tenant: "example", source_job_id: String(fixtures[source].id),
   apply_url: `https://careers.example.com/postings/${id}`, reason: "uncertain",
 });
@@ -333,5 +333,27 @@ describe("request pacing and endpoint reporting", () => {
     const client = { metrics: { requests: 0, payload_bytes: 0 }, call: async (body: any) => body.operation === "verify_queue"
       ? { run_id: runId, jobs: [job()] } : { recorded: 0, withdrawn: 0, flagged: 0 } };
     await expect(runVerification({ client, log: () => {} })).rejects.toThrow("acknowledgment mismatch");
+  });
+});
+
+
+describe("new source closure safeguards", () => {
+  it.each(["workable", "personio", "recruitee", "jobicy", "himalayas", "weworkremotely", "remoteok", "remotive"] as const)(
+    "never treats %s endpoint failure as Lever closure", async (source) => {
+      mockFetch.mockResolvedValue(json({}, 404));
+      const result = await verifier().check({ ...job(), source });
+      expect(result.status).toBe("uncertain");
+      expect(mockFetch.mock.calls.every(([url]) => !String(url).includes("api.lever.co"))).toBe(true);
+    },
+  );
+  it("does not close a job absent from the rolling Remotive feed", async () => {
+    mockFetch.mockResolvedValue(json({ jobs: [], "job-count": 0, "total-job-count": 0 }));
+    const result = await verifier().check({ ...job(), source: "remotive", tenant: "public" });
+    expect(result).toMatchObject({ status: "uncertain", detail: "Absent from observation feed; closure withheld" });
+  });
+  it("uses the explicit SmartRecruiters posting endpoint for closure", async () => {
+    mockFetch.mockResolvedValue(json({}, 410));
+    expect((await verifier().check({ ...job(), source: "smartrecruiters" })).status).toBe("closed");
+    expect(String(mockFetch.mock.calls[0][0])).toContain("api.smartrecruiters.com/v1/companies/example/postings/");
   });
 });

@@ -72,6 +72,7 @@ export async function getJson(
     timeoutMs?: number;
     maxBytes?: number;
     baseDelayMs?: number;
+    responseType?: "json" | "text";
   } = {},
 ): Promise<FetchResult> {
   const attempts = opts.attempts ?? 4;
@@ -91,7 +92,7 @@ export async function getJson(
       (0.75 + Math.random() / 2);
     try {
       const res = await fetch(url, {
-        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+        headers: { "User-Agent": USER_AGENT, Accept: opts.responseType === "text" ? "application/xml, text/xml, application/rss+xml" : "application/json" },
         signal: AbortSignal.timeout(opts.timeoutMs ?? 60_000),
         redirect: "follow",
       });
@@ -135,7 +136,7 @@ export async function getJson(
           return {
             ok: true,
             status: res.status,
-            body: JSON.parse(text),
+            body: opts.responseType === "text" ? text : JSON.parse(text),
             bytes: size,
             attempts: i,
           };

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { ATS_ADAPTERS } from "./ats-adapters";
+import { FEED_ADAPTERS } from "./feed-adapters";
 import { buildJob } from "./build";
 import type {
   Evidence,
@@ -507,4 +509,6 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   greenhouse,
   lever,
   ashby,
+  ...ATS_ADAPTERS,
+  ...FEED_ADAPTERS,
 };

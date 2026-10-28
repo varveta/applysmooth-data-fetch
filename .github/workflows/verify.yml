@@ -1,7 +1,7 @@
 name: Verify jobs
 on:
   workflow_dispatch:
-  # Daily verification follows the 04:17 UTC collection.
+  # Daily verification follows the morning source collection schedules.
   schedule:
     - cron: '47 6 * * *'
 permissions:
@@ -14,7 +14,7 @@ jobs:
     if: github.repository == 'varveta/applysmooth-data-fetch' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
     environment: test
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -26,7 +26,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test && pnpm typecheck
       - name: Verify queued jobs and report classifications
-        run: pnpm exec tsx ingest/verify.ts
+        run: pnpm exec tsx ingest/verify-sweep.ts
         env:
           COLLECTOR_ENDPOINT: ${{ secrets.COLLECTOR_ENDPOINT }}
           COLLECTOR_TOKEN: ${{ secrets.COLLECTOR_TOKEN }}

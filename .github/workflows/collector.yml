@@ -94,7 +94,7 @@ jobs:
         run: node ingest/monitor.mjs finish
 
   stateless:
-    if: github.repository == 'varveta/applysmooth-data-fetch' && github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.mode == 'stateless') || github.event_name == 'schedule')
+    if: github.repository == 'varveta/applysmooth-data-fetch' && github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.mode == 'stateless') || (github.event_name == 'schedule' && !contains(fromJSON(vars.JOBS_ACTIVE_SOURCES || '[]'), 'ashby')))
     needs: test
     # Share the legacy publisher's lock without sharing its workflow-level queue.
     concurrency:

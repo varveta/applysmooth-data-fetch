@@ -11,7 +11,10 @@ import { z } from "zod";
  * when the source states it; every non-structured value carries evidence.
  */
 
-export const SOURCE_IDS = ["greenhouse", "lever", "ashby"] as const;
+export const SOURCE_IDS = [
+  "greenhouse", "lever", "ashby", "smartrecruiters", "workable", "personio",
+  "recruitee", "jobicy", "himalayas", "weworkremotely", "remoteok", "remotive",
+] as const;
 export type SourceId = (typeof SOURCE_IDS)[number];
 
 export const WORK_MODES = ["Remote", "Hybrid", "On-site"] as const;
@@ -124,6 +127,8 @@ export const NormalizedJobSchema = z.object({
   /** Original posting time stated by the source. Never substituted with discovery time. */
   postedAt: z.string().datetime({ offset: true }).nullable(),
   sourceUpdatedAt: z.string().datetime({ offset: true }).nullable(),
+  /** Explicit source expiry; missing discovery items are never closure evidence. */
+  sourceExpiresAt: z.string().datetime({ offset: true }).nullable().optional(),
   /** sha256 over the user-visible normalized fields; drives change detection. */
   contentHash: z.string().length(64),
 });
@@ -197,6 +202,7 @@ export const CatalogRowSchema = z.object({
   posted_at: z.string().nullable(),
   first_seen_at: z.string(),
   source_updated_at: z.string().nullable(),
+  source_expires_at: z.string().datetime({ offset: true }).nullable().optional(),
   content_hash: z.string().length(64),
   duplicate_posting_ids: z.array(z.string()),
 });

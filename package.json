@@ -12,7 +12,8 @@
     "rehearsal": "tsx ingest/online.ts"
   },
   "dependencies": {
-    "zod": "4.3.6"
+    "zod": "4.3.6",
+    "fast-xml-parser": "5.11.2"
   },
   "devDependencies": {
     "@types/node": "^24",

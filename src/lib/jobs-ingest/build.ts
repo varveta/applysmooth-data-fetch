@@ -43,6 +43,7 @@ export type DraftJob = {
   salary: { salary: Salary; evidence: Evidence } | null;
   postedAt: string | null;
   sourceUpdatedAt: string | null;
+  sourceExpiresAt?: string | null;
 };
 
 export const postingId = (
@@ -103,6 +104,7 @@ export function buildJob(d: DraftJob): NormalizedJob {
     visas: eligibility.visas,
     employment: eligibility.employment,
     postedAt: d.postedAt,
+    ...(d.sourceExpiresAt ? { sourceExpiresAt: d.sourceExpiresAt } : {}),
   };
   const published = {
     ...visible,
