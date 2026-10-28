@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FEED_ADAPTERS, himalayas, jobicy, remotive, remoteok, weworkremotely } from "./feed-adapters";
+import { prepareBoard } from "../../../ingest/stateless";
 
 const publication = "2026-10-25T12:00:00Z";
 const jobicyJob = { id: 12, url: "https://jobicy.com/jobs/12-role", jobTitle: "Engineer", companyName: "Actual Employer",
@@ -115,6 +116,29 @@ describe("feed envelope validation", () => {
     const job = weworkremotely.normalize(raw, "public");
     expect(job.descriptionText).toBe("Build & maintain software.");
     expect(job.usEligibility).toBe("not_us");
+  });
+  it("deduplicates identical WWR copies but quarantines conflicting copies without losing unrelated jobs", () => {
+    const description = "Headquarters: Texas, United States. We build software for customers across the United States. " +
+      "Responsibilities include designing reliable services, testing releases, collaborating with engineers, and maintaining production systems. ".repeat(4);
+    const feed = xml().replace("Build &amp; maintain software.", description);
+    const item = feed.match(/<item>[\s\S]*?<\/item>/)![0];
+    const identical = feed.replace("</channel>", `${item}</channel>`);
+    const [same] = weworkremotely.parseListing(identical);
+    expect(weworkremotely.parseListing(identical)).toHaveLength(1);
+    expect(weworkremotely.normalize(same, "public").usEligibility).toBe("us");
+
+    const conflicting = item.replace("Headquarters: Texas", "Headquarters: Minnesota");
+    const unrelated = item.replaceAll("acme-role", "other-role").replace("Actual Employer", "Other Employer");
+    const mixed = feed.replace("</channel>", `${conflicting}${unrelated}</channel>`);
+    const parsed = weworkremotely.parseListing(mixed);
+    expect(parsed).toHaveLength(2);
+    expect(weworkremotely.normalize(parsed[0], "public").usEligibility).toBe("unknown");
+    const prepared = prepareBoard({ source: "weworkremotely", tenant: "public", company: "We Work Remotely" }, mixed,
+      new Date("2026-10-28T00:00:00Z"), { source: "weworkremotely", tenant: "public", complete: true, identities: [] });
+    expect(prepared.fetched_count).toBe(2);
+    expect(prepared.rows).toHaveLength(1);
+    expect(prepared.rows[0].company).toBe("Other Employer");
+    expect(prepared.gates).toEqual({ accepted: 1, quarantined: 1 });
   });
   it("rejects XML DTDs, entity declarations, malformed XML, and invalid expiry", () => {
     expect(() => weworkremotely.parseListing(`<!DOCTYPE rss [<!ENTITY file SYSTEM "file:///etc/passwd">]>${xml()}`)).toThrow();
