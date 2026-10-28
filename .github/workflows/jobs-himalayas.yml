@@ -1,0 +1,20 @@
+name: Jobs - himalayas
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Auto publishes only explicitly activated sources
+        type: choice
+        options: [auto, dry-run, publish]
+        default: dry-run
+  schedule:
+    - cron: '57 5 * * *'
+permissions:
+  contents: read
+jobs:
+  source:
+    uses: ./.github/workflows/source-pipeline.yml
+    with:
+      source: himalayas
+      mode: ${{ github.event_name == 'schedule' && 'auto' || inputs.mode }}
+    secrets: inherit
