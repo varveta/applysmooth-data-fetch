@@ -56,6 +56,17 @@ describe("public ATS normalization", () => {
       postedAt: "2026-10-20T00:00:00.000Z", sourceUrl: workable.shortlink, applyUrl: workable.application_url,
     });
   });
+  it("merges Workable country variants into one identity while retaining every location", () => {
+    const canada = { ...workable, country: "Canada", locations: [{ country: "Canada", countryCode: "CA", city: "" }] };
+    const us = { ...workable, country: "United States", locations: [{ country: "United States", countryCode: "US", city: null }] };
+    const listing = ATS_ADAPTERS.workable.parseListing({ name: "Example Inc", jobs: [canada, us, us] });
+    expect(listing).toHaveLength(1);
+    const job = ATS_ADAPTERS.workable.normalize(listing[0], "example");
+    expect(job.usEligibility).toBe("us");
+    expect(job.locations.map((location) => location.country)).toEqual(["CA", "US"]);
+    expect(job.sourceJobId).toBe("ABC123");
+    expect(job.postedAt).toBe("2026-10-20T00:00:00.000Z");
+  });
   it("does not infer US eligibility from countryless remote Workable roles", () => {
     const [raw] = ATS_ADAPTERS.workable.parseListing({ name: "Example Inc", jobs: [{ ...workable, locations: [], telecommuting: true }] });
     expect(ATS_ADAPTERS.workable.normalize(raw, "example").usEligibility).toBe("unknown");
@@ -101,7 +112,7 @@ describe("public ATS normalization", () => {
   });
   it("rejects duplicate IDs for every complete snapshot", () => {
     expect(() => ATS_ADAPTERS.smartrecruiters.parseListing({ jobs: [smart, smart] })).toThrow(/Duplicate/);
-    expect(() => ATS_ADAPTERS.workable.parseListing({ name: "Example", jobs: [workable, workable] })).toThrow(/Duplicate/);
+    expect(() => ATS_ADAPTERS.workable.parseListing({ name: "Example", jobs: [workable, { ...workable, title: "Conflicting title" }] })).toThrow(/Conflicting/);
     expect(() => ATS_ADAPTERS.recruitee.parseListing({ offers: [recruitee, recruitee] })).toThrow(/Duplicate/);
     expect(() => parsePersonioXml(personio(position + position))).toThrow(/Duplicate/);
   });
