@@ -73,6 +73,22 @@ describe("public feed normalization", () => {
   it("rejects explicit US exclusions despite the word Worldwide", () => {
     expect(remotive.normalize({ ...remotiveJob, candidate_required_location: "Worldwide except United States" }, "public").usEligibility).toBe("not_us");
   });
+  it("canonicalizes Remote OK host casing before catalog attribution without changing path or query", () => {
+    const raw = { ...remoteokJob, url: "https://remoteOK.com/remote-jobs/Mixed-Case?ref=AbC",
+      apply_url: "https://REMOTEOK.com/remote-jobs/Mixed-Case?apply=AbC",
+      description: "Build reliable software systems for customers. ".repeat(20) };
+    const prepared = prepareBoard({ source: "remoteok", tenant: "public", company: "Remote OK" },
+      [{ legal: "Credit Remote OK", last_updated: 1 }, raw], new Date("2026-10-26T00:00:00Z"),
+      { source: "remoteok", tenant: "public", complete: true, identities: [] });
+    expect(prepared.rows).toHaveLength(1);
+    expect(prepared.rows[0]).toMatchObject({
+      attribution_url: "https://remoteok.com/remote-jobs/Mixed-Case?ref=AbC",
+      source_url: "https://remoteok.com/remote-jobs/Mixed-Case?ref=AbC",
+      apply_url: "https://remoteok.com/remote-jobs/Mixed-Case?apply=AbC",
+      source_job_id: "89",
+    });
+  });
+
   it("does not infer Remote OK currency or interval", () => {
     expect(remoteok.normalize({ ...remoteokJob, salary_min: 100000, salary_max: 120000 }, "public").salary)
       .toMatchObject({ currency: null, period: null });

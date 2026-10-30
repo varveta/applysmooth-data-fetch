@@ -72,9 +72,22 @@ describe("bounded public feed fetching", () => {
     expect(get).toHaveBeenCalledTimes(10);
     await expect(loadFeedBoard(target("himalayas"), vi.fn(async () => ok({ ...himalayasPage([1]), totalCount: -1 })))).rejects.toThrow();
   });
-  it("rejects shifting Himalayas pages with repeated job identities", async () => {
-    const get = vi.fn().mockResolvedValueOnce(ok(himalayasPage([1]))).mockResolvedValueOnce(ok(himalayasPage([1])));
-    await expect(loadFeedBoard(target("himalayas"), get)).rejects.toThrow("Duplicate himalayas posting");
+  it("retains unique Himalayas jobs across identical page overlaps", async () => {
+    const get = vi.fn().mockResolvedValueOnce(ok(himalayasPage([1, 2])))
+      .mockResolvedValueOnce(ok(himalayasPage([2, 3]))).mockResolvedValueOnce(ok(himalayasPage([])));
+    const result = await loadFeedBoard(target("himalayas"), get);
+    expect((result.body as { jobs: unknown[] }).jobs).toEqual([himalayasJob(1), himalayasJob(2), himalayasJob(3)]);
+    expect(result.discovery).toMatchObject({ policy: "observations", pages: 3, capped: false });
+  });
+  it("rejects conflicting Himalayas copies instead of selecting an arbitrary location", async () => {
+    const get = vi.fn().mockResolvedValueOnce(ok(himalayasPage([1])))
+      .mockResolvedValueOnce(ok({ ...himalayasPage([1]), jobs: [{ ...himalayasJob(1), locationRestrictions: ["Canada"] }] }));
+    await expect(loadFeedBoard(target("himalayas"), get)).rejects.toThrow("Conflicting Himalayas posting across feed pages");
+  });
+  it("bounds repeated identical Himalayas pages without claiming a full snapshot", async () => {
+    const result = await loadFeedBoard(target("himalayas"), async () => ok(himalayasPage([1])));
+    expect((result.body as { jobs: unknown[] }).jobs).toHaveLength(1);
+    expect(result.discovery).toEqual({ policy: "observations", pages: 10, capped: true });
   });
   it("requests validated WWR XML as text and preserves the XML body", async () => {
     const xml = '<rss><channel><title>We Work Remotely</title><link>https://weworkremotely.com</link></channel></rss>';

@@ -137,7 +137,8 @@ export const himalayas: SourceAdapter = {
 };
 
 const RemoteOkJob = z.object({ id, position: nonempty, company: nonempty, description: z.string(),
-  url: providerUrl("remoteok.com"), apply_url: providerUrl("remoteok.com").optional(),
+  url: providerUrl("remoteok.com").transform((value) => new URL(value).href),
+  apply_url: providerUrl("remoteok.com").transform((value) => new URL(value).href).optional(),
   location: z.string().optional(), date: z.string().optional(), epoch: timestamp.optional(), salary_min: money, salary_max: money,
 });
 export const remoteok: SourceAdapter = {
