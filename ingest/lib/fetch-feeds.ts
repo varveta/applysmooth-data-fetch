@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from "node:util";
+import { CollectorError } from "./diagnostics";
 import { FEED_ADAPTERS } from "@/lib/jobs-ingest/feed-adapters";
 import type { SourceId } from "@/lib/jobs-ingest/contract";
 import { getJson } from "./http";
@@ -42,7 +44,7 @@ export async function loadFeedBoard(
   }
 
   const jobs: unknown[] = [];
-  const ids = new Set<string>();
+  const ids = new Map<string, unknown>();
   const cursors = new Set<string>();
   let current = first;
   let capped = false;
@@ -51,9 +53,16 @@ export async function loadFeedBoard(
     const envelope = current.body as Record<string, unknown>;
     for (const job of current.jobs) {
       const id = adapter.postingId(job);
-      // Search pages can shift. Fail this run instead of presenting a misleading complete traversal.
-      if (ids.has(id)) throw new Error(`Duplicate ${target.source} posting across feed pages: ${id}`);
-      ids.add(id);
+      // Himalayas search pages overlap as rankings shift. Identical observations
+      // are safe to retain once; conflicting copies must never win arbitrarily.
+      if (ids.has(id)) {
+        if (target.source !== "himalayas")
+          throw new Error(`Duplicate ${target.source} posting across feed pages: ${id}`);
+        if (!isDeepStrictEqual(ids.get(id), job))
+          throw new CollectorError("Conflicting Himalayas posting across feed pages");
+        continue;
+      }
+      ids.set(id, job);
       jobs.push(job);
     }
     if (target.source === "himalayas") estimatedTotal = Math.max(estimatedTotal, envelope.totalCount as number);
