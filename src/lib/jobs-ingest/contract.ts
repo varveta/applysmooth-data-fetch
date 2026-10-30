@@ -11,11 +11,15 @@ import { z } from "zod";
  * when the source states it; every non-structured value carries evidence.
  */
 
+export const EXPERIMENTAL_SOURCE_IDS = ["pinpoint"] as const;
 export const SOURCE_IDS = [
   "greenhouse", "lever", "ashby", "smartrecruiters", "workable", "personio",
   "recruitee", "jobicy", "himalayas", "weworkremotely", "remoteok", "remotive",
+  ...EXPERIMENTAL_SOURCE_IDS,
 ] as const;
 export type SourceId = (typeof SOURCE_IDS)[number];
+export const isExperimentalSource = (source: SourceId) =>
+  (EXPERIMENTAL_SOURCE_IDS as readonly string[]).includes(source);
 
 export const WORK_MODES = ["Remote", "Hybrid", "On-site"] as const;
 export const JOB_TYPES = [

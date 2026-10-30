@@ -84,6 +84,7 @@ export function verifier(options: {
   });
   const jobicyStatus = createJobicyVerifier(options.queuedJobs ?? [], read);
   const source = async (job: VerifyJob): Promise<Check> => {
+    if (job.source === "pinpoint") return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
     if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
     if (job.source === "ashby") {
       let pending = ashbyBoards.get(job.tenant);

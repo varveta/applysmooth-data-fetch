@@ -1,0 +1,9 @@
+{
+  "targets": [
+    {
+      "source": "pinpoint",
+      "tenant": "groupo",
+      "company": "Group O"
+    }
+  ]
+}

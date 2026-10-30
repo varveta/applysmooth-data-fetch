@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS, isExperimentalSource } from "@/lib/jobs-ingest/contract";
 import { resolveMode, targetsFor, sourceNotBefore } from "./source-pipeline";
 
 it("requires explicit activation before publishing while allowing secret-free testing", () => {
@@ -11,7 +11,7 @@ it("requires explicit activation before publishing while allowing secret-free te
   expect(() => resolveMode("jobicy", "auto", '["unknown"]')).toThrow();
 });
 
-describe.each(SOURCE_IDS)("%s independent pipeline", (source) => {
+describe.each(SOURCE_IDS.filter(source => !isExperimentalSource(source)))("%s independent pipeline", (source) => {
   it("has only its own distinct configured boards and an isolated workflow", () => {
     const targets = targetsFor(source);
     expect(targets.every((target) => target.source === source)).toBe(true);

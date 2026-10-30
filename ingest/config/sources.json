@@ -304,6 +304,16 @@
           "company": "Remotive"
         }
       ]
+    },
+    "pinpoint": {
+      "experimental": true,
+      "targets": [
+        {
+          "source": "pinpoint",
+          "tenant": "groupo",
+          "company": "Group O"
+        }
+      ]
     }
   }
 }

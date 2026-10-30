@@ -1,0 +1,79 @@
+name: TEST source validation
+on:
+  push:
+    branches: [TEST]
+    paths:
+      - 'ingest/**'
+      - 'src/lib/jobs-ingest/**'
+      - 'src/lib/jobs-collector/**'
+      - '.github/workflows/source-validation-test.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'tsconfig.json'
+      - 'vitest.config.ts'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: source-validation-test
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.repository == 'varveta/applysmooth-data-fetch' && github.ref == 'refs/heads/TEST'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      sources: ${{ steps.manifest.outputs.sources }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - run: corepack enable && corepack prepare pnpm@10.32.1 --activate
+      - run: pnpm install --frozen-lockfile
+      - name: Test adapters and validation boundaries
+        run: pnpm test && pnpm typecheck
+      - name: Read sources from committed TEST manifest
+        id: manifest
+        run: |
+          node --input-type=module <<'JS' >> "$GITHUB_OUTPUT"
+          import { readFileSync } from 'node:fs';
+          const manifest = JSON.parse(readFileSync('ingest/config/expansion-test.json', 'utf8'));
+          const sources = [...new Set(manifest.targets.map(target => target.source))];
+          if (!sources.length || sources.length > 50 || sources.some(source => typeof source !== 'string' || !/^[a-z][a-z0-9_-]{0,63}$/.test(source)))
+            throw new Error('Invalid TEST source matrix');
+          console.log('sources=' + JSON.stringify(sources));
+          JS
+  validate:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        source: ${{ fromJSON(needs.prepare.outputs.sources) }}
+    name: Validate ${{ matrix.source }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - run: corepack enable && corepack prepare pnpm@10.32.1 --activate
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch and validate source without database writes
+        run: pnpm exec tsx ingest/validate-targets.ts ingest/config/expansion-test.json "$SOURCE"
+        env:
+          SOURCE: ${{ matrix.source }}
+      - name: Save per-source TEST validation report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: source-validation-test-${{ matrix.source }}-${{ github.run_id }}
+          path: ingest/data/source-validation-test-${{ matrix.source }}.json
+          if-no-files-found: warn
+          retention-days: 14
