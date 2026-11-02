@@ -3,10 +3,10 @@
 Configured production baseline: 12. Additional live sources: 0. At least 38 new
 platforms remain. Current database inspection finds active rows from 11 platforms;
 Personio is configured and scheduled but currently contributes no accepted jobs.
-Four experimental adapters are implemented; they do not count as production.
+Eight experimental adapters are implemented; they do not count as production.
 Candidate queue: `source-expansion-tracker.json` (46 candidates; none counted merely for appearing in this queue).
 
-## November 2 checkpoint
+## November 2 first-batch checkpoint
 
 | Platform | Fetched | Accepted | Rejected | Quarantined | Known recent | Unknown dates | Verified links |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -44,21 +44,50 @@ access: [verified run 41511555771](https://github.com/varveta/applysmooth-data-f
 confirmed all 59 accepted application links and the original-date rejection counts.
 No shared database writes occurred.
 
-Backend draft PR #288 prepares all four sources with exact tenant-scoped attribution
-and source/apply URL checks. The unapplied migration preserves observation-only
-policy and existing verification cooldowns. In-memory PostgreSQL checks cover
-idempotent replay, missing snapshots, scoped identity aliases, publication failures,
-expiry and reader access. This is not hosted Supabase or deployment acceptance.
+Backend draft PR #288 now prepares eight sources. The first four completed actual
+Next HTTP and disposable GitHub-runner Supabase acceptance in
+[run 41515300570](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570):
+59 real accepted rows, idempotent replay, authentication/RLS, scoped identities,
+missing-observation protection, verification cooldown, closure and expiry.
+No local Docker or shared Supabase writes were used. Publication conditions remain
+unresolved; see [provider review](research/first-four-publication-review.md).
 
-## Additional free API lead
+## Second batch: four additional adapters
 
-[Get on Board's official help](https://www.getonbrd.com/help/what-can-i-do-with-get-on-board-s-api)
-describes account-free public listings and building a job board from them. Its
-[official SDK](https://github.com/getonbrd/getonbrd-ruby) confirms public search and
-category routes. Three public search pages for "United States" yielded 29 unique
-source IDs, only one with an explicit US country and recent date. US employer/client
-mentions and generic remote jobs do not establish US eligibility. Implement and
-measure resolved country restrictions before claiming an accepted-job yield.
+| Platform | Fetched | Accepted | Rejected | Quarantined | Accepted within 15 days |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Remote Backend Jobs | 50 | 43 | 4 | 3 | 42 |
+| Get on Board | 29 | 1 | 14 | 14 | 1 |
+| YubHub | 100 | 70 | 28 | 2 | 51 |
+| Teamtailor | 4 | 2 | 2 | 0 | 2 |
+
+These time-specific local samples add 116 accepted rows, 96 with original dates
+within 15 days. Combined with the first batch: 175 accepted rows across eight
+platforms. Counts use empty identity snapshots; cross-source/current-catalog
+unique yield for the second batch remains unmeasured. Collector tests: 411 passed;
+backend contract/migration tests: 129 passed. All 175 real accepted rows passed
+embedded PostgreSQL insertion and idempotent replay. Eight-source cloud TEST and
+isolated HTTP/Supabase acceptance are the next checkpoint, not yet claimed here.
+
+Remote Backend Jobs is one platform across its network. Its default observation
+window is explicitly capped at 50 because offset windows can overlap. Per-job
+provider credit/link and original employer application link stay distinct.
+Ten detail responses were reused from the earlier sample; the final pass made 41
+new requests. Get on Board preserves all full description sections and explicit
+country restrictions. Generic remote or US client mentions do not establish US
+eligibility.
+
+YubHub's 100-row US feed is discovery only. Original public employer JSON-LD supplies
+company, title, full description and original dates; feed enrichment never replaces
+these fields. Two originals could not be verified and remain quarantined. A missing
+original does not discard healthy peers or prove closure. The final validation
+replayed cached ordinary public GET responses; no additional network requests.
+Teamtailor uses its documented RSS feed, preserving GUIDs, full descriptions,
+original publication dates, exact tenant links and structured locations.
+
+Count-only evidence: [second-batch report](evidence/2026-11-02-second-batch-local.json).
+All four sources remain TEST-only and publication review is separate from technical
+acceptance. No experimental source can publish through the live runner.
 
 ## Freshness and current-catalog overlap
 
@@ -88,9 +117,9 @@ Count-only evidence: `evidence/2026-11-02-catalog-overlap.json`.
 
 | Platform | Read-only evidence | Next decision |
 | --- | --- | --- |
-| Remote Backend Jobs network | Public API, full descriptions, explicit credit/link terms | Implement as one source across backend/frontend/Java; 250-result API cap |
+| Remote Backend Jobs network | Public API, full descriptions, explicit credit/link terms | Implemented as one source; bounded 50-result observation window |
 | Active Vacancies | Public API and full descriptions work | Permission blocked: terms prohibit bulk competing commercial directories |
-| YubHub | US feed contains 100 rows | Verify original full descriptions; feed is an enrichment-sorted window, not a complete snapshot |
+| YubHub | US feed contains 100 rows | Implemented with original employer hydration; 100-result observation window |
 | Dev Remotely | Public feed contains 50 rows | Full-text gap: sampled feed content stops at 1,000 characters |
 | Green Level | Public feed contains 1,462 rows | Descriptions absent; US yield unmeasured |
 | Dev Global Jobs | Public developer documentation | Commercial reuse requires written permission |
@@ -98,9 +127,8 @@ Count-only evidence: `evidence/2026-11-02-catalog-overlap.json`.
 
 Remote Backend Jobs publishes [API limits and attribution requirements](https://www.remotebackendjobs.com/developers)
 and repeats them in its [terms](https://www.remotebackendjobs.com/terms). Keep its job
-page link and name credit intact. Its three network sites count once. A five-row
-probe and one full-description response establish API access only, not accepted
-unique US-job yield.
+page link and name credit intact. Its three network sites count once. The second-batch table above records the current local yield; production and
+cross-source uniqueness remain unverified.
 
 Active Vacancies' [developer page](https://activevacancies.com/developers) permits
 apps/research/dashboards, but its [terms](https://activevacancies.com/terms) prohibit
@@ -114,13 +142,13 @@ checked into this repository.
 ## Remaining work
 
 1. Preserve verified TEST source/link evidence and rerun after adapter changes.
-2. Complete isolated HTTP/Supabase acceptance, production-like failures and display
+2. Extend isolated HTTP/Supabase acceptance to the second batch, with failures and display
    checks. User explicitly prohibits local Docker; use in-memory PostgreSQL locally
    and a separate cloud test environment for full-stack acceptance. Existing TEST
    and production share Supabase and must receive no experimental writes.
 3. Resolve Manatal freshness and expand useful real employer coverage. Confirm each
    provider's applicable reuse/attribution conditions and rate budget.
-4. Implement Get on Board and continue alternatives beyond the original candidate list.
+4. Continue alternatives beyond the original candidate list; agents research independent platforms in parallel.
 5. Prepare exact backend/collector commits, migration, board allowlists, schedules,
    identity seeding, rollback and post-rollout checks for approval. Production is
    not authorized by TEST success.

@@ -1,3 +1,7 @@
+import { loadTeamtailorBoard } from "./fetch-teamtailor";
+import { loadYubhubBoard } from "./fetch-yubhub";
+import { loadRemoteBackendJobsBoard } from "./fetch-remote-backend-jobs";
+import { loadGetonboardBoard } from "./fetch-getonboard";
 import { loadPinpointBoard } from "./fetch-pinpoint";
 import { loadTrakstarBoard } from "./fetch-trakstar";
 import { loadManatalBoard } from "./fetch-manatal";
@@ -13,6 +17,10 @@ export type BoardTarget = { source: SourceId; tenant: string; company: string };
 
 /** A failed page or detail aborts before any row is published. */
 export async function loadBoard(target: BoardTarget, get: typeof getJson = getJson) {
+  if (target.source === "teamtailor") return loadTeamtailorBoard(target, get);
+  if (target.source === "yubhub") return loadYubhubBoard(target, get);
+  if (target.source === "remotebackendjobs") return loadRemoteBackendJobsBoard(target, get);
+  if (target.source === "getonboard") return loadGetonboardBoard(target, get);
   if (target.source === "trakstar") return loadTrakstarBoard(target, get);
   if (target.source === "manatal") return loadManatalBoard(target, get);
   if (target.source === "breezy") return loadBreezyBoard(target, get);

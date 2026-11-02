@@ -2,6 +2,7 @@ import { isIP } from "node:net";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
 import { SOURCE_IDS, isExperimentalSource, type NormalizedJob } from "@/lib/jobs-ingest/contract";
 import { assertRunnerContext, clientFromEnv, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, eventLine, safeReason, type Stage } from "./lib/diagnostics";
@@ -132,7 +133,12 @@ export function verifier(options: {
           for (const raw of adapter.parseListing(response.body)) {
             // Configured display company is not in the verification queue. This
             // placeholder is used only to validate the provider record, never persisted.
-            const normalized = adapter.normalize(raw, job.tenant, job.tenant);
+            let normalized: NormalizedJob;
+            try { normalized = adapter.normalize(raw, job.tenant, job.tenant); }
+            catch (error) {
+              if (!(error instanceof UnverifiedPostingError)) throw error;
+              continue;
+            }
             if (postings.has(normalized.sourceJobId)) throw new Error("Duplicate source identity");
             postings.set(normalized.sourceJobId, normalized);
           }

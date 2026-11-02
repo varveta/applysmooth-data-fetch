@@ -138,7 +138,12 @@ const PersonioJob = z.object({
   id, name: title, subcompany: optionalText, office: optionalText,
   additionalOffices: z.union([z.literal(""), z.object({ office: z.array(text).optional() })]).nullish(),
   department: optionalText, employmentType: optionalText, schedule: optionalText, createdAt: optionalText,
-  jobDescriptions: z.object({ jobDescription: z.array(z.object({ name: optionalText, value: text })) }),
+  // Personio emits an empty tag when this language has no description. Keep the
+  // posting identity and let quality gates reject that row, without losing peers.
+  jobDescriptions: z.preprocess(
+    value => typeof value === "string" && !value.trim() ? { jobDescription: [] } : value,
+    z.object({ jobDescription: z.array(z.object({ name: optionalText, value: text })) }),
+  ),
 });
 const xmlParser = new XMLParser({
   ignoreAttributes: false, parseTagValue: false, trimValues: false,

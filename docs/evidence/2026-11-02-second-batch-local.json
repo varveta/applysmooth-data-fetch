@@ -1,0 +1,253 @@
+{
+  "kind": "second-batch-local-read-only-validation",
+  "production_ready": false,
+  "shared_database_writes": 0,
+  "reports": {
+    "remotebackendjobs": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T20:28:45.561Z",
+      "duration_ms": 42040,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "remotebackendjobs:public",
+          "company": "Remote Backend Jobs",
+          "success": true,
+          "fetched_count": 50,
+          "accepted_count": 43,
+          "rejected_count": 4,
+          "quarantined_count": 3,
+          "quality_accepted_count": 43,
+          "deduplicated_count": 0,
+          "reason_counts": {
+            "us_eligibility_unknown": 3,
+            "not_us": 4
+          },
+          "us_eligible_count": 43,
+          "known_recent_posting_count": 50,
+          "posted_within_15_days_count": 49,
+          "accepted_posted_within_15_days_count": 42,
+          "unknown_posting_date_count": 0,
+          "requests": 41,
+          "bytes": 602650,
+          "duration_ms": 42040,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 51,
+            "capped": true,
+            "maximum_jobs": 50
+          }
+        }
+      ],
+      "detail_cache_hits": 10,
+      "cached_sample_at": "2026-11-02T20:13:11.998Z"
+    },
+    "getonboard": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T20:21:17.854Z",
+      "duration_ms": 2907,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "getonboard:public",
+          "company": "getonboard",
+          "success": true,
+          "fetched_count": 29,
+          "accepted_count": 1,
+          "rejected_count": 14,
+          "quarantined_count": 14,
+          "quality_accepted_count": 1,
+          "deduplicated_count": 0,
+          "reason_counts": {
+            "us_eligibility_unknown": 25,
+            "not_us": 3,
+            "posting_too_old": 13
+          },
+          "us_eligible_count": 1,
+          "known_recent_posting_count": 16,
+          "posted_within_15_days_count": 7,
+          "accepted_posted_within_15_days_count": 1,
+          "unknown_posting_date_count": 0,
+          "requests": 3,
+          "bytes": 223378,
+          "duration_ms": 2907,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 3,
+            "capped": false
+          }
+        }
+      ]
+    },
+    "yubhub": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T20:32:49.592Z",
+      "duration_ms": 76555,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "yubhub:public",
+          "company": "YubHub",
+          "success": true,
+          "fetched_count": 100,
+          "accepted_count": 70,
+          "rejected_count": 28,
+          "quarantined_count": 2,
+          "quality_accepted_count": 70,
+          "deduplicated_count": 0,
+          "reason_counts": {
+            "missing_company": 28,
+            "posting_too_old": 23,
+            "missing_title": 5,
+            "normalize_failed": 2
+          },
+          "us_eligible_count": 98,
+          "known_recent_posting_count": 70,
+          "posted_within_15_days_count": 51,
+          "accepted_posted_within_15_days_count": 51,
+          "unknown_posting_date_count": 5,
+          "requests": 101,
+          "bytes": 2582631,
+          "duration_ms": 76555,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 101,
+            "capped": true
+          }
+        }
+      ],
+      "response_source": "cached ordinary public GET responses",
+      "new_network_requests": 0
+    },
+    "teamtailor": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T20:33:31.806Z",
+      "duration_ms": 1021,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "teamtailor:varnish-software",
+          "company": "Varnish Software",
+          "success": true,
+          "fetched_count": 4,
+          "accepted_count": 2,
+          "rejected_count": 2,
+          "quarantined_count": 0,
+          "quality_accepted_count": 2,
+          "deduplicated_count": 0,
+          "reason_counts": {
+            "not_us": 2,
+            "posting_too_old": 1
+          },
+          "us_eligible_count": 2,
+          "known_recent_posting_count": 3,
+          "posted_within_15_days_count": 3,
+          "accepted_posted_within_15_days_count": 2,
+          "unknown_posting_date_count": 0,
+          "requests": 1,
+          "bytes": 39409,
+          "duration_ms": 1021,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 1,
+            "capped": false
+          }
+        }
+      ]
+    }
+  },
+  "combined_eight_source_embedded_rehearsal": {
+    "mode": "isolated-pglite",
+    "external_database_writes": 0,
+    "production_ready": false,
+    "records": 175,
+    "boards": [
+      {
+        "board": "pinpoint:groupo",
+        "records": 10,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "breezy:embraer",
+        "records": 45,
+        "batches": 2,
+        "idempotent_replay": true
+      },
+      {
+        "board": "manatal:primary-care-collaborative",
+        "records": 1,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "trakstar:elevate97",
+        "records": 1,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "trakstar:valtasgroup",
+        "records": 2,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "remotebackendjobs:public",
+        "records": 43,
+        "batches": 2,
+        "idempotent_replay": true
+      },
+      {
+        "board": "getonboard:public",
+        "records": 1,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "yubhub:public",
+        "records": 70,
+        "batches": 3,
+        "idempotent_replay": true
+      },
+      {
+        "board": "teamtailor:varnish-software",
+        "records": 2,
+        "batches": 1,
+        "idempotent_replay": true
+      }
+    ],
+    "unexercised_boards": [
+      "breezy:subscribe",
+      "manatal:trolley-2"
+    ]
+  }
+}

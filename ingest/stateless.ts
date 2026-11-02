@@ -8,6 +8,7 @@ import { SOURCE_IDS, isExperimentalSource, type CatalogRow, type NormalizedJob }
 import { dedupe } from "@/lib/jobs-ingest/dedupe";
 import { evaluateGates, type GateStatus } from "@/lib/jobs-ingest/gates";
 import { sha256 } from "@/lib/jobs-ingest/text";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
 import { getJson, pool } from "./lib/http";
 import { loadBoard, DISCOVERY_SOURCES } from "./lib/load-board";
 import { assertRunnerContext, clientFromEnv, MAX_BATCH_BYTES, type RequestMetrics } from "./lib/collector-client";
@@ -71,18 +72,28 @@ function normalizeBoard(target: StatelessTarget, body: unknown) {
     if (meta.total !== listing.length) throw new CollectorError("Incomplete board listing: total mismatch");
   }
   const jobs = new Map<string, NormalizedJob>();
+  const unverified = new Set<string>();
   for (const raw of listing) {
-    adapter.postingId(raw);
-    const job = adapter.normalize(raw, target.tenant, target.company);
+    const postingId = `${target.source}:${target.tenant}:${adapter.postingId(raw)}`;
+    let job: NormalizedJob;
+    try { job = adapter.normalize(raw, target.tenant, target.company); }
+    catch (error) {
+      if (!(error instanceof UnverifiedPostingError)) throw error;
+      if (jobs.has(postingId)) throw new CollectorError("Incomplete board listing: conflicting duplicate identity");
+      unverified.add(postingId);
+      continue;
+    }
+    if (unverified.has(job.id)) throw new CollectorError("Incomplete board listing: conflicting duplicate identity");
     const prior = jobs.get(job.id);
     if (prior && prior.contentHash !== job.contentHash)
       throw new CollectorError("Incomplete board listing: conflicting duplicate identity");
     jobs.set(job.id, job);
   }
-  return jobs;
+  return { jobs, unverified };
 }
 
-function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, now: Date, anchors: Map<string, CatalogIdentity>) {
+function prepareJobs(target: StatelessTarget, board: ReturnType<typeof normalizeBoard>, now: Date, anchors: Map<string, CatalogIdentity>) {
+  const { jobs, unverified } = board;
   const adapter = ADAPTERS[target.source];
   const seenAt = now.toISOString();
   const ordered = [...jobs.values()].sort((a, b) => a.id.localeCompare(b.id));
@@ -105,7 +116,7 @@ function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, 
     evaluateGates(job, { now, open: true, lastSeenAt: seenAt, duplicateOf: null }).status,
   ]));
   const identity_resolution = { splits: 0, merges: 0, quarantined: 0 };
-  const quarantinedPostingIds = new Set<string>();
+  const quarantinedPostingIds = new Set<string>(unverified);
   const quarantine = (job: NormalizedJob) => {
     if (decisions.get(job.id) !== "accepted") return;
     decisions.set(job.id, "quarantined");
@@ -154,7 +165,7 @@ function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, 
     const row: StatelessCatalogRow = { ...toCatalogRow(job, {
       firstSeenAt: anchor?.first_seen_at ?? seenAt,
       duplicates: ownedDuplicates.filter((candidate) => candidate.id !== job.id),
-      attribution: { ...adapter.attribution(target.tenant),
+      attribution: { ...adapter.attribution(target.tenant, job),
         ...(DISCOVERY_SOURCES.includes(target.source) ? { url: job.sourceUrl } : {}),
       },
     }), observed_source_job_id: job.sourceJobId };
@@ -171,8 +182,9 @@ function prepareJobs(target: StatelessTarget, jobs: Map<string, NormalizedJob>, 
   }
   const gates: Record<string, number> = {};
   for (const status of decisions.values()) gates[status] = (gates[status] ?? 0) + 1;
+  if (unverified.size) gates.quarantined = (gates.quarantined ?? 0) + unverified.size;
   rows.sort((a, b) => a.id.localeCompare(b.id));
-  return { rows, fetched_count: jobs.size, gates, identity_resolution,
+  return { rows, fetched_count: jobs.size + unverified.size, gates, identity_resolution,
     quarantined_posting_ids: [...quarantinedPostingIds].sort(),
     quarantined_count: quarantinedPostingIds.size };
 }
@@ -205,7 +217,7 @@ export async function runStateless(options: {
     const identity = { run_id, source: target.source, tenant: target.tenant };
     let stage: Stage = "fetch";
     try {
-      let jobs: Map<string, NormalizedJob>;
+      let jobs: ReturnType<typeof normalizeBoard>;
       try {
         const response = await loadBoard(target, options.get ?? getJson);
         fetchRequests += response.attempts;
@@ -223,7 +235,7 @@ export async function runStateless(options: {
       }
       stage = "publish";
       const snapshot = await options.client.call({ operation: "board_identities", ...identity,
-        ...(DISCOVERY_SOURCES.includes(target.source) ? { posting_ids: [...jobs.keys()] } : {}),
+        ...(DISCOVERY_SOURCES.includes(target.source) ? { posting_ids: [...jobs.jobs.keys(), ...jobs.unverified] } : {}),
       });
       const prepared = prepareJobs(target, jobs, now, boardIdentities(snapshot, target.source, target.tenant));
       log(JSON.stringify({ stage: "fetch", board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, gates: prepared.gates, identity_resolution: prepared.identity_resolution }));

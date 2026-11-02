@@ -1,3 +1,7 @@
+import { teamtailor } from "./teamtailor";
+import { yubhub } from "./yubhub";
+import { remotebackendjobs } from "./remote-backend-jobs";
+import { getonboard } from "./getonboard";
 import { trakstar } from "./trakstar";
 import { manatal } from "./manatal";
 import { breezy } from "./breezy";
@@ -41,7 +45,7 @@ export type SourceAdapter = {
   parseListing(body: unknown): unknown[];
   postingId(raw: unknown): string;
   normalize(raw: unknown, tenant: string, companyName?: string): NormalizedJob;
-  attribution(tenant: string): { name: string; url: string };
+  attribution(tenant: string, job?: NormalizedJob): { name: string; url: string };
 };
 
 // Validate the same identity bounds before snapshot reconciliation as normalization.
@@ -519,4 +523,8 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   breezy,
   manatal,
   trakstar,
+  remotebackendjobs,
+  getonboard,
+  yubhub,
+  teamtailor,
 };

@@ -1,7 +1,5 @@
-> Current checkpoint: four experimental platforms (Pinpoint, Breezy, Manatal,
-> Trakstar), with source/link verification and original Pinpoint page dates.
-> See [current progress](docs/source-expansion-progress.md). The older checkpoint
-> below records historical evidence, not current readiness or source counts.
+> Current checkpoint: eight experimental adapters. First four passed cloud TEST and isolated HTTP/Supabase acceptance; second four passed local validation and embedded PostgreSQL replay. No new live production sources.
+> See [current progress](docs/source-expansion-progress.md) for current counts and publication blockers. The older checkpoints below are historical evidence.
 
 > November 2 update: see [account-free integration](docs/free-source-integration.md).
 > The experimental set now also includes Breezy and a local full-description

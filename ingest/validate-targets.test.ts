@@ -1,7 +1,9 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
+import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
 import * as validator from "./validate-targets";
 import { ashbyFixture } from "./synthetic-fixtures";
 import type { FetchResult } from "./lib/http";
@@ -10,7 +12,38 @@ const now = new Date("2026-10-30T12:00:00Z");
 const target = { source: "ashby", tenant: "example", company: "Example" };
 const ok = (jobs: unknown[]): FetchResult => ({ ok: true, status: 200, body: { jobs }, bytes: 500, attempts: 1 });
 const dirs: string[] = [];
-afterEach(() => dirs.splice(0).forEach((dir) => rmSync(dir, { recursive: true, force: true })));
+afterEach(() => {
+  vi.restoreAllMocks();
+  dirs.splice(0).forEach((dir) => rmSync(dir, { recursive: true, force: true }));
+});
+
+it("counts unverified identities as quarantined while retaining healthy peers", async () => {
+  const normalize = ADAPTERS.ashby.normalize;
+  vi.spyOn(ADAPTERS.ashby, "normalize").mockImplementation((raw, tenant, company) => {
+    if (ADAPTERS.ashby.postingId(raw) === "unverified") throw new UnverifiedPostingError("Unavailable original");
+    return normalize(raw, tenant, company);
+  });
+  const accepted: unknown[] = [];
+  const report = await validator.validateTargets({ targets: [target] }, {
+    now, get: async () => ok([ashbyFixture, { ...ashbyFixture, id: "unverified" }]),
+    onAccepted: rows => accepted.push(...rows),
+  });
+  expect(report).toMatchObject({ success: true, writes: 0 });
+  expect(report.boards[0]).toMatchObject({ fetched_count: 2, accepted_count: 1,
+    quarantined_count: 1, rejected_count: 0, reason_counts: { normalize_failed: 1 },
+    unknown_posting_date_count: 0, quality_accepted_count: 1, deduplicated_count: 0 });
+  expect(accepted).toHaveLength(1);
+});
+
+it("does not treat an unexpected normalization error as an unverified posting", async () => {
+  vi.spyOn(ADAPTERS.ashby, "normalize").mockImplementation(() => { throw new Error("Identity mismatch"); });
+  const accepted = vi.fn();
+  const report = await validator.validateTargets({ targets: [target] }, {
+    now, get: async () => ok([ashbyFixture]), onAccepted: accepted,
+  });
+  expect(report.success).toBe(false);
+  expect(accepted).not.toHaveBeenCalled();
+});
 
 it("reports actual quality gates without storing jobs or using collector credentials", async () => {
   const report = await validator.validateTargets({ targets: [target] }, { now, get: async () => ok([

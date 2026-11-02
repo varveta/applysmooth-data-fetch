@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { hostLimiter, pool } from "./lib/http";
 import { runVerification, verifier, type VerifyJob } from "./verify";
 import { ashbyFixture, greenhouseFixture, leverFixture } from "./synthetic-fixtures";
+import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
+import * as boardLoader from "./lib/load-board";
 
 const fixtures = { greenhouse: greenhouseFixture, lever: leverFixture, ashby: ashbyFixture };
 const runId = "c2f5c7ab-11e6-4b70-b803-f76bd7d98df5";
@@ -338,6 +341,20 @@ describe("request pacing and endpoint reporting", () => {
 
 
 describe("new source closure safeguards", () => {
+  it("keeps unverified originals uncertain without hiding healthy observation peers", async () => {
+    vi.spyOn(boardLoader, "loadBoard").mockResolvedValue({ body: ["healthy", "unverified"], bytes: 10, attempts: 1 });
+    vi.spyOn(ADAPTERS.yubhub, "parseListing").mockImplementation(body => body as string[]);
+    vi.spyOn(ADAPTERS.yubhub, "normalize").mockImplementation(raw => {
+      if (raw === "unverified") throw new UnverifiedPostingError("Missing original");
+      return { ...ADAPTERS.ashby.normalize(ashbyFixture, "example"), sourceJobId: "healthy", applyUrl: job().apply_url };
+    });
+    mockFetch.mockResolvedValue(new Response("Apply"));
+    const checker = verifier({ allowExperimental: true });
+    const base = { ...job(), source: "yubhub" as const, tenant: "public" };
+    expect((await checker.check({ ...base, source_job_id: "healthy" })).status).toBe("open");
+    expect((await checker.check({ ...base, source_job_id: "unverified" })).status).toBe("uncertain");
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
   it.each(["workable", "personio", "recruitee", "jobicy", "himalayas", "weworkremotely", "remoteok", "remotive"] as const)(
     "never treats %s endpoint failure as Lever closure", async (source) => {
       mockFetch.mockResolvedValue(json({}, 404));

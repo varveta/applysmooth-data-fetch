@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { SOURCE_IDS, type CatalogRow } from "@/lib/jobs-ingest/contract";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
 import { evaluateGates, type GateReason } from "@/lib/jobs-ingest/gates";
 import { loadBoard } from "./lib/load-board";
 import { getJson } from "./lib/http";
@@ -80,9 +81,16 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
       const adapter = ADAPTERS[target.source];
       const seen = new Set<string>();
       for (const raw of adapter.parseListing(fetched.body)) {
-        const job = adapter.normalize(raw, target.tenant, target.company);
-        if (seen.has(job.id)) continue;
-        seen.add(job.id);
+        const id = adapter.postingId(raw);
+        if (seen.has(id)) continue;
+        seen.add(id);
+        let job;
+        try { job = adapter.normalize(raw, target.tenant, target.company); }
+        catch (error) {
+          if (!(error instanceof UnverifiedPostingError)) throw error;
+          report.reason_counts.normalize_failed = (report.reason_counts.normalize_failed ?? 0) + 1;
+          continue;
+        }
         const gate = evaluateGates(job, { now, open: true, lastSeenAt: now.toISOString(), duplicateOf: null });
         if (gate.status === "accepted") report.quality_accepted_count++;
         if (job.usEligibility === "us") report.us_eligible_count++;

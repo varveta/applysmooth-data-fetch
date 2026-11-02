@@ -7,15 +7,16 @@
     {
       "slot": 13,
       "platform": "Pinpoint",
-      "status": "experimental_test_verified",
+      "status": "experimental_isolated_verified_publication_unresolved",
       "access": "**Public candidate.** Unauthenticated `https://{company}.pinpointhq.com/postings.json`; use postings, not deprecated jobs endpoint.",
-      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
+      "blocker": "Technical TEST and isolated HTTP/Supabase checks passed; provider publication/access conditions remain unresolved. No production approval or scheduled writes.",
       "evidence_urls": [
         "https://developers.pinpointhq.com/docs/jobs-json-endpoint",
-        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771"
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
+        "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
+      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
       "local_measurement_2026_11_02": {
         "fetched": 14,
         "accepted": 10,
@@ -27,22 +28,24 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-four-source-local.json",
-        "evidence/2026-11-02-catalog-overlap.json"
+        "evidence/2026-11-02-catalog-overlap.json",
+        "research/first-four-publication-review.md"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
     {
       "slot": 14,
       "platform": "Manatal",
-      "status": "experimental_test_verified",
+      "status": "experimental_isolated_verified_publication_unresolved",
       "access": "**Public candidate.** `https://api.manatal.com/open/v3/career-page/{client_slug}/jobs/`; paginated career-page API. Full account API is separate and token protected.",
-      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured. Both sampled listings omit posting dates; freshness unverified.",
+      "blocker": "Technical TEST and isolated HTTP/Supabase checks passed; provider publication/access conditions remain unresolved. No production approval or scheduled writes.",
       "evidence_urls": [
         "https://developers.manatal.com/reference/career-page_jobs_list",
-        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771"
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
+        "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
+      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
       "local_measurement_2026_11_02": {
         "fetched": 2,
         "accepted": 1,
@@ -54,7 +57,8 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-four-source-local.json",
-        "evidence/2026-11-02-catalog-overlap.json"
+        "evidence/2026-11-02-catalog-overlap.json",
+        "research/first-four-publication-review.md"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
@@ -74,17 +78,18 @@
     {
       "slot": 16,
       "platform": "Trakstar Hire / Recruiterbox",
-      "status": "experimental_test_verified",
+      "status": "experimental_isolated_verified_publication_unresolved",
       "access": "**Public candidate.** Official frontend API `https://jsapi.recruiterbox.com/v1/openings?client_name={tenant}`; separate private account API.",
-      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
+      "blocker": "Technical TEST and isolated HTTP/Supabase checks passed; provider publication/access conditions remain unresolved. No production approval or scheduled writes.",
       "evidence_urls": [
         "https://apiv1.recruiterbox.com/frontend_api.html",
         "https://elevate97.hire.trakstar.com/",
         "https://valtasgroup.hire.trakstar.com/",
-        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771"
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
+        "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
+      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
       "local_measurement_2026_11_02": {
         "fetched": 4,
         "accepted": 3,
@@ -96,7 +101,8 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-four-source-local.json",
-        "evidence/2026-11-02-catalog-overlap.json"
+        "evidence/2026-11-02-catalog-overlap.json",
+        "research/first-four-publication-review.md"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
@@ -128,9 +134,9 @@
     {
       "slot": 19,
       "platform": "JobScore",
-      "status": "research_only",
+      "status": "requires_permission",
       "access": "**Provisioning.** Employer publishes JSON/XML job feed; documentation places feed access on paid employer plans.",
-      "blocker": "US employer feed possible. Employer must supply/enable feed and permit reuse; no configured live feed tested.",
+      "blocker": "Public employer URL probe failed and redistribution restrictions need resolution. See research/jobscore.md.",
       "evidence_urls": [
         "https://support.jobscore.com/hc/en-us/articles/202001320-Developers-Guide-to-Job-Feed-APIs"
       ],
@@ -165,15 +171,48 @@
     {
       "slot": 22,
       "platform": "Teamtailor",
-      "status": "research_only",
+      "status": "experimental_local_verified",
       "access": "**Provisioning.** Public read scope still requires employer API key; job-board partner route also exists.",
-      "blocker": "Need company key, version header, region-specific API host, US employer selection, and reuse agreement.",
+      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
       "evidence_urls": [
         "https://docs.teamtailor.com/",
         "https://partner.teamtailor.com/job_boards/direct_apply/"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
+      "local_measurement_2026_11_02": {
+        "board": "teamtailor:varnish-software",
+        "company": "Varnish Software",
+        "success": true,
+        "fetched_count": 4,
+        "accepted_count": 2,
+        "rejected_count": 2,
+        "quarantined_count": 0,
+        "quality_accepted_count": 2,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "not_us": 2,
+          "posting_too_old": 1
+        },
+        "us_eligible_count": 2,
+        "known_recent_posting_count": 3,
+        "posted_within_15_days_count": 3,
+        "accepted_posted_within_15_days_count": 2,
+        "unknown_posting_date_count": 0,
+        "requests": 1,
+        "bytes": 39409,
+        "duration_ms": 1021,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 1,
+          "capped": false
+        }
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-second-batch-local.json",
+        "research/teamtailor.md"
+      ]
     },
     {
       "slot": 23,
@@ -190,18 +229,19 @@
     {
       "slot": 24,
       "platform": "Breezy HR",
-      "status": "experimental_test_verified",
+      "status": "experimental_isolated_verified_publication_unresolved",
       "access": "Public employer /json feeds and full job-page JSON-LD verified in write-free TEST. The official account API is token-protected; a general public-feed redistribution grant is not established.",
-      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
+      "blocker": "Technical TEST and isolated HTTP/Supabase checks passed; provider publication/access conditions remain unresolved. No production approval or scheduled writes.",
       "evidence_urls": [
         "https://developer.breezy.hr/reference/overview",
         "https://help.breezy.hr/en/articles/15948850-can-i-generate-a-breezy-api-access-token",
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
         "https://help.breezy.hr/en/articles/5376777-embedding-jobs-on-your-website",
-        "https://help.breezy.hr/en/articles/5297460-posting-positions-on-job-boards"
+        "https://help.breezy.hr/en/articles/5297460-posting-positions-on-job-boards",
+        "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
+      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
       "local_measurement_2026_11_02": {
         "fetched": 71,
         "accepted": 45,
@@ -213,7 +253,8 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-four-source-local.json",
-        "evidence/2026-11-02-catalog-overlap.json"
+        "evidence/2026-11-02-catalog-overlap.json",
+        "research/first-four-publication-review.md"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
@@ -540,9 +581,9 @@
     {
       "slot": 51,
       "platform": "Get on Board",
-      "status": "public_api_probed",
+      "status": "experimental_local_verified",
       "access": "Official public API needs no account or token. Provider documentation explicitly describes displaying public jobs on another site. Private company API is separate and paid.",
-      "blocker": "No adapter, backend contract, TEST run or reuse/rate-budget review yet. Query results are not a US geography filter.",
+      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
       "evidence_urls": [
         "https://www.getonbrd.com/help/what-can-i-do-with-get-on-board-s-api",
         "https://github.com/getonbrd/getonbrd-ruby",
@@ -558,14 +599,48 @@
         "explicit_us_country_recent_15_days": 1,
         "applysmooth_gate_acceptance_measured": false
       },
-      "next_action": "Implement documented public search/category loading with original dates, full description sections and resolved remote-country restrictions; measure actual US acceptance and duplicates."
+      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
+      "local_measurement_2026_11_02": {
+        "board": "getonboard:public",
+        "company": "getonboard",
+        "success": true,
+        "fetched_count": 29,
+        "accepted_count": 1,
+        "rejected_count": 14,
+        "quarantined_count": 14,
+        "quality_accepted_count": 1,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "us_eligibility_unknown": 25,
+          "not_us": 3,
+          "posting_too_old": 13
+        },
+        "us_eligible_count": 1,
+        "known_recent_posting_count": 16,
+        "posted_within_15_days_count": 7,
+        "accepted_posted_within_15_days_count": 1,
+        "unknown_posting_date_count": 0,
+        "requests": 3,
+        "bytes": 223378,
+        "duration_ms": 2907,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 3,
+          "capped": false
+        }
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-second-batch-local.json",
+        "research/getonboard.md"
+      ]
     },
     {
       "platform": "Remote Backend Jobs network",
-      "status": "public_api_probed",
+      "status": "experimental_local_verified",
       "access": "No account/key. 120 listing requests/min. Offset+limit <=250. Link each job to provider page; credit Remote Backend Jobs. Count backend/frontend/java sites together as ONE platform.",
-      "blocker": "Listing contentSnippet is shortened. Detail API tested separately; need original date semantics, US filtering, full detail and duplicate validation.",
-      "next_action": "Implement one platform adapter across its three boards. Preserve provider job link and name credit; bounded pagination at 250 and slow detail fetching; verify original dates/full descriptions and cross-source dedup.",
+      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
+      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
       "accepted_unique_us_jobs": null,
       "probe": {
         "list_count": 5,
@@ -577,6 +652,40 @@
       "evidence_urls": [
         "https://www.remotebackendjobs.com/developers",
         "https://www.remotebackendjobs.com/terms"
+      ],
+      "local_measurement_2026_11_02": {
+        "board": "remotebackendjobs:public",
+        "company": "Remote Backend Jobs",
+        "success": true,
+        "fetched_count": 50,
+        "accepted_count": 43,
+        "rejected_count": 4,
+        "quarantined_count": 3,
+        "quality_accepted_count": 43,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "us_eligibility_unknown": 3,
+          "not_us": 4
+        },
+        "us_eligible_count": 43,
+        "known_recent_posting_count": 50,
+        "posted_within_15_days_count": 49,
+        "accepted_posted_within_15_days_count": 42,
+        "unknown_posting_date_count": 0,
+        "requests": 41,
+        "bytes": 602650,
+        "duration_ms": 42040,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 51,
+          "capped": true,
+          "maximum_jobs": 50
+        }
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-second-batch-local.json",
+        "research/remote-backend-jobs.md"
       ]
     },
     {
@@ -600,10 +709,10 @@
     },
     {
       "platform": "YubHub",
-      "status": "public_feed_probed",
+      "status": "experimental_local_verified",
       "access": "No account/key; explicit redistribution with Data by YubHub attribution. US feed https://feeds.yubhub.co/facet/country/united-states.json",
-      "blocker": "US feed returned 100 jobs rather than site-advertised 36,773. Treat bounded observations. Review x-rights and preserved descriptions/original dates before implementation.",
-      "next_action": "High priority: inspect full schema, original date semantics, job locations and applicable attribution display; implement bounded feed and verify source membership.",
+      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
+      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
       "accepted_unique_us_jobs": null,
       "probe": {
         "feed_count": 100,
@@ -617,13 +726,48 @@
       "slot": 54,
       "evidence_urls": [
         "https://yubhub.co/free-job-feeds/"
+      ],
+      "local_measurement_2026_11_02": {
+        "board": "yubhub:public",
+        "company": "YubHub",
+        "success": true,
+        "fetched_count": 100,
+        "accepted_count": 70,
+        "rejected_count": 28,
+        "quarantined_count": 2,
+        "quality_accepted_count": 70,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "missing_company": 28,
+          "posting_too_old": 23,
+          "missing_title": 5,
+          "normalize_failed": 2
+        },
+        "us_eligible_count": 98,
+        "known_recent_posting_count": 70,
+        "posted_within_15_days_count": 51,
+        "accepted_posted_within_15_days_count": 51,
+        "unknown_posting_date_count": 5,
+        "requests": 101,
+        "bytes": 2582631,
+        "duration_ms": 76555,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 101,
+          "capped": true
+        }
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-second-batch-local.json",
+        "research/yubhub.md"
       ]
     },
     {
       "platform": "Dev Remotely",
-      "status": "public_feed_probed",
+      "status": "blocked_full_description",
       "access": "No account/key. Default 50, maximum 100. 15min cache. Documentation allows republication retaining source link.",
-      "blocker": "Sample content_text exactly 1,000 characters suggests truncation. Need full job detail route and source date semantics before acceptance.",
+      "blocker": "Public feeds truncate descriptions; ordinary detail reads failed. See research/devremotely.md.",
       "next_action": "Probe original job detail JSON-LD/full description and country filters. Do not accept snippets as full descriptions.",
       "accepted_unique_us_jobs": null,
       "probe": {
