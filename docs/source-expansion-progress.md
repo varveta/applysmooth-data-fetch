@@ -1,6 +1,8 @@
 # Goal: 50 distinct live production sources
 
-Production baseline: 12. Additional live sources: 0. Remaining production gap: 38.
+Configured production baseline: 12. Additional live sources: 0. At least 38 new
+platforms remain. Current database inspection finds active rows from 11 platforms;
+Personio is configured and scheduled but currently contributes no accepted jobs.
 Four experimental adapters are implemented; they do not count as production.
 Candidate queue: `source-expansion-tracker.json` (46 candidates; none counted merely for appearing in this queue).
 
@@ -15,7 +17,9 @@ Candidate queue: `source-expansion-tracker.json` (46 candidates; none counted me
 
 Counts are time-specific local samples, using empty identity history. Cross-source
 unique yield remains unmeasured. Zero shared database writes. Known-recent counts
-are based on original source dates; unknown dates are not evidence of freshness.
+in this historical table use the 60-day ingestion gate, not the 15-day visibility
+window. New reports separately count original postings within 15 days, before and
+after acceptance/deduplication; unknown and future dates never count as fresh.
 Manatal's one accepted listing still lacks a verifiable original posting date.
 
 Pinpoint's public feed omits original dates, but matching public job pages expose
@@ -55,6 +59,30 @@ category routes. Three public search pages for "United States" yielded 29 unique
 source IDs, only one with an explicit US country and recent date. US employer/client
 mentions and generic remote jobs do not establish US eligibility. Implement and
 measure resolved country restrictions before claiming an accepted-job yield.
+
+## Freshness and current-catalog overlap
+
+Read-only comparison on November 2 found zero matching application URLs and zero
+matching normalized company/title pairs for the 59 accepted sample rows against
+all 7,620 retained catalog rows. This estimates incremental inventory; it does not
+prove uniqueness against deleted history or differently named duplicate postings.
+No deduplication policy or database content was changed.
+
+Of those 59 accepted rows, **24 have original posting dates within 15 days**:
+Pinpoint 2, Breezy 19, Manatal 0, Trakstar 3. The earlier 60-day gate count must not
+be described as 15-day freshness. One accepted Manatal job has an unknown date.
+
+Current catalog has 7,085 published, nonexpired rows from 11 platforms. The twelfth
+configured source, Personio, completed its [latest scheduled run](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41498457799)
+with six fetched and zero accepted. A write-free recheck confirms five old-date
+rejections and three non-US rejections (reasons overlap). This needs fresh eligible
+employer coverage before claiming 12 platforms currently contribute jobs.
+
+The latest [Greenhouse schedule](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41490393421)
+partially failed: Roblox and Anduril publication exhausted retries with HTTP 502;
+other boards completed. Record this baseline health issue for diagnosis before
+production rollout; this task has not rerun or changed production ingestion.
+Count-only evidence: `evidence/2026-11-02-catalog-overlap.json`.
 
 ## Seven further candidates reviewed
 

@@ -1,6 +1,5 @@
 {
   "target_live_platforms": 50,
-  "baseline_live_platforms": 12,
   "additional_live_platforms": 0,
   "last_reviewed": "2026-11-02",
   "counting_rule": "Distinct platforms only. Experimental, research, demo, and disabled workflows are not production sources.",
@@ -27,8 +26,10 @@
         "verified_open": 10
       },
       "evidence_files": [
-        "evidence/2026-11-02-four-source-local.json"
-      ]
+        "evidence/2026-11-02-four-source-local.json",
+        "evidence/2026-11-02-catalog-overlap.json"
+      ],
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
     {
       "slot": 14,
@@ -52,8 +53,10 @@
         "verified_open": 1
       },
       "evidence_files": [
-        "evidence/2026-11-02-four-source-local.json"
-      ]
+        "evidence/2026-11-02-four-source-local.json",
+        "evidence/2026-11-02-catalog-overlap.json"
+      ],
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
     {
       "slot": 15,
@@ -92,8 +95,10 @@
         "verified_open": 3
       },
       "evidence_files": [
-        "evidence/2026-11-02-four-source-local.json"
-      ]
+        "evidence/2026-11-02-four-source-local.json",
+        "evidence/2026-11-02-catalog-overlap.json"
+      ],
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
     {
       "slot": 17,
@@ -207,8 +212,10 @@
         "verified_open": 45
       },
       "evidence_files": [
-        "evidence/2026-11-02-four-source-local.json"
-      ]
+        "evidence/2026-11-02-four-source-local.json",
+        "evidence/2026-11-02-catalog-overlap.json"
+      ],
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
     },
     {
       "slot": 25,
@@ -670,5 +677,8 @@
       ]
     }
   ],
-  "validation_constraint": "No local Docker. Use write-free GitHub TEST and in-memory PostgreSQL; full isolated HTTP/Supabase acceptance remains a separate gate."
+  "validation_constraint": "No local Docker. Use write-free GitHub TEST and in-memory PostgreSQL; full isolated HTTP/Supabase acceptance remains a separate gate.",
+  "baseline_configured_platforms": 12,
+  "baseline_current_catalog_platforms": 11,
+  "baseline_notes": "12 configured platforms; current published/nonexpired rows from 11. Personio latest schedule fetched 6 and accepted 0. At least 38 new platforms plus restoration of useful Personio coverage remain."
 }

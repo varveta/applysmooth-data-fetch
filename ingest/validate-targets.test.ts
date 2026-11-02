@@ -88,3 +88,22 @@ it("rejects unsupported or absent source filters before fetching", async () => {
     await expect(validator.validateTargets({ targets: [target] }, { source, get })).rejects.toThrow();
   expect(calls).toBe(0);
 });
+
+
+it("separates the 15-day original-date window from acceptance and the 60-day gate", async () => {
+  const dates = [
+    new Date(now.getTime() - 15 * 86_400_000).toISOString(),
+    new Date(now.getTime() - 15 * 86_400_000 - 1).toISOString(),
+    now.toISOString(),
+    new Date(now.getTime() + 60_000).toISOString(),
+    undefined,
+    new Date(now.getTime() - 61 * 86_400_000).toISOString(),
+  ];
+  const jobs = dates.map((publishedAt, i) => ({ ...ashbyFixture, id: `age-${i}`,
+    title: `Distinct Engineer ${i}`, jobUrl: `https://jobs.ashbyhq.com/example/age-${i}`, publishedAt }));
+  const report = await validator.validateTargets({ targets: [target] }, { now, get: async () => ok(jobs) });
+  expect(report).toMatchObject({ fresh_posting_window_days: 15 });
+  expect(report.boards[0]).toMatchObject({ success: true, fetched_count: 6,
+    accepted_count: 5, known_recent_posting_count: 4, unknown_posting_date_count: 1,
+    posted_within_15_days_count: 2, accepted_posted_within_15_days_count: 2 });
+});

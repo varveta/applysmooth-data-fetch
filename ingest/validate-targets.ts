@@ -10,6 +10,13 @@ import { getJson } from "./lib/http";
 import { safeReason } from "./lib/diagnostics";
 import { prepareBoard, TargetSchema } from "./stateless";
 
+export const FRESH_POSTING_DAYS = 15;
+const withinFreshWindow = (date: string | null, now: Date) => {
+  if (!date) return false;
+  const age = now.getTime() - Date.parse(date);
+  return age >= 0 && age <= FRESH_POSTING_DAYS * 86_400_000;
+};
+
 const ManifestSchema = z.object({ targets: z.array(TargetSchema).min(1).max(500) });
 type ValidationOptions = { get?: typeof getJson; now?: Date; source?: string; onAccepted?: (rows: CatalogRow[]) => void };
 type BoardReport = {
@@ -25,6 +32,8 @@ type BoardReport = {
   reason_counts: Partial<Record<GateReason, number>>;
   us_eligible_count: number;
   known_recent_posting_count: number;
+  posted_within_15_days_count: number;
+  accepted_posted_within_15_days_count: number;
   unknown_posting_date_count: number;
   requests: number;
   bytes: number;
@@ -51,7 +60,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
     const boardStarted = Date.now();
     const report: BoardReport = { board: `${target.source}:${target.tenant}`, company: target.company,
       success: false, fetched_count: null, accepted_count: null, rejected_count: null,
-      quarantined_count: null, quality_accepted_count: 0, deduplicated_count: 0, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, unknown_posting_date_count: 0, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
+      quarantined_count: null, quality_accepted_count: 0, deduplicated_count: 0, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, posted_within_15_days_count: 0, accepted_posted_within_15_days_count: 0, unknown_posting_date_count: 0, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
     // Count the work even if a later page fails and loadBoard never returns.
     const get: typeof getJson = async (url, opts) => {
       let response;
@@ -77,6 +86,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
         const gate = evaluateGates(job, { now, open: true, lastSeenAt: now.toISOString(), duplicateOf: null });
         if (gate.status === "accepted") report.quality_accepted_count++;
         if (job.usEligibility === "us") report.us_eligible_count++;
+        if (withinFreshWindow(job.postedAt, now)) report.posted_within_15_days_count++;
         if (job.postedAt === null) report.unknown_posting_date_count++;
         else if (!gate.reasons.includes("posting_too_old") && !gate.reasons.includes("posted_at_in_future"))
           report.known_recent_posting_count++;
@@ -87,6 +97,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
       report.success = true;
       report.fetched_count = prepared.fetched_count;
       report.accepted_count = prepared.rows.length;
+      report.accepted_posted_within_15_days_count = prepared.rows.filter(row => withinFreshWindow(row.posted_at, now)).length;
       // Empty identity snapshots: eligible rows removed by within-board deduplication.
       report.deduplicated_count = report.quality_accepted_count - prepared.rows.length;
       report.rejected_count = prepared.gates.rejected ?? 0;
@@ -98,6 +109,8 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
   }
   return { mode: "read-only-validation" as const, success: boards.every((board) => board.success),
     started_at: now.toISOString(), duration_ms: Date.now() - started, writes: 0 as const,
+    fresh_posting_window_days: FRESH_POSTING_DAYS,
+    freshness_basis: "original_posted_at; future and unknown dates excluded" as const,
     identity_basis: "empty_snapshot" as const, live_ingestion_verified: false as const,
     reason_count_basis: "pre_deduplication_quality_gates; reasons may overlap" as const,
     boards };
