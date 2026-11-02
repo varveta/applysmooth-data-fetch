@@ -8,14 +8,15 @@
     {
       "slot": 13,
       "platform": "Pinpoint",
-      "status": "experimental_local_verified",
+      "status": "experimental_test_verified",
       "access": "**Public candidate.** Unauthenticated `https://{company}.pinpointhq.com/postings.json`; use postings, not deprecated jobs endpoint.",
       "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
       "evidence_urls": [
-        "https://developers.pinpointhq.com/docs/jobs-json-endpoint"
+        "https://developers.pinpointhq.com/docs/jobs-json-endpoint",
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
       "local_measurement_2026_11_02": {
         "fetched": 14,
         "accepted": 10,
@@ -32,14 +33,15 @@
     {
       "slot": 14,
       "platform": "Manatal",
-      "status": "experimental_local_verified",
+      "status": "experimental_test_verified",
       "access": "**Public candidate.** `https://api.manatal.com/open/v3/career-page/{client_slug}/jobs/`; paginated career-page API. Full account API is separate and token protected.",
       "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured. Both sampled listings omit posting dates; freshness unverified.",
       "evidence_urls": [
-        "https://developers.manatal.com/reference/career-page_jobs_list"
+        "https://developers.manatal.com/reference/career-page_jobs_list",
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
       "local_measurement_2026_11_02": {
         "fetched": 2,
         "accepted": 1,
@@ -69,16 +71,17 @@
     {
       "slot": 16,
       "platform": "Trakstar Hire / Recruiterbox",
-      "status": "experimental_local_verified",
+      "status": "experimental_test_verified",
       "access": "**Public candidate.** Official frontend API `https://jsapi.recruiterbox.com/v1/openings?client_name={tenant}`; separate private account API.",
       "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
       "evidence_urls": [
         "https://apiv1.recruiterbox.com/frontend_api.html",
         "https://elevate97.hire.trakstar.com/",
-        "https://valtasgroup.hire.trakstar.com/"
+        "https://valtasgroup.hire.trakstar.com/",
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
       "local_measurement_2026_11_02": {
         "fetched": 4,
         "accepted": 3,
@@ -182,15 +185,18 @@
     {
       "slot": 24,
       "platform": "Breezy HR",
-      "status": "experimental_local_verified",
-      "access": "**Provisioning / public-route gap.** Official API requires account access token. No officially supported keyless `/json` feed established in this review.",
+      "status": "experimental_test_verified",
+      "access": "Public employer /json feeds and full job-page JSON-LD verified in write-free TEST. The official account API is token-protected; a general public-feed redistribution grant is not established.",
       "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
       "evidence_urls": [
         "https://developer.breezy.hr/reference/overview",
-        "https://help.breezy.hr/en/articles/15948850-can-i-generate-a-breezy-api-access-token"
+        "https://help.breezy.hr/en/articles/15948850-can-i-generate-a-breezy-api-access-token",
+        "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
+        "https://help.breezy.hr/en/articles/5376777-embedding-jobs-on-your-website",
+        "https://help.breezy.hr/en/articles/5297460-posting-positions-on-job-boards"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "next_action": "Complete disposable GitHub HTTP/Supabase acceptance without local Docker; confirm reuse conditions; prepare exact approval-gated rollout.",
       "local_measurement_2026_11_02": {
         "fetched": 71,
         "accepted": 45,
@@ -546,6 +552,122 @@
         "applysmooth_gate_acceptance_measured": false
       },
       "next_action": "Implement documented public search/category loading with original dates, full description sections and resolved remote-country restrictions; measure actual US acceptance and duplicates."
+    },
+    {
+      "platform": "Remote Backend Jobs network",
+      "status": "public_api_probed",
+      "access": "No account/key. 120 listing requests/min. Offset+limit <=250. Link each job to provider page; credit Remote Backend Jobs. Count backend/frontend/java sites together as ONE platform.",
+      "blocker": "Listing contentSnippet is shortened. Detail API tested separately; need original date semantics, US filtering, full detail and duplicate validation.",
+      "next_action": "Implement one platform adapter across its three boards. Preserve provider job link and name credit; bounded pagination at 250 and slow detail fetching; verify original dates/full descriptions and cross-source dedup.",
+      "accepted_unique_us_jobs": null,
+      "probe": {
+        "list_count": 5,
+        "first_list_snippet_chars": 538,
+        "first_detail_content_chars": 12477,
+        "first_location": "Remote (United States)"
+      },
+      "slot": 52,
+      "evidence_urls": [
+        "https://www.remotebackendjobs.com/developers",
+        "https://www.remotebackendjobs.com/terms"
+      ]
+    },
+    {
+      "platform": "Active Vacancies",
+      "status": "requires_permission",
+      "access": "No account/key; 60 requests/min. Cursor/page pagination. Fair use permits apps/research/dashboards with backlink and original employer applyUrl.",
+      "blocker": "Developer docs allow apps/research/dashboards, but terms explicitly prohibit bulk syndication into a competing commercial job directory. ApplySmooth production use needs written permission; do not implement bulk ingestion or contact the provider without approval.",
+      "next_action": "Keep as permission-blocked alternative; pursue sources with explicit aggregation permission.",
+      "accepted_unique_us_jobs": null,
+      "probe": {
+        "list_count": 5,
+        "first_detail_markdown_chars": 8529,
+        "first_detail_html_chars": 9274,
+        "first_location": "San Francisco, CA \u2022 United States"
+      },
+      "slot": 53,
+      "evidence_urls": [
+        "https://activevacancies.com/developers",
+        "https://activevacancies.com/terms"
+      ]
+    },
+    {
+      "platform": "YubHub",
+      "status": "public_feed_probed",
+      "access": "No account/key; explicit redistribution with Data by YubHub attribution. US feed https://feeds.yubhub.co/facet/country/united-states.json",
+      "blocker": "US feed returned 100 jobs rather than site-advertised 36,773. Treat bounded observations. Review x-rights and preserved descriptions/original dates before implementation.",
+      "next_action": "High priority: inspect full schema, original date semantics, job locations and applicable attribution display; implement bounded feed and verify source membership.",
+      "accepted_unique_us_jobs": null,
+      "probe": {
+        "feed_count": 100,
+        "explicit_feed_cap": 100,
+        "sort": "enriched_at desc",
+        "first_description_chars": 2473,
+        "first_datePosted": "2026-10-29T00:00:00.000Z",
+        "first_apply_host": "gdit.wd5.myworkdayjobs.com",
+        "original_employer_description_comparison": "not_yet_verified"
+      },
+      "slot": 54,
+      "evidence_urls": [
+        "https://yubhub.co/free-job-feeds/"
+      ]
+    },
+    {
+      "platform": "Dev Remotely",
+      "status": "public_feed_probed",
+      "access": "No account/key. Default 50, maximum 100. 15min cache. Documentation allows republication retaining source link.",
+      "blocker": "Sample content_text exactly 1,000 characters suggests truncation. Need full job detail route and source date semantics before acceptance.",
+      "next_action": "Probe original job detail JSON-LD/full description and country filters. Do not accept snippets as full descriptions.",
+      "accepted_unique_us_jobs": null,
+      "probe": {
+        "feed_count": 50,
+        "first_content_text_chars": 1000,
+        "full_description_verified": false
+      },
+      "slot": 55,
+      "evidence_urls": [
+        "https://devremotely.com/feeds"
+      ]
+    },
+    {
+      "platform": "Green Level",
+      "status": "public_feed_probed",
+      "access": "Public JSON with 1,462 jobs. Commercial use with attribution, <=1req/sec, cache. Docs say link to jobs rather than republish pages.",
+      "blocker": "Feed lacks descriptions; Europe-focused and US yield unmeasured. Full-page republication not covered by feed permission.",
+      "next_action": "Measure US entries; clarify whether existing product display can meet limited reuse without provider contact.",
+      "accepted_unique_us_jobs": null,
+      "probe": {
+        "feed_count": 1462,
+        "descriptions_in_feed": false
+      },
+      "slot": 56,
+      "evidence_urls": [
+        "https://green-level.com/api/"
+      ]
+    },
+    {
+      "platform": "Dev Global Jobs",
+      "status": "requires_permission",
+      "access": "No API key,120 requests/minute, but free internal/research/noncommercial only; commercial redistribution needs written permission.",
+      "blocker": "Commercial reuse unavailable without permission; list docs describes short descriptions.",
+      "next_action": "Keep blocked for production; do not contact or purchase without approval.",
+      "accepted_unique_us_jobs": null,
+      "slot": 57,
+      "evidence_urls": [
+        "https://devglobaljobs.com/developers"
+      ]
+    },
+    {
+      "platform": "Career Nest",
+      "status": "unavailable",
+      "access": "Search cache advertises free API; live official URL now shows Hostinger parked-domain page.",
+      "blocker": "Live API documentation unavailable; stale search result cannot establish support.",
+      "next_action": "Exclude until provider restores authoritative API.",
+      "accepted_unique_us_jobs": null,
+      "slot": 58,
+      "evidence_urls": [
+        "https://careernest.cloud/api-docs"
+      ]
     }
   ],
   "validation_constraint": "No local Docker. Use write-free GitHub TEST and in-memory PostgreSQL; full isolated HTTP/Supabase acceptance remains a separate gate."

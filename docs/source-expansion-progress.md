@@ -2,7 +2,7 @@
 
 Production baseline: 12. Additional live sources: 0. Remaining production gap: 38.
 Four experimental adapters are implemented; they do not count as production.
-Candidate queue: `source-expansion-tracker.json` (39 candidates, including a new alternative).
+Candidate queue: `source-expansion-tracker.json` (46 candidates; none counted merely for appearing in this queue).
 
 ## November 2 checkpoint
 
@@ -35,10 +35,10 @@ uncertain; no accepted jobs means verification fails. Empty/old peer boards stay
 explicitly unverified. Experimental sources still cannot publish or run live
 verification. Missing jobs in observation feeds never prove closure.
 
-The TEST matrix now runs this fetch/verify command for all four platforms, without
-credentials or database access. New cloud results must be inspected after push;
-[previous cloud run](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41508352332)
-covered Pinpoint/Breezy/Manatal fetching before page-date and verification changes.
+The TEST matrix passed for all four platforms without credentials or database
+access: [verified run 41511555771](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771)
+confirmed all 59 accepted application links and the original-date rejection counts.
+No shared database writes occurred.
 
 Backend draft PR #288 prepares all four sources with exact tenant-scoped attribution
 and source/apply URL checks. The unapplied migration preserves observation-only
@@ -56,9 +56,36 @@ source IDs, only one with an explicit US country and recent date. US employer/cl
 mentions and generic remote jobs do not establish US eligibility. Implement and
 measure resolved country restrictions before claiming an accepted-job yield.
 
+## Seven further candidates reviewed
+
+| Platform | Read-only evidence | Next decision |
+| --- | --- | --- |
+| Remote Backend Jobs network | Public API, full descriptions, explicit credit/link terms | Implement as one source across backend/frontend/Java; 250-result API cap |
+| Active Vacancies | Public API and full descriptions work | Permission blocked: terms prohibit bulk competing commercial directories |
+| YubHub | US feed contains 100 rows | Verify original full descriptions; feed is an enrichment-sorted window, not a complete snapshot |
+| Dev Remotely | Public feed contains 50 rows | Full-text gap: sampled feed content stops at 1,000 characters |
+| Green Level | Public feed contains 1,462 rows | Descriptions absent; US yield unmeasured |
+| Dev Global Jobs | Public developer documentation | Commercial reuse requires written permission |
+| Career Nest | Live domain is parked | Unavailable; exclude until service is restored |
+
+Remote Backend Jobs publishes [API limits and attribution requirements](https://www.remotebackendjobs.com/developers)
+and repeats them in its [terms](https://www.remotebackendjobs.com/terms). Keep its job
+page link and name credit intact. Its three network sites count once. A five-row
+probe and one full-description response establish API access only, not accepted
+unique US-job yield.
+
+Active Vacancies' [developer page](https://activevacancies.com/developers) permits
+apps/research/dashboards, but its [terms](https://activevacancies.com/terms) prohibit
+bulk syndication into competing commercial directories. Treat this as permission
+blocked despite the working API. No provider was contacted.
+
+See tracker evidence URLs for each remaining candidate. Raw probe content stays in
+temporary local files; no fetched job descriptions or incidental API fields are
+checked into this repository.
+
 ## Remaining work
 
-1. Inspect new TEST results, including application links and original-date rejection.
+1. Preserve verified TEST source/link evidence and rerun after adapter changes.
 2. Complete isolated HTTP/Supabase acceptance, production-like failures and display
    checks. User explicitly prohibits local Docker; use in-memory PostgreSQL locally
    and a separate cloud test environment for full-stack acceptance. Existing TEST
