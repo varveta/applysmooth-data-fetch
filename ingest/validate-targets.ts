@@ -9,7 +9,8 @@ import { evaluateGates, type GateReason } from "@/lib/jobs-ingest/gates";
 import { loadBoard } from "./lib/load-board";
 import { getJson } from "./lib/http";
 import { safeReason } from "./lib/diagnostics";
-import { prepareBoard, TargetSchema } from "./stateless";
+import { prepareBoardForPublication, TargetSchema } from "./stateless";
+import { publicationChecker, type PublicationChecker, type PublicationVerificationReport } from "./lib/prepublication-verification";
 
 export const FRESH_POSTING_DAYS = 15;
 const withinFreshWindow = (date: string | null, now: Date) => {
@@ -19,7 +20,8 @@ const withinFreshWindow = (date: string | null, now: Date) => {
 };
 
 const ManifestSchema = z.object({ targets: z.array(TargetSchema).min(1).max(500) });
-type ValidationOptions = { get?: typeof getJson; now?: Date; source?: string; onAccepted?: (rows: CatalogRow[]) => void };
+type ValidationOptions = { get?: typeof getJson; now?: Date; source?: string;
+  checker?: PublicationChecker; onAccepted?: (rows: CatalogRow[]) => void };
 type BoardReport = {
   board: string;
   company: string;
@@ -37,6 +39,8 @@ type BoardReport = {
   accepted_posted_within_15_days_count: number;
   unknown_posting_date_count: number;
   requests: number;
+  verification_requests: number;
+  prepublication?: PublicationVerificationReport;
   bytes: number;
   duration_ms: number;
   writes: 0;
@@ -44,7 +48,7 @@ type BoardReport = {
   discovery?: unknown;
 };
 
-/** Fetch/normalize only. No collector client, credentials, activation or database access. */
+/** Read-only online admission. No collector client, credentials, activation or database access. */
 export async function validateTargets(manifest: unknown, options: ValidationOptions = {}) {
   let { targets } = ManifestSchema.parse(manifest);
   if (new Set(targets.map((target) => `${target.source}:${target.tenant}`)).size !== targets.length)
@@ -56,12 +60,14 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
   }
   const now = options.now ?? new Date();
   const started = Date.now();
+  const checker = publicationChecker(options.checker);
   const boards: BoardReport[] = [];
   for (const target of targets) {
     const boardStarted = Date.now();
+    const verificationStarted = checker.metrics.requests;
     const report: BoardReport = { board: `${target.source}:${target.tenant}`, company: target.company,
       success: false, fetched_count: null, accepted_count: null, rejected_count: null,
-      quarantined_count: null, quality_accepted_count: 0, deduplicated_count: 0, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, posted_within_15_days_count: 0, accepted_posted_within_15_days_count: 0, unknown_posting_date_count: 0, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
+      quarantined_count: null, quality_accepted_count: 0, deduplicated_count: 0, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, posted_within_15_days_count: 0, accepted_posted_within_15_days_count: 0, unknown_posting_date_count: 0, requests: 0, verification_requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
     // Count the work even if a later page fails and loadBoard never returns.
     const get: typeof getJson = async (url, opts) => {
       let response;
@@ -73,9 +79,9 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
     };
     try {
       const fetched = await loadBoard(target, get);
-      const prepared = prepareBoard(target, fetched.body, now, {
+      const prepared = await prepareBoardForPublication(target, fetched.body, now, {
         source: target.source, tenant: target.tenant, complete: true, identities: [],
-      });
+      }, checker);
       // Reasons describe quality gates before cross-posting deduplication. Several
       // reasons can apply to one job; these counts must not be summed as jobs.
       const adapter = ADAPTERS[target.source];
@@ -107,11 +113,14 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
       report.accepted_count = prepared.rows.length;
       report.accepted_posted_within_15_days_count = prepared.rows.filter(row => withinFreshWindow(row.posted_at, now)).length;
       // Empty identity snapshots: eligible rows removed by within-board deduplication.
-      report.deduplicated_count = report.quality_accepted_count - prepared.rows.length;
+      report.deduplicated_count = report.quality_accepted_count - prepared.rows.length -
+        (prepared.prepublication?.quarantined_count ?? 0) - prepared.identity_resolution.quarantined;
       report.rejected_count = prepared.gates.rejected ?? 0;
       report.quarantined_count = prepared.gates.quarantined ?? 0;
+      if (prepared.prepublication) report.prepublication = prepared.prepublication;
       if ("discovery" in fetched) report.discovery = fetched.discovery;
     } catch (error) { report.error = safeReason(error); }
+    report.verification_requests = checker.metrics.requests - verificationStarted;
     report.duration_ms = Date.now() - boardStarted;
     boards.push(report);
   }

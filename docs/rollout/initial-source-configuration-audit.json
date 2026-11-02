@@ -299,7 +299,7 @@
     "pnpm_typecheck": "passed",
     "initial_patch_apply_check": "passed",
     "conditional_patch_apply_check": "passed after initial patch",
-    "initial_patch_sha256": "e20e757cfccd26205b74c28b7f8e774e26c4199c7279f1c76d75cdc1b3b60b4b",
+    "initial_patch_sha256": "5dc0e6c8c4dbf4e9b4ecf59f3474e576b3c0419d891e89e66ca8ac0c3829190f",
     "actual_activation_files_changed": false,
     "external_writes": 0,
     "network_used": false
@@ -320,5 +320,44 @@
       "http_status": 403,
       "initial_scope": false
     }
+  },
+  "latest_disposable_patch_validation": {
+    "base_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+    "includes_uncommitted_scope": [
+      "remotefirstjobs",
+      "getwork_prepublication"
+    ],
+    "test_count": 533,
+    "test_files": 38,
+    "typecheck": "passed",
+    "initial_patch_sha256": "5dc0e6c8c4dbf4e9b4ecf59f3474e576b3c0419d891e89e66ca8ac0c3829190f",
+    "prepatch_file_manifest_sha256": "ec7cb52611052b4f652e3f923be10835913001d649654d05ab55e16a5ea3b4c2",
+    "conditional_getonboard_patch_apply_check": "passed",
+    "network_requests": 0,
+    "database_writes": 0
+  },
+  "writer_readiness_pr": {
+    "url": "https://github.com/varveta/applysmooth-data-fetch/pull/18",
+    "commit": "7548bbfd88dc7593b93c9753824344b5de959511",
+    "state": "merged_diagnostic_only_approved",
+    "local_tests": 343,
+    "ci_run": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41529720399",
+    "ci": "success",
+    "environment_branch_policy": "main_only",
+    "expected_boards": 49,
+    "operation": "board_identities",
+    "posting_ids": [],
+    "dispatched": true,
+    "purpose": "Confirm endpoint match and current configured-board coverage without extracting secrets or writing catalog/identity/run/lease/storage data.",
+    "merge_commit": "d6208c0abb36b4df505c3fef6e01f3a135712d3b",
+    "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41532514498",
+    "result": {
+      "endpoint_matches_verified_TEST_alias": false,
+      "configuration_matches_audited_boards": true,
+      "credentials_present": true,
+      "checked_boards": 0,
+      "success": false
+    },
+    "production_activation_approved": false
   }
 }

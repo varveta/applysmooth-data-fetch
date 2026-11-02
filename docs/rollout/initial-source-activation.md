@@ -23,19 +23,28 @@ runner before its separate proposal can proceed. Publication permission alone
 does not establish hosted access. Remote Backend Jobs remains deferred after its
 separate hosted HTTP 403 and is outside both proposals.
 
-The latest audited backend candidate is `00f018357b05af7f2ce48cbec58767904c93c828`, pinning
-collector `ce8f183152a832deea4136306b95114ba9b9bd9a` in the ten-source acceptance
-manifest at that checkpoint. The next selected manifest has nine sources,
-explicitly excluding Remote Backend Jobs and Get on Board after hosted 403s.
-[Full backend CI 41524185960](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524185960)
-passed; isolated run `41524186125` encountered a test-harness large-GET-read issue
-and is not passing acceptance evidence. SpaceJobs and Rails source/link jobs
-passed in run `41523776620` with 595 and 7 accepted jobs. The corrected isolated
-acceptance run remains pending at this checkpoint. These are checkpoints, not approved release pins. Record final full
-commit SHAs and passing source/link, full backend CI/build and isolated
-HTTP/Supabase run URLs before execution. A combined run that stops at Get on
-Board's 403 is not passing backend evidence for the initial pair; the coordinator
-must use an explicitly scoped manifest and retain the failure record.
+The verified nine-source checkpoint uses collector
+`92e3d074027082af1db1c18fa78b9c3bac754949`, backend head
+`18b5b3d33f7e2f64736281259729713244d1eee1`, and tested PR merge
+`1b4351ed3b4add9d86a860432aafc3c4196c03ec`.
+[Full backend CI 41527905448](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905448)
+and [isolated acceptance 41527905492](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492)
+passed all nine selected platforms and 754 rows. The initial pair separately passed
+all 595 and seven application links in [collector TEST 41527719781](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781).
+Getwork's two application-link failures remain separate; neither that source nor
+RemoteFirstJobs is part of this activation proposal. Later experimental work does
+not broaden the approved pair or alter the reviewed first migration.
+
+Before final rollout approval, the current writer binding must be checked through
+[read-only diagnostic PR #18](https://github.com/varveta/applysmooth-data-fetch/pull/18).
+It passed 343 local tests/typecheck and GitHub CI. GitHub's existing `test`
+environment allows deployment only from `main`; the manual workflow therefore
+requires reviewed merge before execution. Owner approved the diagnostic only; PR #18 merged as
+`d6208c0abb36b4df505c3fef6e01f3a135712d3b`.
+[Diagnostic run 41532514498](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41532514498)
+confirmed configuration/credential presence but the endpoint did not match the
+expected TEST alias. It stopped with zero requests to the database endpoint.
+Actual writer binding remains unresolved; source activation is unapproved.
 
 Read alongside collector [SpaceJobs research](../research/spacejobs.md),
 [Rails research](../research/rails-jobs.md), [Get on Board research](../research/getonboard.md)
@@ -61,8 +70,13 @@ the independent workflows. The conditional follow-on patch also
 passed its application check after this initial patch in that copy. No actual
 source/config file was changed, no provider was fetched and no database was
 written by these checks. Reviewed initial patch SHA-256:
-`e20e757cfccd26205b74c28b7f8e774e26c4199c7279f1c76d75cdc1b3b60b4b`.
+`5dc0e6c8c4dbf4e9b4ecf59f3474e576b3c0419d891e89e66ca8ac0c3829190f`.
 Recheck patch applicability against the final release SHA before execution.
+Latest disposable preflight included the current twelfth-source files and Getwork
+prepublication policy on base `92e3d074`; full suite 533 tests and typecheck passed.
+The exact prepatch file-manifest SHA-256 was
+`ec7cb52611052b4f652e3f923be10835913001d649654d05ab55e16a5ea3b4c2`.
+No activation file was changed in the working collector.
 
 Keep all IDs in `EXPERIMENTAL_SOURCE_IDS`: the backend also uses that collection
 to enforce strict per-source URL/credit rules and prohibit legacy publication.
@@ -213,6 +227,22 @@ nonsecret settings above were read. A runtime log check found no matching groups
 within the supported 55-minute window. Hobby retention rejected a 24-hour runtime
 query, so this is not proof of no collection or evidence tying the endpoint secret
 to a deployment. No access bypass, new token or share link was created.
+
+## Read-only writer preflight
+
+PR #18 performs only empty-scope `board_identities` reads. It first compares the
+existing endpoint internally to the verified TEST alias, then checks the 49 exact
+configured boards serially. It prints only matching/status/count booleans and known
+board labels; it does not extract endpoint, token, bypass or sensitive environment
+values. A failure stops requests. No restore, queue or lifecycle operation is used.
+Those other operations can write even when described as dry runs.
+
+Read-only database comparison found exactly the same 49 persisted scopes, all
+identity-ready, with no missing or extra catalog/tombstone scopes. If the diagnostic
+passes 49/49 and the endpoint matches, an explicit reviewed 51-board allowlist
+(current configured 49 plus `spacejobs:public,railsjobs:public`) can be proposed.
+This proves operational coverage, not the absence of unused entries in the sensitive
+existing variable. No environment variable or protection policy has been changed.
 
 ## Remaining release values
 

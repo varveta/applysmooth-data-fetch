@@ -1,0 +1,14 @@
+{
+  "targets": [
+    {
+      "source": "getwork",
+      "tenant": "public",
+      "company": "getwork.dev"
+    },
+    {
+      "source": "remotefirstjobs",
+      "tenant": "public",
+      "company": "Remote First Jobs"
+    }
+  ]
+}

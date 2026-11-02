@@ -1,3 +1,4 @@
+import { remotefirstjobs } from "./remotefirstjobs";
 import { railsjobs } from "./rails-jobs";
 import { getwork } from "./getwork";
 import { spacejobs } from "./spacejobs";
@@ -533,4 +534,5 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   getwork,
   spacejobs,
   railsjobs,
+  remotefirstjobs,
 };

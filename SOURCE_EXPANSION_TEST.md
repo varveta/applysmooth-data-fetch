@@ -1,4 +1,4 @@
-> Current checkpoint: eleven experimental adapters; nine selected for cloud TEST. Remote Backend Jobs and Get on Board are deferred after hosted HTTP403. Four passed isolated end-to-end checks; eight passed the latest source/link TEST matrix. Getwork has two uncertain application-link checks pending diagnosis. No new live production sources.
+> Current checkpoint: twelve experimental collector adapters. Nine platforms passed isolated HTTP/Supabase acceptance; eight passed source/link checks. The next incremental cloud batch selects Getwork and RemoteFirstJobs, while the master TEST manifest retains ten sources. Remote Backend Jobs and Get on Board remain deferred. No new live production sources.
 > See [current progress](docs/source-expansion-progress.md) for current counts and blockers. Older checkpoints below are historical evidence.
 
 > November 2 update: see [account-free integration](docs/free-source-integration.md).

@@ -7,9 +7,9 @@
     {
       "slot": 13,
       "platform": "Pinpoint",
-      "status": "experimental_isolated_verified_publication_unresolved",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "**Public candidate.** Unauthenticated `https://{company}.pinpointhq.com/postings.json`; use postings, not deprecated jobs endpoint.",
-      "blocker": "Historical first-four full isolated HTTP/Supabase acceptance passed; latest cloud source/link checks also pass. Expanded isolated run remains failed in its read/search harness. Provider publication conditions and production rollout remain unresolved.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://developers.pinpointhq.com/docs/jobs-json-endpoint",
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
@@ -17,7 +17,7 @@
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "local_measurement_2026_11_02": {
         "fetched": 14,
         "accepted": 10,
@@ -31,7 +31,8 @@
         "evidence/2026-11-02-four-source-local.json",
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
       "retained_catalog_match_estimate_2026_11_02": {
@@ -52,36 +53,32 @@
       "source_id": "pinpoint",
       "production_ready": false,
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "pinpoint",
-        "started_at": "2026-11-02T20:57:04.145Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 15,
-        "accepted_count": 11,
-        "rejected_count": 4,
-        "quarantined_count": 0,
-        "accepted_posted_within_15_days_count": 3,
-        "unknown_posting_date_count_before_deduplication": 0,
-        "checked": 11,
+        "accepted": 11,
         "outcomes": {
           "open": 11
         },
-        "fetch_requests": 16,
-        "verification_requests": 27,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 11
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 14,
       "platform": "Manatal",
-      "status": "experimental_isolated_verified_publication_unresolved",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "**Public candidate.** `https://api.manatal.com/open/v3/career-page/{client_slug}/jobs/`; paginated career-page API. Full account API is separate and token protected.",
-      "blocker": "Historical first-four full isolated HTTP/Supabase acceptance passed; latest cloud source/link checks also pass. Expanded isolated run remains failed in its read/search harness. Provider publication conditions and production rollout remain unresolved.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://developers.manatal.com/reference/career-page_jobs_list",
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41511555771",
@@ -89,7 +86,7 @@
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "local_measurement_2026_11_02": {
         "fetched": 2,
         "accepted": 1,
@@ -103,7 +100,8 @@
         "evidence/2026-11-02-four-source-local.json",
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
       "retained_catalog_match_estimate_2026_11_02": {
@@ -124,31 +122,25 @@
       "source_id": "manatal",
       "production_ready": false,
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "manatal",
-        "started_at": "2026-11-02T20:57:35.755Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 2,
-        "accepted_count": 1,
-        "rejected_count": 0,
-        "quarantined_count": 1,
-        "accepted_posted_within_15_days_count": 0,
-        "unknown_posting_date_count_before_deduplication": 2,
-        "checked": 1,
+        "accepted": 1,
         "outcomes": {
           "open": 1
         },
-        "fetch_requests": 2,
-        "verification_requests": 2,
-        "errors": [],
-        "unverified_boards": [
-          "manatal:trolley-2"
-        ],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 1
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 15,
@@ -166,9 +158,9 @@
     {
       "slot": 16,
       "platform": "Trakstar Hire / Recruiterbox",
-      "status": "experimental_isolated_verified_publication_unresolved",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "**Public candidate.** Official frontend API `https://jsapi.recruiterbox.com/v1/openings?client_name={tenant}`; separate private account API.",
-      "blocker": "Historical first-four full isolated HTTP/Supabase acceptance passed; latest cloud source/link checks also pass. Expanded isolated run remains failed in its read/search harness. Provider publication conditions and production rollout remain unresolved.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://apiv1.recruiterbox.com/frontend_api.html",
         "https://elevate97.hire.trakstar.com/",
@@ -178,7 +170,7 @@
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "local_measurement_2026_11_02": {
         "fetched": 4,
         "accepted": 3,
@@ -192,7 +184,8 @@
         "evidence/2026-11-02-four-source-local.json",
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
       "retained_catalog_match_estimate_2026_11_02": {
@@ -213,29 +206,25 @@
       "source_id": "trakstar",
       "production_ready": false,
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "trakstar",
-        "started_at": "2026-11-02T20:57:48.097Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 4,
-        "accepted_count": 3,
-        "rejected_count": 1,
-        "quarantined_count": 0,
-        "accepted_posted_within_15_days_count": 3,
-        "unknown_posting_date_count_before_deduplication": 0,
-        "checked": 3,
+        "accepted": 3,
         "outcomes": {
           "open": 3
         },
-        "fetch_requests": 6,
-        "verification_requests": 9,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 3
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 17,
@@ -305,16 +294,16 @@
     {
       "slot": 22,
       "platform": "Teamtailor",
-      "status": "experimental_cloud_fetch_verified",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "Implemented account-free documented public RSS for varnish-software. Private account API and partner provisioning are separate; count Teamtailor once across employers.",
-      "blocker": "Latest cloud source and all accepted application links passed. Expanded isolated backend run failed in the 595-row read/search harness; local chunking fix is ready but no successful rerun yet. Production remains unapproved.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://docs.teamtailor.com/",
         "https://partner.teamtailor.com/job_boards/direct_apply/",
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Rerun expanded isolated HTTP/Supabase acceptance with the bounded-read harness fix; retain source-specific publication, attribution and freshness conditions before promotion.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "local_measurement_2026_11_02": {
         "board": "teamtailor:varnish-software",
         "company": "Varnish Software",
@@ -349,7 +338,8 @@
         "research/teamtailor.md",
         "evidence/2026-11-02-eight-source-cloud-test.json",
         "research/second-four-publication-review.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "retained_catalog_match_estimate_2026_11_02": {
         "source": "teamtailor",
@@ -369,29 +359,25 @@
       "source_id": "teamtailor",
       "production_ready": false,
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "teamtailor",
-        "started_at": "2026-11-02T21:01:15.824Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 4,
-        "accepted_count": 2,
-        "rejected_count": 2,
-        "quarantined_count": 0,
-        "accepted_posted_within_15_days_count": 2,
-        "unknown_posting_date_count_before_deduplication": 0,
-        "checked": 2,
+        "accepted": 2,
         "outcomes": {
           "open": 2
         },
-        "fetch_requests": 1,
-        "verification_requests": 3,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 2
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 23,
@@ -408,9 +394,9 @@
     {
       "slot": 24,
       "platform": "Breezy HR",
-      "status": "experimental_isolated_verified_publication_unresolved",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "Public employer /json feeds and full job-page JSON-LD verified in write-free TEST. The official account API is token-protected; a general public-feed redistribution grant is not established.",
-      "blocker": "Historical first-four full isolated HTTP/Supabase acceptance passed; latest cloud source/link checks also pass. Expanded isolated run remains failed in its read/search harness. Provider publication conditions and production rollout remain unresolved.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://developer.breezy.hr/reference/overview",
         "https://help.breezy.hr/en/articles/15948850-can-i-generate-a-breezy-api-access-token",
@@ -421,7 +407,7 @@
         "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Resolve exact findings in research/first-four-publication-review.md before production proposal; preserve original dates.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "local_measurement_2026_11_02": {
         "fetched": 71,
         "accepted": 45,
@@ -435,7 +421,8 @@
         "evidence/2026-11-02-four-source-local.json",
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
       "retained_catalog_match_estimate_2026_11_02": {
@@ -456,31 +443,25 @@
       "source_id": "breezy",
       "production_ready": false,
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "breezy",
-        "started_at": "2026-11-02T20:57:04.641Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 71,
-        "accepted_count": 45,
-        "rejected_count": 26,
-        "quarantined_count": 0,
-        "accepted_posted_within_15_days_count": 19,
-        "unknown_posting_date_count_before_deduplication": 0,
-        "checked": 45,
+        "accepted": 45,
         "outcomes": {
           "open": 45
         },
-        "fetch_requests": 73,
-        "verification_requests": 111,
-        "errors": [],
-        "unverified_boards": [
-          "breezy:subscribe"
-        ],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 45
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 25,
@@ -1002,10 +983,10 @@
     },
     {
       "platform": "YubHub",
-      "status": "experimental_cloud_fetch_verified",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "No account/key; explicit redistribution with Data by YubHub attribution. US feed https://feeds.yubhub.co/facet/country/united-states.json",
-      "blocker": "Latest cloud source and all accepted application links passed. Expanded isolated backend run failed in the 595-row read/search harness; local chunking fix is ready but no successful rerun yet. Production remains unapproved.",
-      "next_action": "Rerun expanded isolated HTTP/Supabase acceptance with the bounded-read harness fix; retain source-specific publication, attribution and freshness conditions before promotion.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "accepted_unique_us_jobs": null,
       "probe": {
         "feed_count": 100,
@@ -1057,7 +1038,8 @@
         "research/yubhub.md",
         "evidence/2026-11-02-eight-source-cloud-test.json",
         "research/second-four-publication-review.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "retained_catalog_match_estimate_2026_11_02": {
         "source": "yubhub",
@@ -1077,29 +1059,25 @@
       "source_id": "yubhub",
       "production_ready": false,
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "yubhub",
-        "started_at": "2026-11-02T20:58:33.001Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 100,
-        "accepted_count": 70,
-        "rejected_count": 28,
-        "quarantined_count": 2,
-        "accepted_posted_within_15_days_count": 51,
-        "unknown_posting_date_count_before_deduplication": 5,
-        "checked": 70,
+        "accepted": 70,
         "outcomes": {
           "open": 70
         },
-        "fetch_requests": 101,
-        "verification_requests": 171,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 70
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "platform": "Dev Remotely",
@@ -1164,9 +1142,9 @@
     {
       "slot": 59,
       "platform": "Getwork",
-      "status": "experimental_cloud_links_uncertain",
+      "status": "experimental_isolated_verified_links_incomplete",
       "access": "Keyless documented JSON search plus full-detail API; source getwork and tenant public wired. One bounded fresh-US observation window, no absence closure.",
-      "blocker": "Latest hosted fetch accepted 20; 18 links confirmed open and 2 uncertain. Saved aggregate report does not retain their exact reasons. Commercial republication scope remains unresolved; expanded isolated acceptance has not passed.",
+      "blocker": "Isolated database acceptance passed. Two application links remain unverified: employer HTTP403 and generic careers/login redirect. Commercial display conditions also remain unresolved.",
       "evidence_urls": [
         "https://getwork.dev/agents/",
         "https://getwork.dev/llms.txt",
@@ -1176,10 +1154,11 @@
       ],
       "evidence_files": [
         "research/getwork.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Recover or reproduce per-job uncertainty diagnostics through supported bounded reads; resolve both links and publication scope, then complete isolated acceptance before promotion.",
+      "next_action": "Run the shared prepublication quarantine policy in the next hosted batch; report verified accepted subset and withheld-link reasons without bypassing refusals.",
       "source_id": "getwork",
       "tenant": "public",
       "production_ready": false,
@@ -1245,39 +1224,35 @@
         ]
       },
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "getwork",
-        "started_at": "2026-11-02T21:01:36.686Z",
         "success": false,
-        "fetch_success": true,
-        "fetched_count": 20,
-        "accepted_count": 20,
-        "rejected_count": 0,
-        "quarantined_count": 0,
-        "accepted_posted_within_15_days_count": 20,
-        "unknown_posting_date_count_before_deduplication": 0,
-        "checked": 20,
+        "accepted": 20,
         "outcomes": {
           "uncertain": 2,
           "open": 18
         },
-        "fetch_requests": 21,
-        "verification_requests": 47,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false,
-        "uncertain_reasons": null,
-        "uncertain_reason_note": "Saved aggregate report contains two uncertain results but no per-job reason details; no cause is inferred."
+        "reason_counts": {
+          "verify_link: uncertain: Apply link HTTP 403": 1,
+          "verify_link: open: Source and apply link confirmed": 18,
+          "verify_link: uncertain: Apply redirect points to generic careers or login page": 1
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 60,
       "platform": "SpaceJobs.Now",
-      "status": "experimental_cloud_fetch_verified",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "Official account-free XML publisher feed expressly supports full-description republication with unchanged provider Apply URL and salary; source spacejobs and tenant public wired.",
-      "blocker": "Latest cloud source and all accepted application links passed. Expanded isolated backend run failed in the 595-row read/search harness; local chunking fix is ready but no successful rerun yet. Production remains unapproved. All 595 accepted original publication dates remain unknown and none count as proven fresh.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://spacejobs.now/job-feed",
         "https://spacejobs.now/legal/terms",
@@ -1286,10 +1261,11 @@
       ],
       "evidence_files": [
         "research/spacejobs.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Rerun expanded isolated HTTP/Supabase acceptance with the bounded-read harness fix; retain source-specific publication, attribution and freshness conditions before promotion. Keep unknown dates null and exact tracking query; establish date provenance before claiming fresh yield.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "source_id": "spacejobs",
       "tenant": "public",
       "production_ready": false,
@@ -1356,37 +1332,32 @@
         ]
       },
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "spacejobs",
-        "started_at": "2026-11-02T21:02:51.536Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 600,
-        "accepted_count": 595,
-        "rejected_count": 2,
-        "quarantined_count": 3,
-        "accepted_posted_within_15_days_count": 0,
-        "unknown_posting_date_count_before_deduplication": 597,
-        "checked": 595,
+        "accepted": 595,
         "outcomes": {
           "open": 595
         },
-        "fetch_requests": 1,
-        "verification_requests": 596,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false,
-        "accepted_unknown_posting_date_count": 595
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 595
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 61,
       "platform": "Rails Job Board / JobKit",
-      "status": "experimental_cloud_fetch_verified",
+      "status": "experimental_technical_end_to_end_verified",
       "access": "Public RSS supported for readers, aggregators and automations. Source railsjobs and tenant public wired. Count all JobKit boards as one platform.",
-      "blocker": "Latest cloud source and all accepted application links passed. Expanded isolated backend run failed in the 595-row read/search harness; local chunking fix is ready but no successful rerun yet. Production remains unapproved.",
+      "blocker": "Current source/link and isolated HTTP/Supabase checks passed; source-specific publication conditions and explicit production rollout approval remain separate gates.",
       "evidence_urls": [
         "https://www.jobkit.io/",
         "https://rubyonrails.org/2023/11/27/rails-job-board-is-live",
@@ -1396,10 +1367,11 @@
       ],
       "evidence_files": [
         "research/rails-jobs.md",
-        "evidence/2026-11-02-ten-source-cloud-checkpoint.json"
+        "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
+        "evidence/2026-11-02-nine-source-cloud-checkpoint.json"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Rerun expanded isolated HTTP/Supabase acceptance with the bounded-read harness fix; retain source-specific publication, attribution and freshness conditions before promotion.",
+      "next_action": "For SpaceJobs/Rails, complete read-only writer preflight and request exact rollout approval. For other sources, resolve documented publication conditions before proposing activation.",
       "source_id": "railsjobs",
       "tenant": "public",
       "production_ready": false,
@@ -1468,29 +1440,25 @@
         ]
       },
       "latest_cloud_verification": {
-        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+        "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
         "source": "railsjobs",
-        "started_at": "2026-11-02T21:03:21.433Z",
         "success": true,
-        "fetch_success": true,
-        "fetched_count": 12,
-        "accepted_count": 7,
-        "rejected_count": 1,
-        "quarantined_count": 4,
-        "accepted_posted_within_15_days_count": 1,
-        "unknown_posting_date_count_before_deduplication": 0,
-        "checked": 7,
+        "accepted": 7,
         "outcomes": {
           "open": 7
         },
-        "fetch_requests": 1,
-        "verification_requests": 8,
-        "errors": [],
-        "unverified_boards": [],
-        "writes": 0,
-        "production_ready": false
+        "reason_counts": {
+          "verify_link: open: Source and apply link confirmed": 7
+        }
       },
-      "selected_in_current_test_manifest": true
+      "selected_in_current_test_manifest": true,
+      "latest_isolated_acceptance": {
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "success": true,
+        "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+        "backend_head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+        "backend_tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec"
+      }
     },
     {
       "slot": 62,
@@ -2196,6 +2164,188 @@
         "homepage_http_status": 403
       },
       "slot": 95
+    },
+    {
+      "slot": 96,
+      "platform": "RemoteFirstJobs / JobsCollider",
+      "status": "experimental_local_backend_verified_cloud_pending",
+      "access": "Free public API/RSS explicitly supports own-board display with credit; onward syndication/indexing conditions need review.",
+      "blocker": "43 cached rows pass HTTP/PGlite insertion/readback/replay with full text and null original dates. Hosted source/link and isolated Supabase acceptance remain pending; publication/indexing conditions also require review.",
+      "evidence_urls": [
+        "https://remotefirstjobs.com/jobs-api",
+        "https://remotefirstjobs.com/rss",
+        "https://remotefirstjobs.com/terms",
+        "https://remotefirstjobs.com/companies/myfitnesspal/jobs/staff-software-engineer-ios-subscription-growth-878336",
+        "https://remotefirstjobs.com/methodology"
+      ],
+      "evidence_files": [
+        "research/remotefirstjobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Finish backend contracts and hosted TEST; preserve full API slug identities, null original dates, provider credit and no prohibited onward syndication.",
+      "source_id": "remotefirstjobs",
+      "tenant": "public",
+      "platform_aliases": [
+        "RemoteFirstJobs",
+        "Remote First Jobs",
+        "JobsCollider"
+      ],
+      "production_ready": false,
+      "selected_in_current_test_manifest": true,
+      "local_measurement_2026_11_02": {
+        "fetched": 100,
+        "accepted": 43,
+        "rejected": 31,
+        "quarantined": 26,
+        "accepted_original_posted_within_15_days": 0,
+        "original_dates_unknown": 100,
+        "identity_basis": "empty_snapshot",
+        "cached_replay": true
+      }
+    },
+    {
+      "slot": 97,
+      "platform": "InternScan",
+      "status": "full_descriptions_missing",
+      "access": "Public keyless US JSON/RSS with documented reuse.",
+      "blocker": "401 US rows, zero full descriptions; separately supported employer hydration would be required.",
+      "evidence_urls": [
+        "https://internscan.vercel.app/docs/"
+      ],
+      "evidence_files": [
+        "research/internscan.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 98,
+      "platform": "JobYap",
+      "status": "public_api_access_unresolved",
+      "access": "Documented public API.",
+      "blocker": "Ordinary documented API request returned HTTP403; no bypass or repeated probe.",
+      "evidence_urls": [
+        "https://github.com/jobyap/agent-skills/blob/main/skills/jobyap/references/api.md",
+        "https://jobyap.com/terms-of-service"
+      ],
+      "evidence_files": [
+        "research/jobyap.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 99,
+      "platform": "JobBoard.io",
+      "status": "public_feed_access_unresolved",
+      "access": "Documented employer/customer RSS.",
+      "blocker": "Reviewed customer feed returned HTTP403; supported usable sample remains unverified.",
+      "evidence_urls": [
+        "https://support.jobboard.io/docs/embed-jobs-feed-into-an-existing-website-via-rss",
+        "https://support.jobboard.io/reference/api-explore-get",
+        "https://schooldriverjobs.jobboard.io/jobs/636783084-logistics-account-manager-at-par-logistics",
+        "https://jobboard.io/case-studies/"
+      ],
+      "evidence_files": [
+        "research/jobboard-io.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 100,
+      "platform": "freehire.me",
+      "status": "paid_commercial_access",
+      "access": "Free personal/noncommercial API.",
+      "blocker": "Commercial full-text jobboard display requires paid plan; outside current free-source scope.",
+      "evidence_urls": [
+        "https://freehire.me/jobs-api"
+      ],
+      "evidence_files": [
+        "research/freehire.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 101,
+      "platform": "OnJob.io",
+      "status": "application_verification_incomplete",
+      "access": "Public full-description JSON/XML with explicit commercial jobboard syndication invitation and per-job backlinks.",
+      "blocker": "47 US-marked samples; one of three application pages confirmed, two returned403; original dates unverified and must remain null.",
+      "evidence_urls": [
+        "https://onjob.io/for-job-boards/",
+        "https://onjob.io/terms/"
+      ],
+      "evidence_files": [
+        "research/onjob.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 102,
+      "platform": "Jobr",
+      "status": "application_verification_incomplete",
+      "access": "Public US-filtered full XML with documented own-board syndication.",
+      "blocker": "Five US samples; provider pages match feed text but two tested application redirects returned403; no production claim.",
+      "evidence_urls": [
+        "https://jobr.pro/job-feed",
+        "https://jobr.pro/terms"
+      ],
+      "evidence_files": [
+        "research/jobr.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 103,
+      "platform": "Oru",
+      "status": "real_tenant_stale",
+      "access": "Documented public Atom syndication across customer boards; count platform once.",
+      "blocker": "Real PGE tenant returned20 full records, all April dates stale; no accepted-current-US sample.",
+      "evidence_urls": [
+        "https://oru.club/integrations",
+        "https://oru.club/terms",
+        "https://oru.club/discover",
+        "https://pge-remotehub.oru.club/"
+      ],
+      "evidence_files": [
+        "research/oru.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 104,
+      "platform": "Idealist",
+      "status": "requires_partner_key",
+      "access": "Documented partner read API with full descriptions, original dates and country filters.",
+      "blocker": "Manually issued partner API key required; no credentials, provider contact or accepted sample.",
+      "evidence_urls": [
+        "https://api-sandbox.idealist.org/listings-api"
+      ],
+      "evidence_files": [
+        "research/idealist.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
+    },
+    {
+      "slot": 105,
+      "platform": "Remote Impact",
+      "status": "paid_commercial_fulltext",
+      "access": "Free evaluation API with excerpts.",
+      "blocker": "Commercial full descriptions require paid access; outside current free-source scope.",
+      "evidence_urls": [
+        "https://remoteimpact.org/developers/"
+      ],
+      "evidence_files": [
+        "research/remote-impact.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Follow the documented access and validation requirements; no production count until verified writes and scheduled ingestion."
     }
   ],
   "validation_constraint": "No local Docker. Use write-free GitHub TEST and in-memory PostgreSQL; full isolated HTTP/Supabase acceptance remains a separate gate.",
@@ -2217,75 +2367,64 @@
       "Estimate does not establish fresh jobs, historical uniqueness, production readiness or live ingestion."
     ]
   },
-  "candidate_platform_count": 83,
-  "implemented_experimental_platforms": 11,
+  "candidate_platform_count": 93,
+  "implemented_experimental_platforms": 12,
   "historical_full_isolated_verified_platforms": 4,
   "current_test_sources": [
-    "breezy",
-    "getwork",
-    "manatal",
     "pinpoint",
-    "railsjobs",
-    "spacejobs",
-    "teamtailor",
+    "breezy",
+    "manatal",
     "trakstar",
-    "yubhub"
+    "yubhub",
+    "teamtailor",
+    "getwork",
+    "spacejobs",
+    "railsjobs",
+    "remotefirstjobs"
   ],
   "deferred_experimental_sources": [
     "getonboard",
     "remotebackendjobs"
   ],
   "latest_cloud_checkpoint": {
-    "evidence_file": "evidence/2026-11-02-ten-source-cloud-checkpoint.json",
-    "collector_run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+    "evidence_file": "evidence/2026-11-02-nine-source-cloud-checkpoint.json",
+    "collector_run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781",
+    "collector_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
     "fully_passed_platforms": 8,
     "accepted_rows_on_fully_passed_platforms": 734,
     "getwork": {
       "accepted": 20,
       "open": 18,
       "uncertain": 2,
-      "uncertain_reasons": null
-    },
-    "getonboard": {
-      "fetch_success": false,
-      "error": "HTTP 403",
-      "requests": 1
+      "reasons": {
+        "employer_http403": 1,
+        "generic_careers_or_login_redirect": 1
+      }
     },
     "backend": {
-      "commit": "00f018357b05af7f2ce48cbec58767904c93c828",
-      "evidence_basis": "Parent-verified workflow state and local fix checks; no network lookup during this documentation update.",
+      "head_commit": "18b5b3d33f7e2f64736281259729713244d1eee1",
+      "tested_merge_commit": "1b4351ed3b4add9d86a860432aafc3c4196c03ec",
       "full_ci": {
-        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524185960",
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905448",
         "conclusion": "success"
       },
       "isolated_acceptance": {
-        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524186125",
-        "conclusion": "failure",
-        "full_success": false,
-        "failure": "The isolated harness attempted a 595-row SpaceJobs read in one request; request URL length and the search API 100-ID limit require bounded chunking.",
-        "local_fix": {
-          "status": "ready_uncommitted",
-          "mock_tests_passed": 13,
-          "typecheck": "passed",
-          "lint": "passed",
-          "cloud_rerun_success": false
-        }
-      },
-      "historical_full_isolated_success": {
-        "source_count": 4,
-        "accepted_rows": 59,
-        "sources": [
-          "pinpoint",
-          "breezy",
-          "manatal",
-          "trakstar"
-        ],
-        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570",
-        "scope": "Historical first-four acceptance only; not proof of current eleven-source end-to-end success."
+        "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492",
+        "conclusion": "success",
+        "platforms": 9,
+        "records": 754
       }
     },
-    "collector_tests_passed": 474,
-    "collector_typecheck": "passed",
-    "new_production_platforms": 0
-  }
+    "new_production_platforms": 0,
+    "shared_database_writes": 0,
+    "next_batch_status": "prepared_not_run",
+    "current_local_collector_tests": 501
+  },
+  "backend_contract_platforms": 12,
+  "latest_full_isolated_verified_platforms": 9,
+  "technical_end_to_end_verified_platforms": 8,
+  "next_cloud_batch_sources": [
+    "getwork",
+    "remotefirstjobs"
+  ]
 }

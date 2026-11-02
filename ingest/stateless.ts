@@ -14,6 +14,8 @@ import { loadBoard, DISCOVERY_SOURCES } from "./lib/load-board";
 import { assertRunnerContext, clientFromEnv, MAX_BATCH_BYTES, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, safeReason, type Stage } from "./lib/diagnostics";
 import { boardIdentities, type BoardIdentity as CatalogIdentity } from "./lib/board-identities";
+import { publicationChecker, verifyPublicationCandidates, type PublicationChecker } from "./lib/prepublication-verification";
+import type { VerificationResult } from "./verify";
 
 export const TargetSchema = z.object({
   source: z.enum(SOURCE_IDS),
@@ -92,7 +94,8 @@ function normalizeBoard(target: StatelessTarget, body: unknown) {
   return { jobs, unverified };
 }
 
-function prepareJobs(target: StatelessTarget, board: ReturnType<typeof normalizeBoard>, now: Date, anchors: Map<string, CatalogIdentity>) {
+function prepareJobs(target: StatelessTarget, board: ReturnType<typeof normalizeBoard>, now: Date,
+  anchors: Map<string, CatalogIdentity>, verification?: ReadonlyMap<string, VerificationResult>) {
   const { jobs, unverified } = board;
   const adapter = ADAPTERS[target.source];
   const seenAt = now.toISOString();
@@ -117,6 +120,15 @@ function prepareJobs(target: StatelessTarget, board: ReturnType<typeof normalize
   ]));
   const identity_resolution = { splits: 0, merges: 0, quarantined: 0 };
   const quarantinedPostingIds = new Set<string>(unverified);
+  for (const job of ordered) {
+    if (!verification || decisions.get(job.id) !== "accepted") continue;
+    const result = verification.get(job.id);
+    if (!result) throw new CollectorError("Missing prepublication verification evidence");
+    if (result.status !== "open") {
+      decisions.set(job.id, "quarantined");
+      quarantinedPostingIds.add(job.id);
+    }
+  }
   const quarantine = (job: NormalizedJob) => {
     if (decisions.get(job.id) !== "accepted") return;
     decisions.set(job.id, "quarantined");
@@ -164,11 +176,14 @@ function prepareJobs(target: StatelessTarget, board: ReturnType<typeof normalize
     }
     const row: StatelessCatalogRow = { ...toCatalogRow(job, {
       firstSeenAt: anchor?.first_seen_at ?? seenAt,
-      duplicates: ownedDuplicates.filter((candidate) => candidate.id !== job.id),
+      // Keep discovered alias ownership, but unverified copies contribute no content.
+      duplicates: ownedDuplicates.filter((candidate) => candidate.id !== job.id &&
+        (!verification || verification.get(candidate.id)?.status === "open")),
       attribution: { ...adapter.attribution(target.tenant, job),
         ...(DISCOVERY_SOURCES.includes(target.source) ? { url: job.sourceUrl } : {}),
       },
     }), observed_source_job_id: job.sourceJobId };
+    row.duplicate_posting_ids = ownedDuplicates.filter(candidate => candidate.id !== job.id).map(candidate => candidate.id);
     if (anchor) {
       row.id = anchor.id;
       row.source_job_id = anchor.source_job_id;
@@ -194,12 +209,28 @@ export function prepareBoard(target: StatelessTarget, body: unknown, now: Date, 
   return prepareJobs(target, normalizeBoard(target, body), now, boardIdentities(snapshot, target.source, target.tenant));
 }
 
+async function prepareJobsForPublication(target: StatelessTarget, board: ReturnType<typeof normalizeBoard>,
+  now: Date, anchors: Map<string, CatalogIdentity>, checker: PublicationChecker) {
+  const verification = await verifyPublicationCandidates(target.source, [...board.jobs.values()], now, checker);
+  return { ...prepareJobs(target, board, now, anchors, verification?.results),
+    prepublication: verification?.summary };
+}
+
+/** Online admission shared by publishing and TEST. prepareBoard remains pure/offline. */
+export async function prepareBoardForPublication(target: StatelessTarget, body: unknown, now: Date,
+  snapshot: unknown, checker: PublicationChecker = publicationChecker()) {
+  const board = normalizeBoard(target, body);
+  const anchors = boardIdentities(snapshot, target.source, target.tenant);
+  return prepareJobsForPublication(target, board, now, anchors, checker);
+}
+
 export async function runStateless(options: {
   targets: StatelessTarget[];
   client: { call(body: unknown): Promise<unknown>; metrics: RequestMetrics };
   runId?: string;
   now?: Date;
   get?: typeof getJson;
+  checker?: PublicationChecker;
   log?: (line: string) => void;
 }) {
   const targets = z.array(TargetSchema).min(1).parse(options.targets);
@@ -211,6 +242,7 @@ export async function runStateless(options: {
   const now = options.now ?? new Date();
   const log = options.log ?? console.log;
   const started = Date.now();
+  const checker = publicationChecker(options.checker);
   let fetchRequests = 0, fetchedBytes = 0;
   const failures = await pool(targets, (t) => new URL(ADAPTERS[t.source].listUrl(t.tenant)).host, 8, 4, async (target) => {
     const board = `${target.source}:${target.tenant}`;
@@ -237,8 +269,12 @@ export async function runStateless(options: {
       const snapshot = await options.client.call({ operation: "board_identities", ...identity,
         ...(DISCOVERY_SOURCES.includes(target.source) ? { posting_ids: [...jobs.jobs.keys(), ...jobs.unverified] } : {}),
       });
-      const prepared = prepareJobs(target, jobs, now, boardIdentities(snapshot, target.source, target.tenant));
-      log(JSON.stringify({ stage: "fetch", board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, gates: prepared.gates, identity_resolution: prepared.identity_resolution }));
+      if (target.source === "getwork") stage = "verify_link";
+      const prepared = await prepareJobsForPublication(target, jobs, now,
+        boardIdentities(snapshot, target.source, target.tenant), checker);
+      log(JSON.stringify({ stage: "fetch", board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, gates: prepared.gates, identity_resolution: prepared.identity_resolution,
+        ...(prepared.prepublication ? { prepublication: prepared.prepublication } : {}) }));
+      stage = "publish";
       // Preflight every row before sending the first batch.
       const batches = splitBatches(identity, prepared.rows);
       const outcomes = { inserted: 0, updated: 0, unchanged: 0 };
@@ -268,8 +304,9 @@ export async function runStateless(options: {
   const summary = {
     run_id, boards: targets.length, failed: failures.length, duration_ms: Date.now() - started,
     fetch_requests: fetchRequests, fetched_bytes: fetchedBytes,
+    verification_requests: checker.metrics.requests,
     collector_requests: options.client.metrics.requests, payload_bytes: options.client.metrics.payload_bytes,
-    requests: fetchRequests + options.client.metrics.requests,
+    requests: fetchRequests + checker.metrics.requests + options.client.metrics.requests,
   };
   log(JSON.stringify({ stage: "complete", board: "run", ...summary }));
   if (failures.length) throw new CollectorError(`${failures.length} board(s) failed`);

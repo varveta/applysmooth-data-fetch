@@ -3,53 +3,59 @@
 Configured production baseline: 12. Additional live sources: 0. At least 38 new
 platforms remain. Current database inspection finds active rows from 11 platforms;
 Personio is configured and scheduled but currently contributes no accepted jobs.
-Eleven experimental adapters are implemented; they do not count as production.
-Candidate queue: 83 distinct platforms in `source-expansion-tracker.json`; research entries do not count as verified integrations.
+Twelve experimental collector adapters are implemented; eleven backend contracts are prepared. Neither count establishes production activation.
+Candidate queue: 93 distinct platforms in `source-expansion-tracker.json`; research entries do not count as verified integrations.
 
 ## Latest cloud checkpoint: November 2
 
-[Collector TEST run 41523776620](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620)
-fully passed source and accepted-link verification for eight platforms:
+[Collector TEST 41527719781](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41527719781)
+passed source and application-link checks for eight platforms: Pinpoint 11,
+Breezy 45, Manatal 1, Trakstar 3, YubHub 70, Teamtailor 2, SpaceJobs.Now 595,
+and Rails Job Board 7 accepted jobs (734 total). Getwork accepted 20 and confirmed
+18 application links; one employer URL returned HTTP 403 and one redirected to a
+generic careers/login page. The source remains unverified for publication; no
+blocked request was bypassed or treated as open.
 
-| Platform | Accepted | Verified open | Result |
-| --- | ---: | ---: | --- |
-| Pinpoint | 11 | 11 | Passed |
-| Breezy | 45 | 45 | Passed |
-| Manatal | 1 | 1 | Passed |
-| Trakstar Hire | 3 | 3 | Passed |
-| YubHub | 70 | 70 | Passed |
-| Teamtailor | 2 | 2 | Passed |
-| SpaceJobs.Now | 595 | 595 | Passed |
-| Rails Job Board / JobKit | 7 | 7 | Passed |
-| getwork.dev | 20 | 18 | Two uncertain links; incomplete |
-| Get on Board | Not measured | 0 | First API request returned HTTP 403 |
+[Isolated HTTP/Supabase acceptance 41527905492](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905492)
+**passed all nine selected platforms and 754 real rows**. Every row was inserted,
+read back, and replayed; original content, dates, identity, missing-snapshot safety,
+search, permissions, guest delay, cooldown, closure and expiry checks passed.
+The test used disposable GitHub services and wrote nothing to shared Supabase.
+Collector SHA: `92e3d074027082af1db1c18fa78b9c3bac754949`. Backend head:
+`18b5b3d33f7e2f64736281259729713244d1eee1`; tested PR merge SHA:
+`1b4351ed3b4add9d86a860432aafc3c4196c03ec`.
+[Full backend CI 41527905448](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41527905448)
+also passed. These results supersede the earlier large-read harness failure;
+Getwork's separate link failures still prevent a complete publication claim.
 
-The eight passing platforms contribute 734 accepted rows with verified open links.
-Including Getwork, successful fetches produced 754 accepted rows: 752 open and two
-uncertain. The saved aggregate artifact does not retain the two uncertain reasons;
-no cause is inferred. Zero-accepted peer boards `breezy:subscribe` and
-`manatal:trolley-2` remain unverified. All 595 accepted SpaceJobs original posting
-dates remain unknown, so none counts as proven 15-day freshness.
+Get on Board and Remote Backend Jobs remain deferred after hosted API HTTP 403s.
+Zero-accepted peer boards SUBSCRIBE and Trolley remain unexercised for insertion.
+SpaceJobs' 595 original dates remain null and are not claimed fresh.
+[Count-only checkpoint evidence](evidence/2026-11-02-nine-source-cloud-checkpoint.json).
 
-Get on Board and Remote Backend Jobs are now deferred after hosted HTTP 403
-responses. The current TEST manifest selects nine platforms. Collector local checks
-pass: 474 tests and typecheck. Eleven adapters are implemented, with zero new
-production sources and zero shared database writes.
+RemoteFirstJobs is the twelfth locally implemented collector adapter: 100 fetched,
+43 accepted, 31 non-US rejected, 26 unknown-US quarantined; all original dates are
+unknown. It has not passed hosted TEST or backend acceptance. The master working
+manifest selects ten sources including it; the next incremental cloud batch
+selects only Getwork and RemoteFirstJobs to avoid redundant provider reads; the passing cloud run above selects
+only nine. Collector checks now pass 501 tests and typecheck. Backend contracts for
+this new source use a separate additive migration. All 43 cached rows passed
+HTTP and embedded PostgreSQL insertion/readback/replay; 285 contract/migration
+tests, typecheck, lint and 88-migration generated-type parity passed.
 
-Backend commit `00f018357b05af7f2ce48cbec58767904c93c828` passed
-[full CI 41524185960](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524185960).
-[Isolated acceptance 41524186125](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524186125)
-failed when the harness tried to read 595 SpaceJobs rows in one request: URL length
-and the search API's 100-ID limit require bounded chunks. The uncommitted harness
-fix passes 13 mock tests, typecheck and changed-file lint; a successful cloud rerun
-is not yet established. Only the historical first four platforms have full isolated
-HTTP/Supabase acceptance evidence. Source/link TEST success does not establish
-production ingestion or expanded isolated acceptance.
+The initial rollout proposal remains SpaceJobs.Now and Rails only. Their technical
+checks and documented feed-syndication basis are recorded, but activation is not
+approved. A manual read-only writer diagnostic is ready in
+[PR #18](https://github.com/varveta/applysmooth-data-fetch/pull/18) (343 tests and CI passed), approved for diagnostic only:
+GitHub's existing `test` environment permits secrets only on `main`. No protection
+will be weakened. The current 49 persisted source/tenant scopes are all identity-ready;
+a scoped empty identity read can confirm the writer's matching allowlist without
+extracting sensitive values or writing job data.
 
-The earlier 797-row catalog comparison remains a separate sample: it includes both
-now-deferred platforms and Pinpoint's earlier 10 rows. Its 790 rows without retained
-catalog matches are an estimate, not proof of unique, fresh or live jobs.
-[Count-only checkpoint evidence](evidence/2026-11-02-ten-source-cloud-checkpoint.json).
+The older 797-row catalog comparison is a separate sample including both deferred
+sources and Pinpoint's earlier 10 rows. Its 790 rows without retained matches remain
+an estimate, not proof of unique, fresh or live jobs. RemoteFirstJobs overlap has
+not been measured. Additional live production sources: **zero**.
 
 ## November 2 first-batch checkpoint
 
@@ -263,3 +269,23 @@ JobBoardly was already counted; four customer feed probes returned 403, so its
 
 No provider contacted, account registered, or service purchased. Local Docker was
 stopped following the user's instruction and is excluded from subsequent validation.
+
+## Getwork prepublication correction
+
+The current collector checks quality-eligible Getwork copies before duplicate
+representative selection. Non-open checks quarantine; verified aliases retain
+historical identity and dates. Unverified copies contribute no accepted content.
+The same online preparation runs in publication and TEST, with an exact-run cache
+that prevents preview from retrying failed links. Counts distinguish quality
+acceptance, link quarantine, and deduplication. Pure offline preparation remains
+network-free. The next hosted batch will measure the actual admitted count; the
+expected 18 from the earlier 20-row sample is not claimed as a new live result.
+
+A disposable application of the initial SpaceJobs/Rails activation patch passed
+533 tests and typecheck against this working state. The actual collector remains
+TEST-only for every added source.
+
+PR #18 merged after owner approval. Diagnostic run41532514498 stopped before
+requests because the configured endpoint did not exactly match the expected TEST
+alias; configuration matched49 audited boards and credentials were present.
+Writer binding remains unresolved; no source activation was authorized.

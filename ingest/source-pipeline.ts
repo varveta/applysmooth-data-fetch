@@ -5,7 +5,7 @@ import { SOURCE_IDS, isExperimentalSource, type SourceId } from "@/lib/jobs-inge
 import { loadBoard } from "./lib/load-board";
 import { assertRunnerContext, clientFromEnv } from "./lib/collector-client";
 import { errorLine, safeReason } from "./lib/diagnostics";
-import { prepareBoard, runStateless, TargetSchema } from "./stateless";
+import { prepareBoardForPublication, runStateless, TargetSchema } from "./stateless";
 
 export function resolveMode(source: SourceId, requested: string, activeJson: string) {
   const mode = z.enum(["auto", "dry-run", "publish"]).parse(requested);
@@ -53,12 +53,14 @@ export async function runSource(source: SourceId, mode: "dry-run" | "publish") {
         const boardStarted = Date.now();
         try {
           const fetched = await loadBoard(target);
-          const prepared = prepareBoard(target, fetched.body, new Date(), {
+          const prepared = await prepareBoardForPublication(target, fetched.body, new Date(), {
             source, tenant: target.tenant, complete: true, identities: [],
           });
           log(JSON.stringify({ stage: "dry_run", board, fetched_count: prepared.fetched_count,
             accepted_count: prepared.rows.length, gates: prepared.gates,
             requests: fetched.attempts, bytes: fetched.bytes, duration_ms: Date.now() - boardStarted,
+            ...(prepared.prepublication ? { prepublication: prepared.prepublication,
+              verification_requests: prepared.prepublication.requests } : {}),
             ...("discovery" in fetched ? { discovery: fetched.discovery } : {}),
             writes: 0 }));
         } catch (error) {

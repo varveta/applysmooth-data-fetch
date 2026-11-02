@@ -9,6 +9,8 @@ import { validateTargets } from "./validate-targets";
 import { verifier } from "./verify";
 import { pool } from "./lib/http";
 import { safeReason } from "./lib/diagnostics";
+import { publicationChecker } from "./lib/prepublication-verification";
+import type { StatelessCatalogRow } from "./stateless";
 
 /** No collector client, database access, secrets or application submissions. */
 export async function verifyPreview(
@@ -21,13 +23,13 @@ export async function verifyPreview(
 ) {
   const source = z.enum(EXPERIMENTAL_SOURCE_IDS).parse(options.source);
   const rows: CatalogRow[] = [];
+  const checker = publicationChecker(options.checker ??
+    verifier({ allowExperimental: true, concurrency: 3, perHost: 2 }));
   const validation = await (options.validate ?? validateTargets)(manifest, {
     source,
+    checker,
     onAccepted: (accepted) => rows.push(...accepted),
   });
-  const checker =
-    options.checker ??
-    verifier({ allowExperimental: true, concurrency: 3, perHost: 2 });
   const results: { board: string; stage: string; status: string; detail: string }[] = [];
   const failures = await pool(
     rows,
@@ -39,7 +41,7 @@ export async function verifyPreview(
         id: row.id,
         source: row.source,
         tenant: row.source_tenant,
-        source_job_id: row.source_job_id,
+        source_job_id: (row as Partial<StatelessCatalogRow>).observed_source_job_id ?? row.source_job_id,
         apply_url: row.apply_url,
         reason: "read_only_preview",
       });

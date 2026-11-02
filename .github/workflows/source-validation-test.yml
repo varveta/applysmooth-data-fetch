@@ -35,12 +35,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Test adapters and validation boundaries
         run: pnpm test && pnpm typecheck
-      - name: Read sources from committed TEST manifest
+      - name: Read sources from committed next-batch TEST manifest
         id: manifest
         run: |
           node --input-type=module <<'JS' >> "$GITHUB_OUTPUT"
           import { readFileSync } from 'node:fs';
-          const manifest = JSON.parse(readFileSync('ingest/config/expansion-test.json', 'utf8'));
+          const manifest = JSON.parse(readFileSync('ingest/config/expansion-next-batch.json', 'utf8'));
           const sources = [...new Set(manifest.targets.map(target => target.source))];
           if (!sources.length || sources.length > 50 || sources.some(source => typeof source !== 'string' || !/^[a-z][a-z0-9_-]{0,63}$/.test(source)))
             throw new Error('Invalid TEST source matrix');
@@ -66,7 +66,7 @@ jobs:
       - run: corepack enable && corepack prepare pnpm@10.32.1 --activate
       - run: pnpm install --frozen-lockfile
       - name: Fetch, validate, and verify source identities and application links without database writes
-        run: pnpm exec tsx ingest/verify-preview.ts ingest/config/expansion-test.json "$SOURCE"
+        run: pnpm exec tsx ingest/verify-preview.ts ingest/config/expansion-next-batch.json "$SOURCE"
         env:
           SOURCE: ${{ matrix.source }}
       - name: Save per-source TEST validation report

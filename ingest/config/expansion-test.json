@@ -59,6 +59,11 @@
       "source": "railsjobs",
       "tenant": "public",
       "company": "Rails Job Board"
+    },
+    {
+      "source": "remotefirstjobs",
+      "tenant": "public",
+      "company": "Remote First Jobs"
     }
   ]
 }

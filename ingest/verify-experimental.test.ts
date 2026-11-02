@@ -133,3 +133,43 @@ it("verifies Breezy detail identity and explicit expiry without closing on parsi
     (await verifier({ allowExperimental: true }).check(job("breezy"))).status,
   ).toBe("uncertain");
 });
+
+const remoteFirstPosting = {
+  id: "platform-engineer-123", title: "Platform Engineer", company_name: "Example Employer",
+  url: "https://remotefirstjobs.com/companies/example-employer/jobs/platform-engineer-123",
+  locations: ["United States"], description, published_at: "2026-11-01T05:24:11",
+};
+const remoteFirstQueued = {
+  id: "catalog-remotefirstjobs", source: "remotefirstjobs" as const, tenant: "public",
+  source_job_id: remoteFirstPosting.id, apply_url: remoteFirstPosting.url, reason: "preview",
+};
+it("keeps Remote First Jobs TEST-only before any source or link request", async () => {
+  const f = vi.fn(); vi.stubGlobal("fetch", f);
+  expect(await verifier().check(remoteFirstQueued)).toMatchObject({ status: "uncertain",
+    detail: "TEST-only source has no approved closure verification" });
+  expect(f).not.toHaveBeenCalled();
+});
+it("withholds Remote First Jobs closure for absent, failed or malformed observation windows", async () => {
+  for (const response of [json({ page: 0, jobs_count: 0, jobs: [] }), json({}, 404), json({}, 410),
+    json({}, 403), json({ page: 0, jobs_count: 1, jobs: [] })]) {
+    const f = vi.fn(async (_url: unknown) => response); vi.stubGlobal("fetch", f);
+    expect((await verifier({ allowExperimental: true }).check(remoteFirstQueued)).status).toBe("uncertain");
+    expect(f).toHaveBeenCalledTimes(1);
+    expect(String(f.mock.calls[0]?.[0])).not.toContain("lever.co");
+  }
+});
+it("confirms Remote First Jobs only with matching US posting and working provider link", async () => {
+  const f = vi.fn(async (url: unknown) => String(url).includes("/api/search-jobs")
+    ? json({ page: 0, jobs_count: 1, jobs: [remoteFirstPosting] }) : new Response("Apply"));
+  vi.stubGlobal("fetch", f);
+  expect((await verifier({ allowExperimental: true }).check(remoteFirstQueued)).status).toBe("open");
+  expect(f).toHaveBeenCalledTimes(2);
+});
+it("keeps changed Remote First Jobs application URLs or eligibility uncertain", async () => {
+  for (const posting of [{ ...remoteFirstPosting, url: remoteFirstPosting.url.replace("example-employer", "other-employer") },
+    { ...remoteFirstPosting, locations: ["Canada"] }, { ...remoteFirstPosting, locations: ["Remote"] }]) {
+    const f = vi.fn(async () => json({ page: 0, jobs_count: 1, jobs: [posting] })); vi.stubGlobal("fetch", f);
+    expect((await verifier({ allowExperimental: true }).check(remoteFirstQueued)).status).toBe("uncertain");
+    expect(f).toHaveBeenCalledTimes(1);
+  }
+});
