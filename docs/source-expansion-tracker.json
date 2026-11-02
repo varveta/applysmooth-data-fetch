@@ -8,26 +8,50 @@
     {
       "slot": 13,
       "platform": "Pinpoint",
-      "status": "experimental_local_validated",
+      "status": "experimental_local_verified",
       "access": "**Public candidate.** Unauthenticated `https://{company}.pinpointhq.com/postings.json`; use postings, not deprecated jobs endpoint.",
-      "blocker": "Not live. Empty-identity validation is not historical/cross-source deduplication or database acceptance.",
+      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
       "evidence_urls": [
         "https://developers.pinpointhq.com/docs/jobs-json-endpoint"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete backend contracts, isolated database replay/verification, TEST cloud validation, reuse review and approval-gated rollout."
+      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "local_measurement_2026_11_02": {
+        "fetched": 14,
+        "accepted": 10,
+        "rejected": 4,
+        "quarantined": 0,
+        "known_recent": 10,
+        "unknown_dates": 0,
+        "verified_open": 10
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-four-source-local.json"
+      ]
     },
     {
       "slot": 14,
       "platform": "Manatal",
-      "status": "experimental_local_validated",
+      "status": "experimental_local_verified",
       "access": "**Public candidate.** `https://api.manatal.com/open/v3/career-page/{client_slug}/jobs/`; paginated career-page API. Full account API is separate and token protected.",
-      "blocker": "Not live. Empty-identity validation is not historical/cross-source deduplication or database acceptance. Both sampled listings omit posting dates; freshness unverified.",
+      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured. Both sampled listings omit posting dates; freshness unverified.",
       "evidence_urls": [
         "https://developers.manatal.com/reference/career-page_jobs_list"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete backend contracts, isolated database replay/verification, TEST cloud validation, reuse review and approval-gated rollout."
+      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "local_measurement_2026_11_02": {
+        "fetched": 2,
+        "accepted": 1,
+        "rejected": 0,
+        "quarantined": 1,
+        "known_recent": 0,
+        "unknown_dates": 2,
+        "verified_open": 1
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-four-source-local.json"
+      ]
     },
     {
       "slot": 15,
@@ -45,14 +69,28 @@
     {
       "slot": 16,
       "platform": "Trakstar Hire / Recruiterbox",
-      "status": "research_only",
+      "status": "experimental_local_verified",
       "access": "**Public candidate.** Official frontend API `https://jsapi.recruiterbox.com/v1/openings?client_name={tenant}`; separate private account API.",
-      "blocker": "Demo HTTP 200/20 rows establishes transport only. Real employer, current support/reuse terms, US yield, timestamp policy and pagination validation needed.",
+      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
       "evidence_urls": [
-        "https://apiv1.recruiterbox.com/frontend_api.html"
+        "https://apiv1.recruiterbox.com/frontend_api.html",
+        "https://elevate97.hire.trakstar.com/",
+        "https://valtasgroup.hire.trakstar.com/"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "local_measurement_2026_11_02": {
+        "fetched": 4,
+        "accepted": 3,
+        "rejected": 1,
+        "quarantined": 0,
+        "known_recent": 3,
+        "unknown_dates": 0,
+        "verified_open": 3
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-four-source-local.json"
+      ]
     },
     {
       "slot": 17,
@@ -144,15 +182,27 @@
     {
       "slot": 24,
       "platform": "Breezy HR",
-      "status": "experimental_local_validated",
+      "status": "experimental_local_verified",
       "access": "**Provisioning / public-route gap.** Official API requires account access token. No officially supported keyless `/json` feed established in this review.",
-      "blocker": "Not live. Empty-identity validation is not historical/cross-source deduplication or database acceptance.",
+      "blocker": "Not live. Isolated hosted HTTP/Supabase validation, reuse conditions, production approval and scheduled-write evidence remain. Cross-source/historical unique yield unmeasured.",
       "evidence_urls": [
         "https://developer.breezy.hr/reference/overview",
         "https://help.breezy.hr/en/articles/15948850-can-i-generate-a-breezy-api-access-token"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Complete backend contracts, isolated database replay/verification, TEST cloud validation, reuse review and approval-gated rollout."
+      "next_action": "Verify updated TEST workflow including application links; validate isolated HTTP/DB acceptance without local Docker; prepare exact approval-gated rollout.",
+      "local_measurement_2026_11_02": {
+        "fetched": 71,
+        "accepted": 45,
+        "rejected": 26,
+        "quarantined": 0,
+        "known_recent": 45,
+        "unknown_dates": 0,
+        "verified_open": 45
+      },
+      "evidence_files": [
+        "evidence/2026-11-02-four-source-local.json"
+      ]
     },
     {
       "slot": 25,
@@ -473,6 +523,30 @@
       ],
       "accepted_unique_us_jobs": null,
       "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 51,
+      "platform": "Get on Board",
+      "status": "public_api_probed",
+      "access": "Official public API needs no account or token. Provider documentation explicitly describes displaying public jobs on another site. Private company API is separate and paid.",
+      "blocker": "No adapter, backend contract, TEST run or reuse/rate-budget review yet. Query results are not a US geography filter.",
+      "evidence_urls": [
+        "https://www.getonbrd.com/help/what-can-i-do-with-get-on-board-s-api",
+        "https://github.com/getonbrd/getonbrd-ruby",
+        "https://getonbrd.com/about/tos"
+      ],
+      "accepted_unique_us_jobs": null,
+      "probe_2026_11_02": {
+        "query": "United States",
+        "pages": 3,
+        "fetched": 29,
+        "unique_source_ids": 29,
+        "explicit_us_country": 1,
+        "explicit_us_country_recent_15_days": 1,
+        "applysmooth_gate_acceptance_measured": false
+      },
+      "next_action": "Implement documented public search/category loading with original dates, full description sections and resolved remote-country restrictions; measure actual US acceptance and duplicates."
     }
-  ]
+  ],
+  "validation_constraint": "No local Docker. Use write-free GitHub TEST and in-memory PostgreSQL; full isolated HTTP/Supabase acceptance remains a separate gate."
 }

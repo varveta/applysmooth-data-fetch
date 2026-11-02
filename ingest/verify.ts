@@ -62,6 +62,8 @@ function dnsNotFound(error: unknown): boolean {
 
 export function verifier(options: {
   perHost?: number; concurrency?: number; queuedJobs?: VerifyJob[];
+  /** Read-only preview only; the live verification runner never opts in. */
+  allowExperimental?: boolean;
   boardCounts?: ReadonlyMap<string, number>;
   cache?: ReturnType<typeof createVerificationCache>;
 } = {}) {
@@ -84,7 +86,7 @@ export function verifier(options: {
   });
   const jobicyStatus = createJobicyVerifier(options.queuedJobs ?? [], read);
   const source = async (job: VerifyJob): Promise<Check> => {
-    if (isExperimentalSource(job.source)) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
+    if (isExperimentalSource(job.source) && !options.allowExperimental) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
     if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
     if (job.source === "ashby") {
       let pending = ashbyBoards.get(job.tenant);
@@ -128,7 +130,9 @@ export function verifier(options: {
           const adapter = ADAPTERS[job.source];
           const postings = new Map<string, NormalizedJob>();
           for (const raw of adapter.parseListing(response.body)) {
-            const normalized = adapter.normalize(raw, job.tenant);
+            // Configured display company is not in the verification queue. This
+            // placeholder is used only to validate the provider record, never persisted.
+            const normalized = adapter.normalize(raw, job.tenant, job.tenant);
             if (postings.has(normalized.sourceJobId)) throw new Error("Duplicate source identity");
             postings.set(normalized.sourceJobId, normalized);
           }
@@ -139,6 +143,8 @@ export function verifier(options: {
       try {
         const posting = (await pending).get(job.source_job_id);
         if (!posting) return { status: "uncertain", detail: "Absent from observation feed; closure withheld" };
+        if (isExperimentalSource(job.source) && posting.applyUrl !== job.apply_url)
+          return { status: "uncertain", detail: "Source application URL changed; confirmation withheld" };
         if (posting.sourceExpiresAt && Date.parse(posting.sourceExpiresAt) <= Date.now())
           return { status: "closed", http_status: 200, detail: "Source explicitly reports expired posting" };
         if (posting.usEligibility !== "us")

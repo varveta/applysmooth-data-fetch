@@ -24,6 +24,16 @@
       "source": "manatal",
       "tenant": "trolley-2",
       "company": "Trolley"
+    },
+    {
+      "source": "trakstar",
+      "tenant": "elevate97",
+      "company": "Elevate97"
+    },
+    {
+      "source": "trakstar",
+      "tenant": "valtasgroup",
+      "company": "Valtas Group"
     }
   ]
 }

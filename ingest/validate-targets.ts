@@ -20,6 +20,8 @@ type BoardReport = {
   accepted_count: number | null;
   rejected_count: number | null;
   quarantined_count: number | null;
+  quality_accepted_count: number;
+  deduplicated_count: number;
   reason_counts: Partial<Record<GateReason, number>>;
   us_eligible_count: number;
   known_recent_posting_count: number;
@@ -49,7 +51,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
     const boardStarted = Date.now();
     const report: BoardReport = { board: `${target.source}:${target.tenant}`, company: target.company,
       success: false, fetched_count: null, accepted_count: null, rejected_count: null,
-      quarantined_count: null, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, unknown_posting_date_count: 0, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
+      quarantined_count: null, quality_accepted_count: 0, deduplicated_count: 0, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, unknown_posting_date_count: 0, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
     // Count the work even if a later page fails and loadBoard never returns.
     const get: typeof getJson = async (url, opts) => {
       let response;
@@ -73,6 +75,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
         if (seen.has(job.id)) continue;
         seen.add(job.id);
         const gate = evaluateGates(job, { now, open: true, lastSeenAt: now.toISOString(), duplicateOf: null });
+        if (gate.status === "accepted") report.quality_accepted_count++;
         if (job.usEligibility === "us") report.us_eligible_count++;
         if (job.postedAt === null) report.unknown_posting_date_count++;
         else if (!gate.reasons.includes("posting_too_old") && !gate.reasons.includes("posted_at_in_future"))
@@ -84,6 +87,8 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
       report.success = true;
       report.fetched_count = prepared.fetched_count;
       report.accepted_count = prepared.rows.length;
+      // Empty identity snapshots: eligible rows removed by within-board deduplication.
+      report.deduplicated_count = report.quality_accepted_count - prepared.rows.length;
       report.rejected_count = prepared.gates.rejected ?? 0;
       report.quarantined_count = prepared.gates.quarantined ?? 0;
       if ("discovery" in fetched) report.discovery = fetched.discovery;

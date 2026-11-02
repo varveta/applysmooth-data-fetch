@@ -1,49 +1,76 @@
 # Goal: 50 distinct live production sources
 
-Current baseline: 12. Additional live sources: 0. Remaining production gap: 38.
-The full candidate queue is `source-expansion-tracker.json`; entries are not implementations.
-Preserve this goal until 50 sources have proven scheduled writes and display eligibility.
+Production baseline: 12. Additional live sources: 0. Remaining production gap: 38.
+Four experimental adapters are implemented; they do not count as production.
+Candidate queue: `source-expansion-tracker.json` (39 candidates, including a new alternative).
 
 ## November 2 checkpoint
 
-- Pinpoint and Breezy: existing TEST branch adapters, 58 accepted / 85 fetched in
-  [cloud run 41467198234](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41467198234), zero writes.
-- Manatal: new experimental adapter, 2 real employer listings fetched, 1 accepted,
-  1 quarantined for unknown US eligibility, zero writes. Count-only local evidence:
-  `evidence/2026-11-02-manatal-local.json`. Both dates are unknown, so acceptance is
-  NOT proof of freshness or readiness. No demo or goCloudOffice procurement RFQs
-  included. More employers and freshness evidence needed before rollout.
-- Manatal uses the [documented public career API](https://developers.manatal.com/reference/career-page_jobs_list).
-  Employer pages: https://www.careers-page.com/primary-care-collaborative and
-  https://www.careers-page.com/trolley-2. Public reads establish technical access,
-  not unrestricted commercial republication permission.
-- Bound pagination to the same tenant API path, 100 pages / 10,000 records, with
-  duplicate/count-change/partial-response failure. Full descriptions preserved.
-  Missing dates stay null. Presence-only observation policy; production publication
-  is blocked by the common experimental-source guard.
-- TEST matrix automatically discovers Manatal from `expansion-test.json`.
-- Backend worktree: `~/.codex/worktrees/50-source-expansion/backend`, branch
-  `feat/experimental-source-contracts`, based on PROD c854c05d. Initial Pinpoint/Breezy
-  HTTP contract support and exact employer-host attribution checks prepared locally.
-  No database migration, deployment, activation or shared database writes performed.
+| Platform | Fetched | Accepted | Rejected | Quarantined | Known recent | Unknown dates | Verified links |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Pinpoint | 14 | 10 | 4 | 0 | 10 | 0 | 10 |
+| Breezy | 71 | 45 | 26 | 0 | 45 | 0 | 45 |
+| Manatal | 2 | 1 | 0 | 1 | 0 | 2 | 1 |
+| Trakstar Hire | 4 | 3 | 1 | 0 | 3 | 0 | 3 |
 
-## Next work (do not treat this checkpoint as completion)
+Counts are time-specific local samples, using empty identity history. Cross-source
+unique yield remains unmeasured. Zero shared database writes. Known-recent counts
+are based on original source dates; unknown dates are not evidence of freshness.
+Manatal's one accepted listing still lacks a verifiable original posting date.
 
-1. Verify the new TEST run and keep count-only evidence in the tracker.
-2. Complete Pinpoint/Breezy SQL source support, board validation and observation-only
-   policy in an additive migration. Test insertion, idempotent replay, failed batches,
-   explicit expiry and missing-job handling against isolated local PostgreSQL.
-   Docker was not running at the initial check. Never use shared production Supabase.
-3. Implement verification for experimental feeds; currently they return uncertain.
-4. Pass real collector rows through backend HTTP/SQL validation and isolated preview
-   acceptance before presenting a production rollout for approval.
-5. Add additional real Manatal employers; investigate original publication dates.
-6. Continue Trakstar/TalentLyft employer discovery and other candidates beyond the
-   existing list. Provisioned candidates remain candidates until access is available.
-7. Prepare exact backend/collector commits, migrations, boards, schedules, terms,
-   rollback and verification steps for approval. No production rollout is authorized
-   by TEST success alone.
+Pinpoint's public feed omits original dates, but matching public job pages expose
+them. Fetch those pages using their UUID identity while preserving the numeric feed
+ID as canonical identity. This correctly rejects four old jobs that the former
+feed-only check accepted. Full descriptions and explicit expiry remain preserved.
 
-Cross-source unique yield is unmeasured; empty-identity accepted counts must not be
-reported as net new catalog inventory. No provider contacted, key registered, or
-service purchased during this checkpoint.
+Trakstar uses the [documented public frontend API](https://apiv1.recruiterbox.com/frontend_api.html)
+for Elevate97 and Valtas Group. It validates pagination, exact tenant links, and
+matching page identity/date metadata. Page templates sometimes emit raw control
+characters in JSON strings; repair only those characters, never evaluate scripts.
+Three recent US jobs survive the gates. One old short general-intake listing is rejected.
+
+`verify-preview.ts` performs one validation pass, then confirms each accepted source
+identity and application link, with count-only artifacts. Any failed check is
+uncertain; no accepted jobs means verification fails. Empty/old peer boards stay
+explicitly unverified. Experimental sources still cannot publish or run live
+verification. Missing jobs in observation feeds never prove closure.
+
+The TEST matrix now runs this fetch/verify command for all four platforms, without
+credentials or database access. New cloud results must be inspected after push;
+[previous cloud run](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41508352332)
+covered Pinpoint/Breezy/Manatal fetching before page-date and verification changes.
+
+Backend draft PR #288 prepares all four sources with exact tenant-scoped attribution
+and source/apply URL checks. The unapplied migration preserves observation-only
+policy and existing verification cooldowns. In-memory PostgreSQL checks cover
+idempotent replay, missing snapshots, scoped identity aliases, publication failures,
+expiry and reader access. This is not hosted Supabase or deployment acceptance.
+
+## Additional free API lead
+
+[Get on Board's official help](https://www.getonbrd.com/help/what-can-i-do-with-get-on-board-s-api)
+describes account-free public listings and building a job board from them. Its
+[official SDK](https://github.com/getonbrd/getonbrd-ruby) confirms public search and
+category routes. Three public search pages for "United States" yielded 29 unique
+source IDs, only one with an explicit US country and recent date. US employer/client
+mentions and generic remote jobs do not establish US eligibility. Implement and
+measure resolved country restrictions before claiming an accepted-job yield.
+
+## Remaining work
+
+1. Inspect new TEST results, including application links and original-date rejection.
+2. Complete isolated HTTP/Supabase acceptance, production-like failures and display
+   checks. User explicitly prohibits local Docker; use in-memory PostgreSQL locally
+   and a separate cloud test environment for full-stack acceptance. Existing TEST
+   and production share Supabase and must receive no experimental writes.
+3. Resolve Manatal freshness and expand useful real employer coverage. Confirm each
+   provider's applicable reuse/attribution conditions and rate budget.
+4. Implement Get on Board and continue alternatives beyond the original candidate list.
+5. Prepare exact backend/collector commits, migration, board allowlists, schedules,
+   identity seeding, rollback and post-rollout checks for approval. Production is
+   not authorized by TEST success.
+6. After approval, verify real Supabase writes and successful scheduled runs before
+   incrementing the production platform count. Full goal remains 50 live platforms.
+
+No provider contacted, account registered, or service purchased. Local Docker was
+stopped following the user's instruction and is excluded from subsequent validation.

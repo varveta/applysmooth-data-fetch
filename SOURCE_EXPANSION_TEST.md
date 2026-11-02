@@ -1,3 +1,8 @@
+> Current checkpoint: four experimental platforms (Pinpoint, Breezy, Manatal,
+> Trakstar), with source/link verification and original Pinpoint page dates.
+> See [current progress](docs/source-expansion-progress.md). The older checkpoint
+> below records historical evidence, not current readiness or source counts.
+
 > November 2 update: see [account-free integration](docs/free-source-integration.md).
 > The experimental set now also includes Breezy and a local full-description
 > preview/refilter command. The historical Pinpoint checkpoint below remains

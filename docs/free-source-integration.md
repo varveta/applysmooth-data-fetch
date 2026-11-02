@@ -90,8 +90,8 @@ fetch/validation jobs. It uploads count-only reports, never the local descriptio
 ## Release boundary
 
 Pinpoint and Breezy are experimental sources and cannot enter the stateless
-publisher, even if added to activation configuration. Verification reports them
-uncertain. This preserves the user's earlier TEST-first / decide-PROD-later scope.
+publisher, even if added to activation configuration. The live verification runner reports them uncertain; explicit write-free
+`verify-preview.ts` checks now validate identities and application links. This preserves the user's earlier TEST-first / decide-PROD-later scope.
 
 Before actual catalog publishing, implement and test matching backend source and
 attribution contracts, identity/closure behavior, isolated preview acceptance,

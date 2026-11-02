@@ -1,3 +1,5 @@
+import { loadPinpointBoard } from "./fetch-pinpoint";
+import { loadTrakstarBoard } from "./fetch-trakstar";
 import { loadManatalBoard } from "./fetch-manatal";
 import { loadBreezyBoard } from "./fetch-breezy";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
@@ -11,18 +13,13 @@ export type BoardTarget = { source: SourceId; tenant: string; company: string };
 
 /** A failed page or detail aborts before any row is published. */
 export async function loadBoard(target: BoardTarget, get: typeof getJson = getJson) {
+  if (target.source === "trakstar") return loadTrakstarBoard(target, get);
   if (target.source === "manatal") return loadManatalBoard(target, get);
   if (target.source === "breezy") return loadBreezyBoard(target, get);
   if (["smartrecruiters", "workable", "personio", "recruitee"].includes(target.source))
     return loadAtsBoard(target, get);
   if (DISCOVERY_SOURCES.includes(target.source)) return loadFeedBoard(target, get);
-  if (target.source === "pinpoint") {
-    const result = await get(ADAPTERS.pinpoint.listUrl(target.tenant), { maxBytes: 12_000_000 });
-    if (!result.ok) throw new Error(result.error);
-    ADAPTERS.pinpoint.parseListing(result.body);
-    return { body: result.body, attempts: result.attempts, bytes: result.bytes,
-      discovery: { policy: "observations" as const, pages: 1, capped: false } };
-  }
+  if (target.source === "pinpoint") return loadPinpointBoard(target, get);
   const result = await get(ADAPTERS[target.source].listUrl(target.tenant));
   if (!result.ok) throw new Error(result.error);
   return { body: result.body, attempts: result.attempts, bytes: result.bytes };

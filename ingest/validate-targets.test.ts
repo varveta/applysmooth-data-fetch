@@ -51,7 +51,7 @@ it("counts deduplication using publication preparation, not raw feed count", asy
     ashbyFixture, { ...ashbyFixture, id: "duplicate", jobUrl: "https://jobs.ashbyhq.com/example/duplicate" },
   ]) });
   expect(report.boards[0]).toMatchObject({ fetched_count: 2, accepted_count: 1, rejected_count: 1,
-    quarantined_count: 0 });
+    quarantined_count: 0, quality_accepted_count: 2, deduplicated_count: 1 });
 });
 
 it("writes the report and returns failure exit status when a board fails", async () => {

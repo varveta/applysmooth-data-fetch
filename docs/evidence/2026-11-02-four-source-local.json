@@ -1,0 +1,358 @@
+{
+  "kind": "local-read-only-checkpoint",
+  "production_ready": false,
+  "external_database_writes": 0,
+  "validation": {
+    "mode": "read-only-validation",
+    "success": true,
+    "started_at": "2026-11-02T19:34:36.333Z",
+    "duration_ms": 35241,
+    "writes": 0,
+    "identity_basis": "empty_snapshot",
+    "live_ingestion_verified": false,
+    "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+    "boards": [
+      {
+        "board": "pinpoint:groupo",
+        "company": "Group O",
+        "success": true,
+        "fetched_count": 14,
+        "accepted_count": 10,
+        "rejected_count": 4,
+        "quarantined_count": 0,
+        "quality_accepted_count": 10,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "posting_too_old": 4
+        },
+        "us_eligible_count": 14,
+        "known_recent_posting_count": 10,
+        "unknown_posting_date_count": 0,
+        "requests": 15,
+        "bytes": 1934327,
+        "duration_ms": 5640,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 15,
+          "capped": false
+        }
+      },
+      {
+        "board": "breezy:embraer",
+        "company": "Embraer",
+        "success": true,
+        "fetched_count": 65,
+        "accepted_count": 45,
+        "rejected_count": 20,
+        "quarantined_count": 0,
+        "quality_accepted_count": 45,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "posting_too_old": 20
+        },
+        "us_eligible_count": 65,
+        "known_recent_posting_count": 45,
+        "unknown_posting_date_count": 0,
+        "requests": 66,
+        "bytes": 1703944,
+        "duration_ms": 25094,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 66,
+          "capped": false
+        }
+      },
+      {
+        "board": "breezy:subscribe",
+        "company": "SUBSCRIBE",
+        "success": true,
+        "fetched_count": 6,
+        "accepted_count": 0,
+        "rejected_count": 6,
+        "quarantined_count": 0,
+        "quality_accepted_count": 0,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "posting_too_old": 6
+        },
+        "us_eligible_count": 6,
+        "known_recent_posting_count": 0,
+        "unknown_posting_date_count": 0,
+        "requests": 7,
+        "bytes": 121369,
+        "duration_ms": 2483,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 7,
+          "capped": false
+        }
+      },
+      {
+        "board": "manatal:primary-care-collaborative",
+        "company": "Primary Care Collaborative",
+        "success": true,
+        "fetched_count": 1,
+        "accepted_count": 1,
+        "rejected_count": 0,
+        "quarantined_count": 0,
+        "quality_accepted_count": 1,
+        "deduplicated_count": 0,
+        "reason_counts": {},
+        "us_eligible_count": 1,
+        "known_recent_posting_count": 0,
+        "unknown_posting_date_count": 1,
+        "requests": 1,
+        "bytes": 5911,
+        "duration_ms": 191,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 1,
+          "capped": false
+        }
+      },
+      {
+        "board": "manatal:trolley-2",
+        "company": "Trolley",
+        "success": true,
+        "fetched_count": 1,
+        "accepted_count": 0,
+        "rejected_count": 0,
+        "quarantined_count": 1,
+        "quality_accepted_count": 0,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "us_eligibility_unknown": 1
+        },
+        "us_eligible_count": 0,
+        "known_recent_posting_count": 0,
+        "unknown_posting_date_count": 1,
+        "requests": 1,
+        "bytes": 4658,
+        "duration_ms": 76,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 1,
+          "capped": false
+        }
+      },
+      {
+        "board": "trakstar:elevate97",
+        "company": "Elevate97",
+        "success": true,
+        "fetched_count": 2,
+        "accepted_count": 1,
+        "rejected_count": 1,
+        "quarantined_count": 0,
+        "quality_accepted_count": 1,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "description_too_short": 1,
+          "posting_too_old": 1
+        },
+        "us_eligible_count": 2,
+        "known_recent_posting_count": 1,
+        "unknown_posting_date_count": 0,
+        "requests": 3,
+        "bytes": 273467,
+        "duration_ms": 924,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 3,
+          "capped": false
+        }
+      },
+      {
+        "board": "trakstar:valtasgroup",
+        "company": "Valtas Group",
+        "success": true,
+        "fetched_count": 2,
+        "accepted_count": 2,
+        "rejected_count": 0,
+        "quarantined_count": 0,
+        "quality_accepted_count": 2,
+        "deduplicated_count": 0,
+        "reason_counts": {},
+        "us_eligible_count": 2,
+        "known_recent_posting_count": 2,
+        "unknown_posting_date_count": 0,
+        "requests": 3,
+        "bytes": 348922,
+        "duration_ms": 833,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 3,
+          "capped": false
+        }
+      }
+    ],
+    "accepted_count": 59,
+    "selected_count": 59,
+    "filters": {
+      "title_any": [],
+      "exclude_any": [],
+      "description_any": [],
+      "work_modes": [],
+      "job_types": []
+    },
+    "cross_source_deduplication": false,
+    "output_use": "local-review-only"
+  },
+  "verification": [
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "pinpoint",
+      "started_at": "2026-11-02T19:33:46.533Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T19:33:46.533Z",
+        "duration_ms": 5431,
+        "writes": 0,
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "pinpoint:groupo",
+            "company": "Group O",
+            "success": true,
+            "fetched_count": 14,
+            "accepted_count": 10,
+            "rejected_count": 4,
+            "quarantined_count": 0,
+            "quality_accepted_count": 10,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "posting_too_old": 4
+            },
+            "us_eligible_count": 14,
+            "known_recent_posting_count": 10,
+            "unknown_posting_date_count": 0,
+            "requests": 15,
+            "bytes": 1934327,
+            "duration_ms": 5431,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 15,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 15,
+      "verification_requests": 25,
+      "boards": [
+        {
+          "board": "pinpoint:groupo",
+          "fetch_success": true,
+          "accepted": 10,
+          "checked": 10,
+          "outcomes": {
+            "open": 10
+          },
+          "unverified": false
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "breezy",
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 73,
+      "verification_requests": 111,
+      "boards": [
+        {
+          "board": "breezy:embraer",
+          "fetch_success": true,
+          "accepted": 45,
+          "checked": 45,
+          "outcomes": {
+            "open": 45
+          },
+          "unverified": false
+        },
+        {
+          "board": "breezy:subscribe",
+          "fetch_success": true,
+          "accepted": 0,
+          "checked": 0,
+          "outcomes": {},
+          "unverified": true
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "manatal",
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 2,
+      "verification_requests": 2,
+      "boards": [
+        {
+          "board": "manatal:primary-care-collaborative",
+          "fetch_success": true,
+          "accepted": 1,
+          "checked": 1,
+          "outcomes": {
+            "open": 1
+          },
+          "unverified": false
+        },
+        {
+          "board": "manatal:trolley-2",
+          "fetch_success": true,
+          "accepted": 0,
+          "checked": 0,
+          "outcomes": {},
+          "unverified": true
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "trakstar",
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 6,
+      "verification_requests": 9,
+      "boards": [
+        {
+          "board": "trakstar:elevate97",
+          "fetch_success": true,
+          "accepted": 1,
+          "checked": 1,
+          "outcomes": {
+            "open": 1
+          },
+          "unverified": false
+        },
+        {
+          "board": "trakstar:valtasgroup",
+          "fetch_success": true,
+          "accepted": 2,
+          "checked": 2,
+          "outcomes": {
+            "open": 2
+          },
+          "unverified": false
+        }
+      ]
+    }
+  ]
+}

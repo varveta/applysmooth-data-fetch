@@ -1,3 +1,4 @@
+import { trakstar } from "./trakstar";
 import { manatal } from "./manatal";
 import { breezy } from "./breezy";
 import { pinpoint } from "./pinpoint";
@@ -517,4 +518,5 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   pinpoint,
   breezy,
   manatal,
+  trakstar,
 };
