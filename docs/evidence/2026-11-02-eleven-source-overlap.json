@@ -1,0 +1,87 @@
+{
+  "checked_at": "2026-11-02",
+  "mode": "read-only-retained-catalog-comparison",
+  "writes": 0,
+  "sampled_rows": 797,
+  "method": "Exact lowercased application URL with trailing slash removed; or exact lowercased whitespace-normalized company/title. All retained catalog statuses considered. No URL query stripping.",
+  "limits": "No-match is an estimate, not proof against deleted history, changed labels, wrapped provider URLs, or cross-source duplicates within the new sample.",
+  "sources": [
+    {
+      "source": "breezy",
+      "sampled": 45,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 45
+    },
+    {
+      "source": "getonboard",
+      "sampled": 1,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 1
+    },
+    {
+      "source": "getwork",
+      "sampled": 20,
+      "exact_normalized_url_matches": 7,
+      "company_title_matches": 7,
+      "no_retained_catalog_match": 13
+    },
+    {
+      "source": "manatal",
+      "sampled": 1,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 1
+    },
+    {
+      "source": "pinpoint",
+      "sampled": 10,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 10
+    },
+    {
+      "source": "railsjobs",
+      "sampled": 7,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 7
+    },
+    {
+      "source": "remotebackendjobs",
+      "sampled": 43,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 43
+    },
+    {
+      "source": "spacejobs",
+      "sampled": 595,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 595
+    },
+    {
+      "source": "teamtailor",
+      "sampled": 2,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 2
+    },
+    {
+      "source": "trakstar",
+      "sampled": 3,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 3
+    },
+    {
+      "source": "yubhub",
+      "sampled": 70,
+      "exact_normalized_url_matches": 0,
+      "company_title_matches": 0,
+      "no_retained_catalog_match": 70
+    }
+  ]
+}

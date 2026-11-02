@@ -1,3 +1,6 @@
+import { railsjobs } from "./rails-jobs";
+import { getwork } from "./getwork";
+import { spacejobs } from "./spacejobs";
 import { teamtailor } from "./teamtailor";
 import { yubhub } from "./yubhub";
 import { remotebackendjobs } from "./remote-backend-jobs";
@@ -527,4 +530,7 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   getonboard,
   yubhub,
   teamtailor,
+  getwork,
+  spacejobs,
+  railsjobs,
 };

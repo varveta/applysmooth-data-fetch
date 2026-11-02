@@ -36,11 +36,6 @@
       "company": "Valtas Group"
     },
     {
-      "source": "remotebackendjobs",
-      "tenant": "public",
-      "company": "Remote Backend Jobs"
-    },
-    {
       "source": "getonboard",
       "tenant": "public",
       "company": "Get on Board"
@@ -54,6 +49,21 @@
       "source": "teamtailor",
       "tenant": "varnish-software",
       "company": "Varnish Software"
+    },
+    {
+      "source": "getwork",
+      "tenant": "public",
+      "company": "getwork.dev"
+    },
+    {
+      "source": "spacejobs",
+      "tenant": "public",
+      "company": "SpaceJobs.Now"
+    },
+    {
+      "source": "railsjobs",
+      "tenant": "public",
+      "company": "Rails Job Board"
     }
   ]
 }

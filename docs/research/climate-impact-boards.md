@@ -1,0 +1,13 @@
+# Climate and social-impact boards — route and permission triage
+
+Reviewed 2026-11-02. Three distinct platforms absent from prior resolved research. No adapter added; none increases the ready-source count. Searches targeted official API/RSS/feed documentation, followed by ordinary public-page checks. No inferred internal API, credentials, registration, contact, paywall bypass, database write or Docker use.
+
+| Platform | Concrete evidence | Decision |
+|---|---|---|
+| Tech Jobs for Good | [Homepage](https://techjobsforgood.com/) displayed **86 public jobs** and an upgrade for 736 additional jobs. Current US examples include Piedmont Environmental Council's Database Specialist, Warrenton, VA / Washington, DC, shown as posted three hours earlier; and Concourse's Founding GTM Engineer, New York, shown as five days earlier. No public API/feed was linked in reviewed navigation or found in targeted official-domain search. One ordinary HTTP homepage request returned **403**. | Useful US relevance, but no documented export/reuse contract. Stopped after 403. Public listing totals are not fetched/accepted counts. |
+| ClimateTechList | [Homepage](https://www.climatetechlist.com/) had no readable content through the web reader; one ordinary HTTP request returned **403**. Official-domain API/RSS searches returned job descriptions mentioning these technologies, not a publisher API or job feed. | Access/route/republication gaps. No alternate host, undocumented route or browser workaround attempted. No measured inventory or date/full-description proof. |
+| Climatebase | [Homepage](https://climatebase.org/) advertises jobs/community, but reviewed official navigation and API/RSS searches did not establish a supported export. [Terms](https://climatebase.org/terms-of-use), updated 2025-12-04, restrict commercial use without written approval, content redistribution and automated extraction (§6). | Explicit permission barrier. No job-collection probe or internal endpoint inspection. A separately authorized publisher export would be needed. |
+
+Tech Jobs for Good links its [terms via Termly](https://app.termly.io/policy-viewer/policy.html?policyUUID=01597699-ff1e-43b8-b193-eb4fff26f271); the policy viewer returned no readable body in this review. No affirmative reuse permission is claimed. Full original descriptions and employer publication timestamps were not validated for any of these three platforms.
+
+These are bounded research findings, not proof that the providers cannot offer partner feeds. All three remain **research-only**, with zero ingested/accepted jobs and zero production-ready integrations from this batch.

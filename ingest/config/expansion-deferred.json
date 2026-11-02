@@ -1,0 +1,11 @@
+{
+  "targets": [
+    {
+      "source": "remotebackendjobs",
+      "tenant": "public",
+      "company": "Remote Backend Jobs"
+    }
+  ],
+  "reason": "GitHub hosted API access returned HTTP403 in TEST run41520833751 and isolated run41520935268. Do not automatically retry or activate before supported runner access is resolved.",
+  "production_ready": false
+}

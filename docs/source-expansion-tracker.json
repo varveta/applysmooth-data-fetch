@@ -31,7 +31,22 @@
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md"
       ],
-      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "pinpoint",
+        "sample_accepted_rows": 10,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 10,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "slot": 14,
@@ -60,7 +75,22 @@
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md"
       ],
-      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "manatal",
+        "sample_accepted_rows": 1,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 1,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "slot": 15,
@@ -104,7 +134,22 @@
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md"
       ],
-      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "trakstar",
+        "sample_accepted_rows": 3,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 3,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "slot": 17,
@@ -123,7 +168,7 @@
       "slot": 18,
       "platform": "Bullhorn",
       "status": "research_only",
-      "access": "**Public candidate requiring tenant setup.** Public API exposes limited fields on Published\u2013Approved jobs; public cluster/corporation token required.",
+      "access": "**Public candidate requiring tenant setup.** Public API exposes limited fields on Published–Approved jobs; public cluster/corporation token required.",
       "blocker": "Employer/staffing agency US inventory possible. Need an authorized configured tenant, public-only field selection, complete paging, and reuse agreement. No live token tested.",
       "evidence_urls": [
         "https://bullhorn.github.io/Public-API/"
@@ -141,7 +186,10 @@
         "https://support.jobscore.com/hc/en-us/articles/202001320-Developers-Guide-to-Job-Feed-APIs"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe.",
+      "evidence_files": [
+        "research/jobscore.md"
+      ]
     },
     {
       "slot": 20,
@@ -171,15 +219,15 @@
     {
       "slot": 22,
       "platform": "Teamtailor",
-      "status": "experimental_local_verified",
+      "status": "experimental_cloud_fetch_verified",
       "access": "**Provisioning.** Public read scope still requires employer API key; job-board partner route also exists.",
-      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
+      "blocker": "Source and links passed cloud TEST; current isolated backend run stopped before database startup because Remote Backend Jobs failed. Publication scope still requires provider-specific review.",
       "evidence_urls": [
         "https://docs.teamtailor.com/",
         "https://partner.teamtailor.com/job_boards/direct_apply/"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
+      "next_action": "Run isolated acceptance with explicit healthy manifest; resolve scoped publication conditions before activation.",
       "local_measurement_2026_11_02": {
         "board": "teamtailor:varnish-software",
         "company": "Varnish Software",
@@ -211,8 +259,25 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-second-batch-local.json",
-        "research/teamtailor.md"
-      ]
+        "research/teamtailor.md",
+        "evidence/2026-11-02-eight-source-cloud-test.json",
+        "research/second-four-publication-review.md"
+      ],
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "teamtailor",
+        "sample_accepted_rows": 2,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 2,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "slot": 23,
@@ -256,7 +321,22 @@
         "evidence/2026-11-02-catalog-overlap.json",
         "research/first-four-publication-review.md"
       ],
-      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels."
+      "current_catalog_overlap": "Zero normalized application-URL or company/title matches in retained catalog; not proof against deleted history or changed labels.",
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "breezy",
+        "sample_accepted_rows": 45,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 45,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "slot": 25,
@@ -489,7 +569,10 @@
         "https://www.themuse.com/developers/api/v2"
       ],
       "accepted_unique_us_jobs": null,
-      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe.",
+      "evidence_files": [
+        "research/the-muse.md"
+      ]
     },
     {
       "slot": 44,
@@ -581,9 +664,9 @@
     {
       "slot": 51,
       "platform": "Get on Board",
-      "status": "experimental_local_verified",
+      "status": "experimental_cloud_fetch_verified",
       "access": "Official public API needs no account or token. Provider documentation explicitly describes displaying public jobs on another site. Private company API is separate and paid.",
-      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
+      "blocker": "Source and links passed cloud TEST; current isolated backend run stopped before database startup because Remote Backend Jobs failed. Publication scope still requires provider-specific review.",
       "evidence_urls": [
         "https://www.getonbrd.com/help/what-can-i-do-with-get-on-board-s-api",
         "https://github.com/getonbrd/getonbrd-ruby",
@@ -599,7 +682,7 @@
         "explicit_us_country_recent_15_days": 1,
         "applysmooth_gate_acceptance_measured": false
       },
-      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
+      "next_action": "Run isolated acceptance with explicit healthy manifest; resolve scoped publication conditions before activation.",
       "local_measurement_2026_11_02": {
         "board": "getonboard:public",
         "company": "getonboard",
@@ -632,15 +715,32 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-second-batch-local.json",
-        "research/getonboard.md"
-      ]
+        "research/getonboard.md",
+        "evidence/2026-11-02-eight-source-cloud-test.json",
+        "research/second-four-publication-review.md"
+      ],
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "getonboard",
+        "sample_accepted_rows": 1,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 1,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "platform": "Remote Backend Jobs network",
-      "status": "experimental_local_verified",
+      "status": "blocked_hosted_access",
       "access": "No account/key. 120 listing requests/min. Offset+limit <=250. Link each job to provider page; credit Remote Backend Jobs. Count backend/frontend/java sites together as ONE platform.",
-      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
-      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
+      "blocker": "HTTP403 on initial public API request from GitHub TEST and isolated runners; no supported hosted fetch path proven.",
+      "next_action": "Resolve supported hosted API access with provider before re-enabling automatic validation; no proxy/access-control bypass.",
       "accepted_unique_us_jobs": null,
       "probe": {
         "list_count": 5,
@@ -685,8 +785,24 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-second-batch-local.json",
-        "research/remote-backend-jobs.md"
-      ]
+        "research/remote-backend-jobs.md",
+        "research/second-four-publication-review.md"
+      ],
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "remotebackendjobs",
+        "sample_accepted_rows": 43,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 43,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "platform": "Active Vacancies",
@@ -699,7 +815,7 @@
         "list_count": 5,
         "first_detail_markdown_chars": 8529,
         "first_detail_html_chars": 9274,
-        "first_location": "San Francisco, CA \u2022 United States"
+        "first_location": "San Francisco, CA • United States"
       },
       "slot": 53,
       "evidence_urls": [
@@ -709,10 +825,10 @@
     },
     {
       "platform": "YubHub",
-      "status": "experimental_local_verified",
+      "status": "experimental_cloud_fetch_verified",
       "access": "No account/key; explicit redistribution with Data by YubHub attribution. US feed https://feeds.yubhub.co/facet/country/united-states.json",
-      "blocker": "Cloud TEST source/link and isolated HTTP/Supabase acceptance pending for this batch; publication conditions and production approval unresolved.",
-      "next_action": "Run committed eight-source TEST matrix and isolated backend acceptance; resolve source-specific publication requirements before rollout.",
+      "blocker": "Source and links passed cloud TEST; current isolated backend run stopped before database startup because Remote Backend Jobs failed. Publication scope still requires provider-specific review.",
+      "next_action": "Run isolated acceptance with explicit healthy manifest; resolve scoped publication conditions before activation.",
       "accepted_unique_us_jobs": null,
       "probe": {
         "feed_count": 100,
@@ -760,8 +876,25 @@
       },
       "evidence_files": [
         "evidence/2026-11-02-second-batch-local.json",
-        "research/yubhub.md"
-      ]
+        "research/yubhub.md",
+        "evidence/2026-11-02-eight-source-cloud-test.json",
+        "research/second-four-publication-review.md"
+      ],
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "yubhub",
+        "sample_accepted_rows": 70,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 70,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
     },
     {
       "platform": "Dev Remotely",
@@ -778,6 +911,9 @@
       "slot": 55,
       "evidence_urls": [
         "https://devremotely.com/feeds"
+      ],
+      "evidence_files": [
+        "research/devremotely.md"
       ]
     },
     {
@@ -819,10 +955,871 @@
       "evidence_urls": [
         "https://careernest.cloud/api-docs"
       ]
+    },
+    {
+      "slot": 59,
+      "platform": "Getwork",
+      "status": "experimental_local_verified",
+      "access": "Keyless documented JSON search plus full-detail API; source getwork and tenant public wired. One bounded fresh-US observation window, no absence closure.",
+      "blocker": "TEST-only preparation. Commercial republication scope remains unresolved; no cloud TEST, isolated backend acceptance or production activation claimed.",
+      "evidence_urls": [
+        "https://getwork.dev/agents/",
+        "https://getwork.dev/llms.txt",
+        "https://getwork.dev/spec/jobspec/v0.1.json",
+        "https://getwork.dev/privacy/"
+      ],
+      "evidence_files": [
+        "research/getwork.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Keep TEST-only; resolve publication scope and complete hosted/isolated validation before any production proposal.",
+      "source_id": "getwork",
+      "tenant": "public",
+      "production_ready": false,
+      "validation_artifact": "/tmp/50-source-getwork-validation.json",
+      "accepted_rows_artifact": "/tmp/50-source-getwork-accepted.jsonl",
+      "local_measurement_2026_11_02": {
+        "board": "getwork:public",
+        "company": "Getwork",
+        "success": true,
+        "fetched_count": 20,
+        "accepted_count": 20,
+        "rejected_count": 0,
+        "quarantined_count": 0,
+        "quality_accepted_count": 20,
+        "deduplicated_count": 0,
+        "reason_counts": {},
+        "us_eligible_count": 20,
+        "known_recent_posting_count": 20,
+        "posted_within_15_days_count": 20,
+        "accepted_posted_within_15_days_count": 20,
+        "unknown_posting_date_count": 0,
+        "requests": 21,
+        "bytes": 153293,
+        "duration_ms": 20337,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 21,
+          "capped": true,
+          "maximum_jobs": 20
+        }
+      },
+      "validation_scope": {
+        "mode": "read-only-validation",
+        "started_at": "2026-11-02T20:43:26.940Z",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "writes": 0,
+        "cached_replay": true,
+        "hosted_test_claimed": false,
+        "isolated_backend_acceptance_claimed": false,
+        "network_requests_during_replay": 0,
+        "summary_reconstructed_from_validated_details": true,
+        "original_live_transport": {
+          "requests": 21,
+          "bytes": 163404
+        }
+      },
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "getwork",
+        "sample_accepted_rows": 20,
+        "exact_application_url_matches": 7,
+        "exact_company_title_matches": 7,
+        "rows_matching_either_method": 7,
+        "no_retained_catalog_match_estimate": 13,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
+    },
+    {
+      "slot": 60,
+      "platform": "SpaceJobs.Now",
+      "status": "experimental_local_verified",
+      "access": "Official account-free XML publisher feed expressly supports full-description republication with unchanged provider Apply URL and salary; source spacejobs and tenant public wired.",
+      "blocker": "All 595 accepted sample rows have unknown original publication dates because feed date mixes publication and first-seen without provenance. Bounded first page only. Hosted TEST/backend/link checks and production approval remain separate.",
+      "evidence_urls": [
+        "https://spacejobs.now/job-feed",
+        "https://spacejobs.now/legal/terms",
+        "https://spacejobs.now/feeds/jobs.xml?country=us&page=1"
+      ],
+      "evidence_files": [
+        "research/spacejobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate hosted fetch, backend contracts and provider links; preserve unknown dates and exact attribution/query. Resolve date provenance before claiming fresh yield.",
+      "source_id": "spacejobs",
+      "tenant": "public",
+      "production_ready": false,
+      "validation_artifact": "/tmp/50-source-spacejobs-final.json",
+      "accepted_rows_artifact": "/tmp/50-source-spacejobs-accepted.jsonl",
+      "local_measurement_2026_11_02": {
+        "board": "spacejobs:public",
+        "company": "SpaceJobs.Now",
+        "success": true,
+        "fetched_count": 600,
+        "accepted_count": 595,
+        "rejected_count": 2,
+        "quarantined_count": 3,
+        "quality_accepted_count": 597,
+        "deduplicated_count": 2,
+        "reason_counts": {
+          "normalize_failed": 3
+        },
+        "us_eligible_count": 597,
+        "known_recent_posting_count": 0,
+        "posted_within_15_days_count": 0,
+        "accepted_posted_within_15_days_count": 0,
+        "unknown_posting_date_count": 597,
+        "requests": 1,
+        "bytes": 5763149,
+        "duration_ms": 11129,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 1,
+          "capped": true,
+          "maximum_jobs": 600,
+          "reported_total": 15046,
+          "reported_pages": 26,
+          "publication_dates": "unknown_mixed_with_first_seen"
+        }
+      },
+      "validation_scope": {
+        "mode": "read-only-validation",
+        "started_at": "2026-11-02T21:00:00.000Z",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "writes": 0,
+        "cached_replay": true,
+        "hosted_test_claimed": false,
+        "isolated_backend_acceptance_claimed": false,
+        "additional_live_requests_during_replay": 0,
+        "accepted_unknown_posting_date_count": 595
+      },
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "spacejobs",
+        "sample_accepted_rows": 595,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 595,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
+    },
+    {
+      "slot": 61,
+      "platform": "Rails Job Board / JobKit",
+      "status": "experimental_local_verified",
+      "access": "Public RSS supported for readers, aggregators and automations. Source railsjobs and tenant public wired. Count all JobKit boards as one platform.",
+      "blocker": "Local full-text/date/geography tests passed; hosted TEST, isolated backend acceptance, source-link verification and production approval remain separate. Seven accepted sample rows include only one within 15 days.",
+      "evidence_urls": [
+        "https://www.jobkit.io/",
+        "https://rubyonrails.org/2023/11/27/rails-job-board-is-live",
+        "https://jobs.rubyonrails.org/jobs.rss",
+        "https://docs.jobkit.io/introduction"
+      ],
+      "evidence_files": [
+        "research/rails-jobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Complete hosted/isolated validation; retain Rails Job Board per-job credit and provider Apply URL. Do not count other JobKit boards as new platforms.",
+      "source_id": "railsjobs",
+      "tenant": "public",
+      "production_ready": false,
+      "validation_artifact": "/tmp/50-source-railsjobs-report.json",
+      "accepted_rows_artifact": "/tmp/50-source-railsjobs-accepted.jsonl",
+      "platform_aliases": [
+        "Rails Job Board",
+        "JobKit"
+      ],
+      "local_measurement_2026_11_02": {
+        "board": "railsjobs:public",
+        "company": "Rails Job Board",
+        "success": true,
+        "fetched_count": 12,
+        "accepted_count": 7,
+        "rejected_count": 1,
+        "quarantined_count": 4,
+        "quality_accepted_count": 7,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "us_eligibility_unknown": 4,
+          "not_us": 1
+        },
+        "us_eligible_count": 7,
+        "known_recent_posting_count": 12,
+        "posted_within_15_days_count": 2,
+        "accepted_posted_within_15_days_count": 1,
+        "unknown_posting_date_count": 0,
+        "requests": 0,
+        "bytes": 0,
+        "duration_ms": 225,
+        "writes": 0,
+        "discovery": {
+          "policy": "observations",
+          "pages": 1,
+          "capped": true,
+          "maximum_jobs": 1000
+        }
+      },
+      "validation_scope": {
+        "mode": "read-only-validation",
+        "started_at": "2026-11-02T20:45:07.412Z",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "writes": 0,
+        "cached_replay": true,
+        "hosted_test_claimed": false,
+        "isolated_backend_acceptance_claimed": false,
+        "additional_live_requests_during_replay": 0,
+        "original_feed_bytes": 77274
+      },
+      "retained_catalog_match_estimate_2026_11_02": {
+        "source": "railsjobs",
+        "sample_accepted_rows": 7,
+        "exact_application_url_matches": 0,
+        "exact_company_title_matches": 0,
+        "rows_matching_either_method": 0,
+        "no_retained_catalog_match_estimate": 7,
+        "proven_historical_unique_jobs": null,
+        "basis": "Parent-reported read-only comparison of 797 accepted rows against retained catalog; normalized application URL and company/title exact matching.",
+        "limitations": [
+          "Not a comparison against deleted history.",
+          "Changed URLs, company names or role titles can hide duplicate jobs.",
+          "No retained match does not prove historical uniqueness, fresh publication, incremental live ingestion or search visibility."
+        ]
+      }
+    },
+    {
+      "slot": 62,
+      "platform": "AI Dev Jobs",
+      "status": "blocked_full_description",
+      "access": "Free keyless REST search/detail API; terms allow application use, excluding standalone dataset resale.",
+      "blocker": "48/50 sampled descriptions were 4,900–4,999 characters. Elastic detail and page JSON-LD ended mid-word at 4,965 characters versus original employer 7,687. Fresh literal-US query returned zero; page date used later ingest time.",
+      "evidence_urls": [
+        "https://aidevboard.com/docs",
+        "https://aidevboard.com/terms",
+        "https://aidevboard.com/openapi.yaml"
+      ],
+      "evidence_files": [
+        "research/aidevjobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require a supported untruncated export or separately reviewed original-employer hydration; never ingest snippets or substitute provider ingest date.",
+      "probe_2026_11_02": {
+        "fetched": 50,
+        "reported_us_matches": 264,
+        "fresh_literal_us_matches": 0,
+        "descriptions_4900_to_4999_chars": 48,
+        "original_full_description_verified": false
+      }
+    },
+    {
+      "slot": 63,
+      "platform": "Artificial Intelligence Jobs",
+      "status": "blocked_full_description",
+      "access": "Keyless search API supports region filters and offset pages up to 200; no detail endpoint established.",
+      "blocker": "Three sampled US results have no descriptions. Terms prohibit wholesale reposting of curated dataset as own; full-description hydration and reuse scope unresolved.",
+      "evidence_urls": [
+        "https://artificialintelligencejobs.co/developers",
+        "https://artificialintelligencejobs.co/openapi.json",
+        "https://artificialintelligencejobs.co/terms"
+      ],
+      "evidence_files": [
+        "research/artificial-intelligence-jobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require a permitted full-description route before implementation; provider search totals are not unique accepted jobs.",
+      "probe_2026_11_02": {
+        "fetched": 3,
+        "reported_us_matches": 14252,
+        "reported_total": 20233,
+        "descriptions_present": false
+      }
+    },
+    {
+      "slot": 64,
+      "platform": "CuratorSearch",
+      "status": "requires_permission",
+      "access": "Keyless JSON search/detail and RSS; search maximum 20. Separate keyed partner feed exists.",
+      "blocker": "Public documentation directs linking instead of republishing job descriptions. CC BY grant covers pay archive/hiring index, not job descriptions.",
+      "evidence_urls": [
+        "https://curatorsearch.com/developers",
+        "https://curatorsearch.com/api/jobs?limit=3",
+        "https://curatorsearch.com/feed.xml"
+      ],
+      "evidence_files": [
+        "research/curatorsearch.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Keep full-text catalog integration blocked until applicable publication rights and feed access exist; no outreach authorized.",
+      "probe_2026_11_02": {
+        "fetched": 3,
+        "reported_total": 291,
+        "explicit_us_sample_rows": 1,
+        "full_description_original_date_verified": false
+      }
+    },
+    {
+      "slot": 65,
+      "platform": "LocoJobs",
+      "status": "research_only",
+      "access": "Keyless search/detail/catalog endpoints; 20 rows/page, 10 pages, 120 requests/minute. Complete section fields documented.",
+      "blocker": "Catalog cities were India-focused; US keyword query returned zero. Sample employer confidential under agency posting, so company identity cannot be invented. Original full-text comparison unverified.",
+      "evidence_urls": [
+        "https://locojob.com/developers",
+        "https://locojob.com/terms-of-service",
+        "https://locojob.com/api/public/v1/catalog"
+      ],
+      "evidence_files": [
+        "research/locojobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Defer until explicit useful US inventory with real employer identity is verified; generic remote is insufficient.",
+      "probe_2026_11_02": {
+        "reported_total": 1289,
+        "advertised_cities": 48,
+        "observed_city_country": "India",
+        "us_keyword_matches": 0,
+        "sample_description_chars": 733
+      }
+    },
+    {
+      "slot": 66,
+      "platform": "Online Jobs / ChrisTech",
+      "status": "requires_permission",
+      "access": "Free keyless JSON endpoints; cache at least 5–10 minutes. Commercial/high-volume use directs users to provider discussion.",
+      "blocker": "Terms restrict commercial redistribution without permission. Sample proxies Remotive/Arbeitnow; no proven incremental US yield, original date or full-text equality.",
+      "evidence_urls": [
+        "https://onlinejobs.christech.co.ke/developers",
+        "https://onlinejobs.christech.co.ke/terms-and-conditions",
+        "https://onlinejobs.christech.co.ke/api/remote-jobs"
+      ],
+      "evidence_files": [
+        "research/onlinejobs-christech.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require applicable redistribution scope and incremental US evidence before adapter; do not contact provider without instruction.",
+      "probe_2026_11_02": {
+        "fetched": 72,
+        "bytes": 485428,
+        "upstream_breakdown": {
+          "Remotive": 12,
+          "Arbeitnow": 60
+        },
+        "literal_us_location_matches": 0,
+        "literal_match_is_eligibility_classification": false
+      }
+    },
+    {
+      "slot": 67,
+      "platform": "Python.org Jobs",
+      "status": "research_only",
+      "access": "Official RSS plus public detail pages. Third-party contributed-content terms grant website users reproduction/distribution rights; moderated posts expire after three months.",
+      "blocker": "All 20 RSS entries lack pubDate and omit separate detail sections. Current explicit US headline sample is August 16; two recent cached US pages now 404. Useful fresh US yield not established.",
+      "evidence_urls": [
+        "https://www.python.org/jobs/",
+        "https://www.python.org/jobs/feed/rss/",
+        "https://www.python.org/community/jobs/howto/",
+        "https://www.python.org/about/legal/"
+      ],
+      "evidence_files": [
+        "research/pythonorg-jobs.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Recheck fresh explicit US inventory before bounded same-host detail hydration; preserve original time and all sections, never resurrect cached 404 jobs.",
+      "probe_2026_11_02": {
+        "feed_items": 20,
+        "feed_bytes": 55121,
+        "feed_pubdate_count": 0,
+        "recent_cached_us_pages_now_404": 2
+      }
+    },
+    {
+      "slot": 68,
+      "platform": "DjangoGigs",
+      "status": "unavailable",
+      "access": "Official homepage is reachable and announces retirement after 2008–2025.",
+      "blocker": "Service retired; postings and user data removed. No active feed inventory.",
+      "evidence_urls": [
+        "https://djangogigs.com/"
+      ],
+      "evidence_files": [
+        "research/niche-developer-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Exclude unless provider officially relaunches; do not chase stale RSS directory claims.",
+      "probe_2026_11_02": {
+        "homepage_status": 200,
+        "retired": true
+      }
+    },
+    {
+      "slot": 69,
+      "platform": "Golang.cafe",
+      "status": "research_only",
+      "access": "Official FAQ describes direct submissions; older jobs may remain after hiring ends.",
+      "blocker": "Homepage returned HTTP429 and probes stopped. No successful feed/API, full payload or fresh US inventory verified; indexed US examples were June/August.",
+      "evidence_urls": [
+        "https://golang.cafe/",
+        "https://golang.cafe/faq"
+      ],
+      "evidence_files": [
+        "research/niche-developer-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Wait for supported public feed/access and fresh US evidence; do not bypass or retry around rate limits.",
+      "probe_2026_11_02": {
+        "homepage_status": 429
+      }
+    },
+    {
+      "slot": 70,
+      "platform": "Ruby on Remote",
+      "status": "research_only",
+      "access": "Official public board identified; no usable feed contract established.",
+      "blocker": "Ordinary homepage GET returned HTTP403. Full descriptions, dates, export and reuse scope remain unverified.",
+      "evidence_urls": [
+        "https://rubyonremote.com/"
+      ],
+      "evidence_files": [
+        "research/niche-developer-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Resume only through supported authorized access; no browser/proxy/header workaround.",
+      "probe_2026_11_02": {
+        "homepage_status": 403
+      }
+    },
+    {
+      "slot": 71,
+      "platform": "RubyNow",
+      "status": "unavailable",
+      "access": "Official www host and publicly referenced jobs host tested with normal TLS verification.",
+      "blocker": "www.rubynow.com failed hostname verification; jobs.rubynow.com certificate expired. No valid live job payload or feed contract.",
+      "evidence_urls": [
+        "https://www.rubynow.com/",
+        "https://jobs.rubynow.com/"
+      ],
+      "evidence_files": [
+        "research/niche-developer-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Await valid provider TLS and documented feed; never disable certificate verification."
+    },
+    {
+      "slot": 72,
+      "platform": "ReactJobsBoard / TRYremote",
+      "status": "requires_permission",
+      "access": "ReactJobsBoard redirects to TRYremote; count redirected platform once. Destination homepage returned HTTP200.",
+      "blocker": "No RSS/API link found. Terms allow temporary personal/noncommercial viewing and restrict broader copying; full-description catalog reuse not established.",
+      "evidence_urls": [
+        "https://reactjobsboard.com/",
+        "https://tryremote.com/",
+        "https://tryremote.com/terms-of-service"
+      ],
+      "evidence_files": [
+        "research/niche-developer-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require supported publisher feed and applicable commercial display grant before implementation.",
+      "platform_aliases": [
+        "ReactJobsBoard",
+        "TRYremote"
+      ]
+    },
+    {
+      "slot": 73,
+      "platform": "Tech Jobs for Good",
+      "status": "research_only",
+      "access": "Official board displayed public US jobs and an upgrade-only additional inventory; no documented public API/feed found.",
+      "blocker": "Ordinary homepage GET returned HTTP403 and stopped. Termly policy was unreadable; no affirmative full-text export/reuse scope or original dates established.",
+      "evidence_urls": [
+        "https://techjobsforgood.com/",
+        "https://app.termly.io/policy-viewer/policy.html?policyUUID=01597699-ff1e-43b8-b193-eb4fff26f271"
+      ],
+      "evidence_files": [
+        "research/climate-impact-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require supported export and applicable reuse conditions; public listing counts are not accepted counts.",
+      "probe_2026_11_02": {
+        "displayed_public_jobs": 86,
+        "displayed_upgrade_jobs": 736,
+        "homepage_status": 403,
+        "accepted_jobs_measured": false
+      }
+    },
+    {
+      "slot": 74,
+      "platform": "ClimateTechList",
+      "status": "research_only",
+      "access": "Public board identified; targeted official API/RSS searches did not establish a publisher feed.",
+      "blocker": "Ordinary homepage GET returned HTTP403. No supported export, measured inventory, full-description/date provenance or redistribution grant established.",
+      "evidence_urls": [
+        "https://www.climatetechlist.com/"
+      ],
+      "evidence_files": [
+        "research/climate-impact-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Keep research-only pending supported public export; no alternate host or access workaround.",
+      "probe_2026_11_02": {
+        "homepage_status": 403
+      }
+    },
+    {
+      "slot": 75,
+      "platform": "Climatebase",
+      "status": "requires_permission",
+      "access": "Public jobs/community service; no supported public export found in reviewed official navigation/docs.",
+      "blocker": "Terms §6 restrict commercial redistribution and automated extraction without applicable approval. No collection probe or internal endpoint inspection performed.",
+      "evidence_urls": [
+        "https://climatebase.org/",
+        "https://climatebase.org/terms-of-use"
+      ],
+      "evidence_files": [
+        "research/climate-impact-boards.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require separately authorized publisher export and reuse scope; no scraping implementation."
+    },
+    {
+      "slot": 76,
+      "platform": "Kula",
+      "status": "requires_permission",
+      "access": "Official unauthenticated RSS 2.0 job-board/aggregator feeds include full text, original dates and per-location IDs; three real employers tested.",
+      "blocker": "Employer-distributed feed permission versus unsolicited aggregation remains unresolved under general terms. No adapter or source ID added; location variants share role URLs and need explicit deduplication.",
+      "evidence_urls": [
+        "https://support.kula.ai/articles/8061577825-publishing-an-xml-job-feed",
+        "https://www.kula.ai/legal",
+        "https://careers.kula.ai/aetherbio/feed",
+        "https://careers.kula.ai/swiftly/feed",
+        "https://careers.kula.ai/fulcrum/feed"
+      ],
+      "evidence_files": [
+        "research/kula.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Resolve employer/provider scope before implementation; retain per-location IDs and shared role identity.",
+      "probe_2026_11_02": {
+        "employers": [
+          {
+            "tenant": "aetherbio",
+            "entries": 6,
+            "distinct_role_links": 6,
+            "us_entries": 6,
+            "us_within_15_days": 4
+          },
+          {
+            "tenant": "swiftly",
+            "entries": 16,
+            "distinct_role_links": 8,
+            "us_entries": 8,
+            "us_within_15_days": 2
+          },
+          {
+            "tenant": "fulcrum",
+            "entries": 12,
+            "distinct_role_links": 11,
+            "us_entries": 12,
+            "us_within_15_days": 0
+          }
+        ],
+        "sample_full_description_chars": 6088,
+        "sample_original_description_and_date_matched": true,
+        "applysmooth_gate_acceptance_measured": false
+      }
+    },
+    {
+      "slot": 77,
+      "platform": "Peopleseek Talent",
+      "status": "research_only",
+      "access": "Free unauthenticated API, 120 requests/minute/IP, cursor pages up to 100 and full-detail hydration. Attribution and displayed verification time required.",
+      "blocker": "Republishing inherits upstream source terms; no blanket content grant. One Lyft description/date matched employer, not proof for full corpus. No adapter yet.",
+      "evidence_urls": [
+        "https://jobs.peopleseek.ai/developers/api",
+        "https://jobs.peopleseek.ai/api/v1/jobs?country=US&limit=3",
+        "https://boards-api.greenhouse.io/v1/boards/lyft/jobs/8916983002"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Strong technical follow-up: review applicable upstream scope and verification-time display before isolated implementation.",
+      "probe_2026_11_02": {
+        "fetched": 3,
+        "reported_us_matches": 7308,
+        "detail_html_chars": 4771,
+        "detail_text_chars": 4421,
+        "sample_original_description_and_date_matched": true
+      }
+    },
+    {
+      "slot": 78,
+      "platform": "Jobico",
+      "status": "requires_permission",
+      "access": "Official public XML feed invites aggregators, full employer text and original Jobico backlinks; 30 requests/minute/IP.",
+      "blocker": "Developer feed invitation conflicts with general automated extraction restrictions. Five sampled US jobs dated September 2–8, outside 15 days; no employer full-text comparison.",
+      "evidence_urls": [
+        "https://www.jobico.io/en/developers",
+        "https://jobico.io/api/feeds/jobs.xml",
+        "https://www.jobico.io/en/terms"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Resolve scope conflict and useful fresh US yield before adapter; no contact authorized.",
+      "probe_2026_11_02": {
+        "fetched": 333,
+        "bytes": 1017273,
+        "explicit_us_rows": 5,
+        "us_within_15_days": 0,
+        "us_description_char_range": [
+          383,
+          2679
+        ]
+      }
+    },
+    {
+      "slot": 79,
+      "platform": "Job Boardly",
+      "status": "research_only",
+      "access": "Official platform supports /jobs.xml and /jobs.rss syndication; board owners may disable feeds.",
+      "blocker": "Two concrete board feed probes ended in HTTP403; no verified accessible real US target or full-description/date sample.",
+      "evidence_urls": [
+        "https://help.jobboardly.com/en/articles/9664028-how-to-use-rss-feeds-and-xml-feeds",
+        "https://pennsylvania-communications.jobboardly.com/jobs.xml",
+        "https://www.trustandsafetyjobs.com/jobs.xml"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Find an authorized enabled public board feed without access bypass; count all Job Boardly boards once."
+    },
+    {
+      "slot": 80,
+      "platform": "Let's Employ / oJobPub",
+      "status": "research_only",
+      "access": "Open employer-published /.well-known/ojobpub.json discovery standard.",
+      "blocker": "Directory export and documented explorer redirected to login. Description optional; schema license does not license employer content. No real US full-text sample.",
+      "evidence_urls": [
+        "https://www.letsemploy.org/en/",
+        "https://sources.letsemploy.org/exports/download-latest"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require a public authorized employer feed with full description/date/US evidence; do not register or use login-gated export.",
+      "platform_aliases": [
+        "Let's Employ",
+        "oJobPub"
+      ]
+    },
+    {
+      "slot": 81,
+      "platform": "JobDataAPI",
+      "status": "research_only",
+      "access": "Official API documentation offers restricted anonymous testing.",
+      "blocker": "Sample endpoint returned HTTP403. No free production entitlement, usable full text/date sample or ongoing reuse scope verified.",
+      "evidence_urls": [
+        "https://jobdataapi.com/docs/"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Keep provisioning research-only; require applicable access plan/rights before scheduled ingestion."
+    },
+    {
+      "slot": 82,
+      "platform": "ApplicantStack",
+      "status": "research_only",
+      "access": "Official integration guide requires private API credentials.",
+      "blocker": "No documented unauthenticated public export or authorized employer feed established.",
+      "evidence_urls": [
+        "https://www.applicantstack.com/workforcehub-university/api-integration-guide/"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Wait for employer-authorized export and applicable reuse permission; no credential acquisition attempted."
+    },
+    {
+      "slot": 83,
+      "platform": "CareerPlug",
+      "status": "research_only",
+      "access": "Official XML feed setup is a partner/customer provisioning route.",
+      "blocker": "No publicly available export, authorized employer feed or full-description/date/US sample established.",
+      "evidence_urls": [
+        "https://partnersupport.careerplug.com/setting-up-and-managing-xml-feeds"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require provisioned publisher/customer feed and reuse scope before implementation."
+    },
+    {
+      "slot": 84,
+      "platform": "JOBnaru",
+      "status": "requires_permission",
+      "access": "Official API free tier supports personal/research use.",
+      "blocker": "Commercial redistribution requires separate licensing; no free production grant established.",
+      "evidence_urls": [
+        "https://jobnaru.com/en/api"
+      ],
+      "evidence_files": [
+        "research/public-platform-candidates-yubhub.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Keep permission-blocked; no accounts, outreach or purchase authorized."
+    },
+    {
+      "slot": 85,
+      "platform": "Remote Game Jobs",
+      "status": "requires_permission",
+      "access": "Official Discord announcement-channel guidance supports community following.",
+      "blocker": "Terms limit copying to personal/noncommercial use. Discord permission does not authorize commercial full-description RSS/API republication.",
+      "evidence_urls": [
+        "https://remotegamejobs.com/terms",
+        "https://remotegamejobs.com/discord"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require a specific supported commercial feed/republication grant before collector work."
+    },
+    {
+      "slot": 86,
+      "platform": "Work With Indies",
+      "status": "requires_permission",
+      "access": "Official public board and terms reviewed.",
+      "blocker": "Terms updated November 24, 2025 prohibit crawling/scraping; no qualifying publisher-feed or full-text redistribution grant found.",
+      "evidence_urls": [
+        "https://www.workwithindies.com/terms"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Do not implement HTML scraping; revisit only with supported publisher permission."
+    },
+    {
+      "slot": 87,
+      "platform": "ElixirJobs.net",
+      "status": "requires_permission",
+      "access": "Official homepage links public RSS.",
+      "blocker": "Terms §4.1 require express written permission to copy/distribute accessible content. Feed existence does not settle commercial aggregation.",
+      "evidence_urls": [
+        "https://elixirjobs.net/",
+        "https://elixirjobs.net/rss",
+        "https://elixirjobs.net/terms-and-conditions"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Keep full-feed ingestion blocked pending applicable written reuse permission; no outreach authorized."
+    },
+    {
+      "slot": 88,
+      "platform": "Hubstaff Talent",
+      "status": "research_only",
+      "access": "Original Talent host redirects to hubstafftalent.net; free employer/job-seeker service.",
+      "blocker": "No official public RSS or publisher grant found. General terms reserve service rights; no full-text/date/inventory sample verified.",
+      "evidence_urls": [
+        "https://talent.hubstaff.com/",
+        "https://hubstafftalent.net/",
+        "https://hubstaff.com/terms"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Find documented publisher export/reuse scope before probing job data; redirect is one platform."
+    },
+    {
+      "slot": 89,
+      "platform": "Remote4Me",
+      "status": "research_only",
+      "access": "Homepage describes an aggregator; current category links lead to a shared Google document.",
+      "blocker": "No documented feed/full-text/date contract or redistribution grant found. Its input boards are not independent integrations.",
+      "evidence_urls": [
+        "https://remote4me.com/"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Require supported public export and permission; do not count upstream board claims."
+    },
+    {
+      "slot": 90,
+      "platform": "HexHire",
+      "status": "research_only",
+      "access": "Founder announcement describes community-reader RSS; official site aggregates Elixir roles.",
+      "blocker": "Reader feed availability does not establish full-text publisher reuse. Original descriptions/dates and useful US yield remain unverified.",
+      "evidence_urls": [
+        "https://elixirforum.com/t/built-hexhire-io-a-centralized-feed-for-all-elixir-jobs/73595",
+        "https://hexhire.io/"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Verify explicit aggregation permission plus full original text/date/US evidence before adapter."
+    },
+    {
+      "slot": 91,
+      "platform": "Brave Clojure Jobs",
+      "status": "research_only",
+      "access": "Official job board accessible; latest visible listing August 14, 2026.",
+      "blocker": "No useful fresh sample or explicit feed/republication contract established; low priority.",
+      "evidence_urls": [
+        "https://jobs.braveclojure.com/"
+      ],
+      "evidence_files": [
+        "research/gaming-functional-jobboards-triage.md"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Reconsider when fresh explicit-US inventory and supported feed/reuse contract exist."
     }
   ],
   "validation_constraint": "No local Docker. Use write-free GitHub TEST and in-memory PostgreSQL; full isolated HTTP/Supabase acceptance remains a separate gate.",
   "baseline_configured_platforms": 12,
   "baseline_current_catalog_platforms": 11,
-  "baseline_notes": "12 configured platforms; current published/nonexpired rows from 11. Personio latest schedule fetched 6 and accepted 0. At least 38 new platforms plus restoration of useful Personio coverage remain."
+  "baseline_notes": "12 configured platforms; current published/nonexpired rows from 11. Personio latest schedule fetched 6 and accepted 0. At least 38 new platforms plus restoration of useful Personio coverage remain.",
+  "latest_retained_catalog_match_estimate": {
+    "reviewed_at": "2026-11-02",
+    "sample_accepted_rows": 797,
+    "source_count": 11,
+    "rows_matching_either_method": 7,
+    "no_retained_catalog_match_estimate": 790,
+    "proven_historical_unique_jobs": null,
+    "shared_database_writes": 0,
+    "basis": "Parent-reported read-only current retained-catalog comparison; only Getwork matched (7 of 20).",
+    "limitations": [
+      "Retained catalog only, not deleted history.",
+      "Exact normalized URL or company/title matching can miss changed identifiers.",
+      "Estimate does not establish fresh jobs, historical uniqueness, production readiness or live ingestion."
+    ]
+  }
 }

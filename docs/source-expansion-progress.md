@@ -3,8 +3,8 @@
 Configured production baseline: 12. Additional live sources: 0. At least 38 new
 platforms remain. Current database inspection finds active rows from 11 platforms;
 Personio is configured and scheduled but currently contributes no accepted jobs.
-Eight experimental adapters are implemented; they do not count as production.
-Candidate queue: `source-expansion-tracker.json` (46 candidates; none counted merely for appearing in this queue).
+Eleven experimental adapters are implemented; they do not count as production.
+Candidate queue: `source-expansion-tracker.json` (research entries do not count as verified integrations).
 
 ## November 2 first-batch checkpoint
 
@@ -88,6 +88,50 @@ original publication dates, exact tenant links and structured locations.
 Count-only evidence: [second-batch report](evidence/2026-11-02-second-batch-local.json).
 All four sources remain TEST-only and publication review is separate from technical
 acceptance. No experimental source can publish through the live runner.
+
+## Cloud result and third batch
+
+[Eight-source TEST run 41520833751](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41520833751)
+passed seven sources and 133 accepted application links. Pinpoint gained one new
+posting after the local sample. Remote Backend Jobs returned HTTP 403 on its first
+API request from GitHub. Its local result is retained, but automatic cloud attempts
+are now deferred in `ingest/config/expansion-deferred.json`; no bypass is proposed.
+The isolated backend run stopped on this fetch failure before starting Supabase.
+It does not establish eight-source end-to-end success.
+
+| Third-batch platform | Fetched | Accepted | Rejected | Quarantined | Accepted within 15 days |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| getwork.dev | 20 | 20 | 0 | 0 | 20 |
+| SpaceJobs.Now | 600 | 595 | 2 duplicates | 3 | 0 |
+| Rails Job Board / JobKit | 12 | 7 | 1 | 4 | 1 |
+
+All three pass local tests. Total local samples: 797 accepted rows across eleven
+platforms, including the deferred Remote sample. Collector suite: 441 tests passed;
+backend contract/migration suite: 172 passed. All 797 rows passed embedded PostgreSQL
+insertion and idempotent replay. Typecheck, changed-file lint and generated database
+type parity pass. The next cloud manifest selects ten sources, explicitly excluding
+the hosted-access-blocked Remote source.
+
+SpaceJobs publishes full descriptions and explicitly supports external publication,
+but its date field can be original posting time or first discovery without a flag.
+All 595 accepted original publication dates therefore remain null and none is
+counted fresh. The original text is preserved; one invalid derived zero-dollar
+salary is omitted. Three conflicting country records are quarantined.
+Getwork's original dates and full descriptions were checked against employer APIs;
+its separate discovery time is never used as publication time. Public API access is
+documented; external republication scope is unresolved. Rails uses the documented
+JobKit RSS syndication feed, retaining full descriptions, original dates and exact
+posting links. JobKit employer boards count as one platform.
+
+The third-batch validation reuses cached ordinary GET responses and discloses cache
+provenance. Evidence: [local counts](evidence/2026-11-02-third-batch-local.json),
+[cloud outcomes](evidence/2026-11-02-eight-source-cloud-test.json).
+
+A read-only comparison of all 797 rows with the retained catalog found seven
+matching Getwork rows and no exact URL or normalized company/title match for the
+other 790 rows. This estimates additional inventory, not historical uniqueness or
+cross-platform deduplication. Provider wrapper URLs and changed labels can hide
+matches. [Count-only overlap report](evidence/2026-11-02-eleven-source-overlap.json).
 
 ## Freshness and current-catalog overlap
 

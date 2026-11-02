@@ -57,3 +57,12 @@ days (49 of all 50 fetched). No missing posting dates. This used 41 live request
 and 10 schema-stripped cached details from the earlier sample, with zero database
 writes. Discovery reports `maximum_jobs: 50`, `capped: true`, and observation-only
 policy; this is not a full platform snapshot or proof of live ingestion.
+
+## Hosted-runner access blocker
+
+GitHub TEST run `41520833751`, job `125536310431`, failed on the first provider API
+request with HTTP 403: one request, zero response-body bytes recorded. The local
+50-listing success does not establish supported hosted-runner access. Production
+activation requires successful supported access from the approved production
+runner, or provider clarification of that access. No alternate endpoint, proxy,
+access-control bypass, or follow-up retry was attempted for this failure.

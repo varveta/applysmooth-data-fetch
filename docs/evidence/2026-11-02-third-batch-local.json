@@ -1,0 +1,235 @@
+{
+  "kind": "third-batch-local-read-only-validation",
+  "production_ready": false,
+  "shared_database_writes": 0,
+  "reports": {
+    "getwork": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T20:43:26.940Z",
+      "duration_ms": 20337,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "getwork:public",
+          "company": "Getwork",
+          "success": true,
+          "fetched_count": 20,
+          "accepted_count": 20,
+          "rejected_count": 0,
+          "quarantined_count": 0,
+          "quality_accepted_count": 20,
+          "deduplicated_count": 0,
+          "reason_counts": {},
+          "us_eligible_count": 20,
+          "known_recent_posting_count": 20,
+          "posted_within_15_days_count": 20,
+          "accepted_posted_within_15_days_count": 20,
+          "unknown_posting_date_count": 0,
+          "requests": 21,
+          "bytes": 153293,
+          "duration_ms": 20337,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 21,
+            "capped": true,
+            "maximum_jobs": 20
+          }
+        }
+      ],
+      "evidence_mode": "cached_detail_replay",
+      "network_requests": 0,
+      "summary_reconstructed_from_validated_details": true,
+      "provider_total_from_separate_fresh_query": 659,
+      "original_live_transport": {
+        "requests": 21,
+        "bytes": 163404
+      }
+    },
+    "spacejobs": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T21:00:00.000Z",
+      "duration_ms": 11129,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "spacejobs:public",
+          "company": "SpaceJobs.Now",
+          "success": true,
+          "fetched_count": 600,
+          "accepted_count": 595,
+          "rejected_count": 2,
+          "quarantined_count": 3,
+          "quality_accepted_count": 597,
+          "deduplicated_count": 2,
+          "reason_counts": {
+            "normalize_failed": 3
+          },
+          "us_eligible_count": 597,
+          "known_recent_posting_count": 0,
+          "posted_within_15_days_count": 0,
+          "accepted_posted_within_15_days_count": 0,
+          "unknown_posting_date_count": 597,
+          "requests": 1,
+          "bytes": 5763149,
+          "duration_ms": 11129,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 1,
+            "capped": true,
+            "maximum_jobs": 600,
+            "reported_total": 15046,
+            "reported_pages": 26,
+            "publication_dates": "unknown_mixed_with_first_seen"
+          }
+        }
+      ],
+      "cache_replay": true,
+      "additional_live_requests": 0,
+      "accepted_unknown_posting_date_count": 595
+    },
+    "railsjobs": {
+      "mode": "read-only-validation",
+      "success": true,
+      "started_at": "2026-11-02T20:54:37.816Z",
+      "duration_ms": 237,
+      "writes": 0,
+      "fresh_posting_window_days": 15,
+      "freshness_basis": "original_posted_at; future and unknown dates excluded",
+      "identity_basis": "empty_snapshot",
+      "live_ingestion_verified": false,
+      "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+      "boards": [
+        {
+          "board": "railsjobs:public",
+          "company": "Rails Job Board",
+          "success": true,
+          "fetched_count": 12,
+          "accepted_count": 7,
+          "rejected_count": 1,
+          "quarantined_count": 4,
+          "quality_accepted_count": 7,
+          "deduplicated_count": 0,
+          "reason_counts": {
+            "us_eligibility_unknown": 4,
+            "not_us": 1
+          },
+          "us_eligible_count": 7,
+          "known_recent_posting_count": 12,
+          "posted_within_15_days_count": 2,
+          "accepted_posted_within_15_days_count": 1,
+          "unknown_posting_date_count": 0,
+          "requests": 0,
+          "bytes": 0,
+          "duration_ms": 237,
+          "writes": 0,
+          "discovery": {
+            "policy": "observations",
+            "pages": 1,
+            "capped": true,
+            "maximum_jobs": 1000
+          }
+        }
+      ],
+      "cache_bytes": 77274,
+      "cached_read_only_feed": true
+    }
+  },
+  "combined_eleven_source_embedded_rehearsal": {
+    "mode": "isolated-pglite",
+    "external_database_writes": 0,
+    "production_ready": false,
+    "records": 797,
+    "boards": [
+      {
+        "board": "pinpoint:groupo",
+        "records": 10,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "breezy:embraer",
+        "records": 45,
+        "batches": 2,
+        "idempotent_replay": true
+      },
+      {
+        "board": "manatal:primary-care-collaborative",
+        "records": 1,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "trakstar:elevate97",
+        "records": 1,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "trakstar:valtasgroup",
+        "records": 2,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "remotebackendjobs:public",
+        "records": 43,
+        "batches": 2,
+        "idempotent_replay": true
+      },
+      {
+        "board": "getonboard:public",
+        "records": 1,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "yubhub:public",
+        "records": 70,
+        "batches": 3,
+        "idempotent_replay": true
+      },
+      {
+        "board": "teamtailor:varnish-software",
+        "records": 2,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "getwork:public",
+        "records": 20,
+        "batches": 1,
+        "idempotent_replay": true
+      },
+      {
+        "board": "spacejobs:public",
+        "records": 595,
+        "batches": 24,
+        "idempotent_replay": true
+      },
+      {
+        "board": "railsjobs:public",
+        "records": 7,
+        "batches": 1,
+        "idempotent_replay": true
+      }
+    ],
+    "unexercised_boards": [
+      "breezy:subscribe",
+      "manatal:trolley-2"
+    ]
+  }
+}

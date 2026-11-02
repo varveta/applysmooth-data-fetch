@@ -1,3 +1,6 @@
+import { loadRailsJobsBoard } from "./fetch-rails-jobs";
+import { loadGetworkBoard } from "./fetch-getwork";
+import { loadSpacejobsBoard } from "./fetch-spacejobs";
 import { loadTeamtailorBoard } from "./fetch-teamtailor";
 import { loadYubhubBoard } from "./fetch-yubhub";
 import { loadRemoteBackendJobsBoard } from "./fetch-remote-backend-jobs";
@@ -17,6 +20,9 @@ export type BoardTarget = { source: SourceId; tenant: string; company: string };
 
 /** A failed page or detail aborts before any row is published. */
 export async function loadBoard(target: BoardTarget, get: typeof getJson = getJson) {
+  if (target.source === "railsjobs") return loadRailsJobsBoard(target, get);
+  if (target.source === "getwork") return loadGetworkBoard(target, get);
+  if (target.source === "spacejobs") return loadSpacejobsBoard(target, get);
   if (target.source === "teamtailor") return loadTeamtailorBoard(target, get);
   if (target.source === "yubhub") return loadYubhubBoard(target, get);
   if (target.source === "remotebackendjobs") return loadRemoteBackendJobsBoard(target, get);

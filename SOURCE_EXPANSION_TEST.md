@@ -1,5 +1,5 @@
-> Current checkpoint: eight experimental adapters. First four passed cloud TEST and isolated HTTP/Supabase acceptance; second four passed local validation and embedded PostgreSQL replay. No new live production sources.
-> See [current progress](docs/source-expansion-progress.md) for current counts and publication blockers. The older checkpoints below are historical evidence.
+> Current checkpoint: eleven experimental adapters; ten selected for cloud TEST. Remote Backend Jobs is deferred after hosted HTTP403. Four passed isolated end-to-end checks; seven passed the previous source/link TEST matrix. No new live production sources.
+> See [current progress](docs/source-expansion-progress.md) for current counts and blockers. Older checkpoints below are historical evidence.
 
 > November 2 update: see [account-free integration](docs/free-source-integration.md).
 > The experimental set now also includes Breezy and a local full-description
