@@ -1,3 +1,4 @@
+import { loadBreezyBoard } from "./fetch-breezy";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
 import type { SourceId } from "@/lib/jobs-ingest/contract";
 import { getJson } from "./http";
@@ -9,6 +10,7 @@ export type BoardTarget = { source: SourceId; tenant: string; company: string };
 
 /** A failed page or detail aborts before any row is published. */
 export async function loadBoard(target: BoardTarget, get: typeof getJson = getJson) {
+  if (target.source === "breezy") return loadBreezyBoard(target, get);
   if (["smartrecruiters", "workable", "personio", "recruitee"].includes(target.source))
     return loadAtsBoard(target, get);
   if (DISCOVERY_SOURCES.includes(target.source)) return loadFeedBoard(target, get);

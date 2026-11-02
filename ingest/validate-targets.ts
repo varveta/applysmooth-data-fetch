@@ -2,7 +2,7 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
-import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS, type CatalogRow } from "@/lib/jobs-ingest/contract";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
 import { evaluateGates, type GateReason } from "@/lib/jobs-ingest/gates";
 import { loadBoard } from "./lib/load-board";
@@ -11,7 +11,7 @@ import { safeReason } from "./lib/diagnostics";
 import { prepareBoard, TargetSchema } from "./stateless";
 
 const ManifestSchema = z.object({ targets: z.array(TargetSchema).min(1).max(500) });
-type ValidationOptions = { get?: typeof getJson; now?: Date; source?: string };
+type ValidationOptions = { get?: typeof getJson; now?: Date; source?: string; onAccepted?: (rows: CatalogRow[]) => void };
 type BoardReport = {
   board: string;
   company: string;
@@ -73,6 +73,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
         for (const reason of gate.reasons)
           report.reason_counts[reason] = (report.reason_counts[reason] ?? 0) + 1;
       }
+      options.onAccepted?.(prepared.rows);
       report.success = true;
       report.fetched_count = prepared.fetched_count;
       report.accepted_count = prepared.rows.length;

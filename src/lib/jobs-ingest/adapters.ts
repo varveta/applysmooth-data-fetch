@@ -1,3 +1,4 @@
+import { breezy } from "./breezy";
 import { pinpoint } from "./pinpoint";
 import { z } from "zod";
 import { ATS_ADAPTERS } from "./ats-adapters";
@@ -513,4 +514,5 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   ...ATS_ADAPTERS,
   ...FEED_ADAPTERS,
   pinpoint,
+  breezy,
 };

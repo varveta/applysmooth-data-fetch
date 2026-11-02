@@ -2,7 +2,7 @@ import { isIP } from "node:net";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
-import { SOURCE_IDS, type NormalizedJob } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS, isExperimentalSource, type NormalizedJob } from "@/lib/jobs-ingest/contract";
 import { assertRunnerContext, clientFromEnv, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, eventLine, safeReason, type Stage } from "./lib/diagnostics";
 import { getJson, hostLimiter, USER_AGENT } from "./lib/http";
@@ -84,7 +84,7 @@ export function verifier(options: {
   });
   const jobicyStatus = createJobicyVerifier(options.queuedJobs ?? [], read);
   const source = async (job: VerifyJob): Promise<Check> => {
-    if (job.source === "pinpoint") return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
+    if (isExperimentalSource(job.source)) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
     if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
     if (job.source === "ashby") {
       let pending = ashbyBoards.get(job.tenant);

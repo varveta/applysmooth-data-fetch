@@ -1,3 +1,8 @@
+> November 2 update: see [account-free integration](docs/free-source-integration.md).
+> The experimental set now also includes Breezy and a local full-description
+> preview/refilter command. The historical Pinpoint checkpoint below remains
+> evidence for that earlier run, not a current 50-source completion claim.
+
 # Expansion toward 50 platforms — TEST checkpoint
 
 This work treats “50 sources” as 50 distinct platforms, not 50 employer boards.
