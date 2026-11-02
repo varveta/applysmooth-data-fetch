@@ -37,7 +37,7 @@ it("reports thrown checks as uncertain rather than successful partial verificati
   expect(r).toMatchObject({
     success: false,
     writes: 0,
-    boards: [{ checked: 1, outcomes: { uncertain: 1 } }],
+    boards: [{ checked: 1, outcomes: { uncertain: 1 }, reason_counts: { "verify: uncertain: Verification threw": 1 } }],
   });
 });
 it("requires nonempty successful verification and refuses production sources before fetch", async () => {

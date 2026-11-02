@@ -1,4 +1,4 @@
-> Current checkpoint: eleven experimental adapters; ten selected for cloud TEST. Remote Backend Jobs is deferred after hosted HTTP403. Four passed isolated end-to-end checks; seven passed the previous source/link TEST matrix. No new live production sources.
+> Current checkpoint: eleven experimental adapters; nine selected for cloud TEST. Remote Backend Jobs and Get on Board are deferred after hosted HTTP403. Four passed isolated end-to-end checks; eight passed the latest source/link TEST matrix. Getwork has two uncertain application-link checks pending diagnosis. No new live production sources.
 > See [current progress](docs/source-expansion-progress.md) for current counts and blockers. Older checkpoints below are historical evidence.
 
 > November 2 update: see [account-free integration](docs/free-source-integration.md).
@@ -22,7 +22,7 @@ for production. Candidate research is in SOURCE_CANDIDATES.md.
   fetches the provider, validates and normalizes the complete response, applies
   current quality gates and deduplication, and saves a count-only JSON report.
 - `source-validation-test.yml` runs tests/typecheck on TEST pushes, then independent
-  source matrix jobs with `fail-fast: false`, two concurrent jobs and individual
+  source matrix jobs with `fail-fast: false`, four concurrent jobs and individual
   artifacts. Documentation-only pushes do not trigger provider requests.
 - TEST fetches use no collector credentials, environment secrets, database client,
   schedule, or writer queue. Pinpoint is additionally denied by publication-mode
@@ -63,7 +63,8 @@ local current-schema PostgreSQL insertion and replay tests, isolated preview
 acceptance, identity seeding, exact server allowlists, verified display terms, and
 explicit source-specific closure behavior. A separate isolated test database or a
 write-free preview contract endpoint is required for cloud backend acceptance.
-These items remain pending for Pinpoint; production publishing is deliberately
+The historical four-source isolated run now covers Pinpoint; publication conditions
+and production activation remain separate gates. Production publishing is still
 blocked in code.
 
 ## Acceptance gates for every added provider

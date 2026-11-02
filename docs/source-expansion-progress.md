@@ -4,7 +4,52 @@ Configured production baseline: 12. Additional live sources: 0. At least 38 new
 platforms remain. Current database inspection finds active rows from 11 platforms;
 Personio is configured and scheduled but currently contributes no accepted jobs.
 Eleven experimental adapters are implemented; they do not count as production.
-Candidate queue: `source-expansion-tracker.json` (research entries do not count as verified integrations).
+Candidate queue: 83 distinct platforms in `source-expansion-tracker.json`; research entries do not count as verified integrations.
+
+## Latest cloud checkpoint: November 2
+
+[Collector TEST run 41523776620](https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620)
+fully passed source and accepted-link verification for eight platforms:
+
+| Platform | Accepted | Verified open | Result |
+| --- | ---: | ---: | --- |
+| Pinpoint | 11 | 11 | Passed |
+| Breezy | 45 | 45 | Passed |
+| Manatal | 1 | 1 | Passed |
+| Trakstar Hire | 3 | 3 | Passed |
+| YubHub | 70 | 70 | Passed |
+| Teamtailor | 2 | 2 | Passed |
+| SpaceJobs.Now | 595 | 595 | Passed |
+| Rails Job Board / JobKit | 7 | 7 | Passed |
+| getwork.dev | 20 | 18 | Two uncertain links; incomplete |
+| Get on Board | Not measured | 0 | First API request returned HTTP 403 |
+
+The eight passing platforms contribute 734 accepted rows with verified open links.
+Including Getwork, successful fetches produced 754 accepted rows: 752 open and two
+uncertain. The saved aggregate artifact does not retain the two uncertain reasons;
+no cause is inferred. Zero-accepted peer boards `breezy:subscribe` and
+`manatal:trolley-2` remain unverified. All 595 accepted SpaceJobs original posting
+dates remain unknown, so none counts as proven 15-day freshness.
+
+Get on Board and Remote Backend Jobs are now deferred after hosted HTTP 403
+responses. The current TEST manifest selects nine platforms. Collector local checks
+pass: 474 tests and typecheck. Eleven adapters are implemented, with zero new
+production sources and zero shared database writes.
+
+Backend commit `00f018357b05af7f2ce48cbec58767904c93c828` passed
+[full CI 41524185960](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524185960).
+[Isolated acceptance 41524186125](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524186125)
+failed when the harness tried to read 595 SpaceJobs rows in one request: URL length
+and the search API's 100-ID limit require bounded chunks. The uncommitted harness
+fix passes 13 mock tests, typecheck and changed-file lint; a successful cloud rerun
+is not yet established. Only the historical first four platforms have full isolated
+HTTP/Supabase acceptance evidence. Source/link TEST success does not establish
+production ingestion or expanded isolated acceptance.
+
+The earlier 797-row catalog comparison remains a separate sample: it includes both
+now-deferred platforms and Pinpoint's earlier 10 rows. Its 790 rows without retained
+catalog matches are an estimate, not proof of unique, fresh or live jobs.
+[Count-only checkpoint evidence](evidence/2026-11-02-ten-source-cloud-checkpoint.json).
 
 ## November 2 first-batch checkpoint
 
@@ -44,7 +89,7 @@ access: [verified run 41511555771](https://github.com/varveta/applysmooth-data-f
 confirmed all 59 accepted application links and the original-date rejection counts.
 No shared database writes occurred.
 
-Backend draft PR #288 now prepares eight sources. The first four completed actual
+Backend draft PR #288 now prepares eleven experimental source contracts. The first four completed actual
 Next HTTP and disposable GitHub-runner Supabase acceptance in
 [run 41515300570](https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570):
 59 real accepted rows, idempotent replay, authentication/RLS, scoped identities,
@@ -66,8 +111,8 @@ within 15 days. Combined with the first batch: 175 accepted rows across eight
 platforms. Counts use empty identity snapshots; cross-source/current-catalog
 unique yield for the second batch remains unmeasured. Collector tests: 411 passed;
 backend contract/migration tests: 129 passed. All 175 real accepted rows passed
-embedded PostgreSQL insertion and idempotent replay. Eight-source cloud TEST and
-isolated HTTP/Supabase acceptance are the next checkpoint, not yet claimed here.
+embedded PostgreSQL insertion and idempotent replay. These are historical local
+checks; the latest cloud and isolated acceptance outcomes are recorded above.
 
 Remote Backend Jobs is one platform across its network. Its default observation
 window is explicitly capped at 50 because offset windows can overlap. Per-job
@@ -105,12 +150,12 @@ It does not establish eight-source end-to-end success.
 | SpaceJobs.Now | 600 | 595 | 2 duplicates | 3 | 0 |
 | Rails Job Board / JobKit | 12 | 7 | 1 | 4 | 1 |
 
-All three pass local tests. Total local samples: 797 accepted rows across eleven
-platforms, including the deferred Remote sample. Collector suite: 441 tests passed;
-backend contract/migration suite: 172 passed. All 797 rows passed embedded PostgreSQL
-insertion and idempotent replay. Typecheck, changed-file lint and generated database
-type parity pass. The next cloud manifest selects ten sources, explicitly excluding
-the hosted-access-blocked Remote source.
+All three passed local tests at this historical checkpoint. Total local samples:
+797 accepted rows across eleven platforms, including both now-deferred platforms.
+The collector suite then passed 441 tests and backend contract/migration tests passed
+172. All 797 rows passed embedded PostgreSQL insertion and idempotent replay;
+typecheck, changed-file lint and generated database type parity passed. The latest
+cloud result and current nine-source manifest are recorded above.
 
 SpaceJobs publishes full descriptions and explicitly supports external publication,
 but its date field can be original posting time or first discovery without a flag.
@@ -183,13 +228,30 @@ See tracker evidence URLs for each remaining candidate. Raw probe content stays 
 temporary local files; no fetched job descriptions or incidental API fields are
 checked into this repository.
 
+## Four further research additions
+
+| Platform | Evidence and blocker |
+| --- | --- |
+| Hacker News | Official keyless API; five sampled job stories lack descriptions. Monthly hiring comments provide original text but mixed role/location/application identity. Commercial republication permission remains unresolved. Both surfaces count as one platform. |
+| Working Nomads | Public sample: 35 rows, 12 US-marked, descriptions 770–6,096 characters. Terms restrict commercial/competitive use; original employer text and dates remain unverified. |
+| Authentic Jobs | Legacy API request returned 404; documentation returned 403. Current free access, key requirements and full-text inventory remain unverified. |
+| SkipTheDrive | Homepage returned 403; terms require written permission for automated aggregation and restrict republication. No job payload obtained. |
+
+Evidence: [Hacker News](research/hacker-news.md),
+[Working Nomads](research/working-nomads.md), [Authentic Jobs](research/authentic-jobs.md),
+[SkipTheDrive](research/skipthedrive.md). None is an implemented integration.
+JobBoardly was already counted; four customer feed probes returned 403, so its
+[additional evidence](research/jobboardly.md) does not increase the platform count.
+
 ## Remaining work
 
 1. Preserve verified TEST source/link evidence and rerun after adapter changes.
-2. Extend isolated HTTP/Supabase acceptance to the second batch, with failures and display
-   checks. User explicitly prohibits local Docker; use in-memory PostgreSQL locally
-   and a separate cloud test environment for full-stack acceptance. Existing TEST
-   and production share Supabase and must receive no experimental writes.
+2. Commit the bounded-read harness fix and rerun isolated HTTP/Supabase acceptance
+   for the nine selected platforms, including failure and display checks. Resolve
+   Getwork's two uncertain links. User explicitly prohibits local Docker; use
+   in-memory PostgreSQL locally and a separate cloud test environment for full-stack
+   acceptance. Existing TEST and production share Supabase and must receive no
+   experimental writes.
 3. Resolve Manatal freshness and expand useful real employer coverage. Confirm each
    provider's applicable reuse/attribution conditions and rate budget.
 4. Continue alternatives beyond the original candidate list; agents research independent platforms in parallel.

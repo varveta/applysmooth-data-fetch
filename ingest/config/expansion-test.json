@@ -36,11 +36,6 @@
       "company": "Valtas Group"
     },
     {
-      "source": "getonboard",
-      "tenant": "public",
-      "company": "Get on Board"
-    },
-    {
       "source": "yubhub",
       "tenant": "public",
       "company": "YubHub"

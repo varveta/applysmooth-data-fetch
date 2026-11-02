@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
 import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
 import { SOURCE_IDS, isExperimentalSource, type NormalizedJob } from "@/lib/jobs-ingest/contract";
+import { GETWORK_ORIGIN, GetworkPosting, getworkId, getworkJobUrl, getworkTenant } from "@/lib/jobs-ingest/getwork";
 import { assertRunnerContext, clientFromEnv, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, eventLine, safeReason, type Stage } from "./lib/diagnostics";
 import { getJson, hostLimiter, USER_AGENT } from "./lib/http";
@@ -79,9 +80,9 @@ export function verifier(options: {
   const ashbyBoards = options.cache?.ashbyBoards ?? createVerificationCache().ashbyBoards;
   const observationBoards = options.cache?.observationBoards ?? createVerificationCache().observationBoards;
   const metrics = { requests: 0 };
-  const read = async (url: string) => limiter.run(url, async () => {
+  const read = async (url: string, opts: { maxBytes?: number; redirect?: RequestRedirect } = {}) => limiter.run(url, async () => {
     // A failed daily check is uncertain; next run retries. No minute-long backoff per job.
-    const result = await getJson(url, { attempts: 1, timeoutMs: 15_000 });
+    const result = await getJson(url, { ...opts, attempts: 1, timeoutMs: 15_000 });
     metrics.requests += result.attempts;
     return result;
   });
@@ -89,6 +90,31 @@ export function verifier(options: {
   const source = async (job: VerifyJob): Promise<Check> => {
     if (isExperimentalSource(job.source) && !options.allowExperimental) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
     if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
+    if (job.source === "getwork") {
+      if (!getworkTenant.safeParse(job.tenant).success || !getworkId.safeParse(job.source_job_id).success)
+        return { status: "uncertain", detail: "Invalid Getwork verification identity" };
+      // Discovery is a rolling newest-20 window. Verify the known identity directly;
+      // leaving that window is neither disappearance nor a reason to reload the feed.
+      const response = await read(`${GETWORK_ORIGIN}/api/jobs/${job.source_job_id}/`, { maxBytes: 2_000_000, redirect: "error" });
+      if (!response.ok || response.status !== 200)
+        return { status: "uncertain", ...(response.status ? { http_status: response.status } : {}),
+          detail: response.ok ? `Getwork detail HTTP ${response.status}; confirmation withheld`
+            : `Getwork detail: ${safeReason(new Error(response.error))}; closure withheld` };
+      try {
+        const raw = GetworkPosting.parse(response.body);
+        if (raw.id !== job.source_job_id) throw new Error("Identity mismatch");
+        getworkJobUrl(raw.getwork_url, raw.id);
+        if ((raw.apply_url ?? raw.url) !== job.apply_url)
+          return { status: "uncertain", http_status: 200, detail: "Source application URL changed; confirmation withheld" };
+        // Only a complete, identity-matched inactive record proves closure. A 404,
+        // redirect or malformed tombstone is not documented closure evidence.
+        if (!raw.active) return { status: "closed", http_status: 200, detail: "Getwork explicitly reports inactive posting" };
+        const posting = ADAPTERS.getwork.normalize(raw, job.tenant);
+        if (posting.usEligibility !== "us")
+          return { status: "uncertain", http_status: 200, detail: "Source posting eligibility changed or is conflicting; confirmation withheld" };
+        return { status: "open", http_status: 200, detail: "Getwork detail confirms posting" };
+      } catch { return { status: "uncertain", http_status: 200, detail: "Getwork detail validation failed; closure withheld" }; }
+    }
     if (job.source === "ashby") {
       let pending = ashbyBoards.get(job.tenant);
       if (!pending) {

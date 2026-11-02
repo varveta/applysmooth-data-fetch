@@ -28,7 +28,7 @@ export async function verifyPreview(
   const checker =
     options.checker ??
     verifier({ allowExperimental: true, concurrency: 3, perHost: 2 });
-  const results: { board: string; status: string; detail: string }[] = [];
+  const results: { board: string; stage: string; status: string; detail: string }[] = [];
   const failures = await pool(
     rows,
     (row) => `${row.source}:${row.source_tenant}`,
@@ -45,6 +45,7 @@ export async function verifyPreview(
       });
       results.push({
         board: `${row.source}:${row.source_tenant}`,
+        stage: result.stage,
         status: result.status,
         detail: result.detail,
       });
@@ -53,19 +54,26 @@ export async function verifyPreview(
   for (const { item: row } of failures)
     results.push({
       board: `${row.source}:${row.source_tenant}`,
+      stage: "verify",
       status: "uncertain",
       detail: "Verification threw",
     });
   const boards = validation.boards.map((board) => {
     const checked = results.filter((r) => r.board === board.board);
     const outcomes: Record<string, number> = {};
-    for (const r of checked) outcomes[r.status] = (outcomes[r.status] ?? 0) + 1;
+    const reason_counts: Record<string, number> = {};
+    for (const r of checked) {
+      outcomes[r.status] = (outcomes[r.status] ?? 0) + 1;
+      const reason = `${r.stage}: ${r.status}: ${r.detail}`;
+      reason_counts[reason] = (reason_counts[reason] ?? 0) + 1;
+    }
     return {
       board: board.board,
       fetch_success: board.success,
       accepted: board.accepted_count,
       checked: checked.length,
       outcomes,
+      reason_counts,
       unverified: !checked.length,
     };
   });
