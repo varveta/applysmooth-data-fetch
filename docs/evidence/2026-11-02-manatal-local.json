@@ -1,0 +1,58 @@
+{
+  "mode": "read-only-validation",
+  "success": true,
+  "started_at": "2026-11-02T19:15:49.605Z",
+  "duration_ms": 288,
+  "writes": 0,
+  "identity_basis": "empty_snapshot",
+  "live_ingestion_verified": false,
+  "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+  "boards": [
+    {
+      "board": "manatal:primary-care-collaborative",
+      "company": "Primary Care Collaborative",
+      "success": true,
+      "fetched_count": 1,
+      "accepted_count": 1,
+      "rejected_count": 0,
+      "quarantined_count": 0,
+      "reason_counts": {},
+      "us_eligible_count": 1,
+      "known_recent_posting_count": 0,
+      "unknown_posting_date_count": 1,
+      "requests": 1,
+      "bytes": 5911,
+      "duration_ms": 204,
+      "writes": 0,
+      "discovery": {
+        "policy": "observations",
+        "pages": 1,
+        "capped": false
+      }
+    },
+    {
+      "board": "manatal:trolley-2",
+      "company": "Trolley",
+      "success": true,
+      "fetched_count": 1,
+      "accepted_count": 0,
+      "rejected_count": 0,
+      "quarantined_count": 1,
+      "reason_counts": {
+        "us_eligibility_unknown": 1
+      },
+      "us_eligible_count": 0,
+      "known_recent_posting_count": 0,
+      "unknown_posting_date_count": 1,
+      "requests": 1,
+      "bytes": 4658,
+      "duration_ms": 84,
+      "writes": 0,
+      "discovery": {
+        "policy": "observations",
+        "pages": 1,
+        "capped": false
+      }
+    }
+  ]
+}

@@ -14,6 +14,16 @@
       "source": "breezy",
       "tenant": "subscribe",
       "company": "SUBSCRIBE"
+    },
+    {
+      "source": "manatal",
+      "tenant": "primary-care-collaborative",
+      "company": "Primary Care Collaborative"
+    },
+    {
+      "source": "manatal",
+      "tenant": "trolley-2",
+      "company": "Trolley"
     }
   ]
 }

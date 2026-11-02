@@ -1,3 +1,4 @@
+import { manatal } from "./manatal";
 import { breezy } from "./breezy";
 import { pinpoint } from "./pinpoint";
 import { z } from "zod";
@@ -515,4 +516,5 @@ export const ADAPTERS: Record<SourceId, SourceAdapter> = {
   ...FEED_ADAPTERS,
   pinpoint,
   breezy,
+  manatal,
 };

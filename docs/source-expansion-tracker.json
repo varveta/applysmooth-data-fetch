@@ -1,0 +1,478 @@
+{
+  "target_live_platforms": 50,
+  "baseline_live_platforms": 12,
+  "additional_live_platforms": 0,
+  "last_reviewed": "2026-11-02",
+  "counting_rule": "Distinct platforms only. Experimental, research, demo, and disabled workflows are not production sources.",
+  "candidates": [
+    {
+      "slot": 13,
+      "platform": "Pinpoint",
+      "status": "experimental_local_validated",
+      "access": "**Public candidate.** Unauthenticated `https://{company}.pinpointhq.com/postings.json`; use postings, not deprecated jobs endpoint.",
+      "blocker": "Not live. Empty-identity validation is not historical/cross-source deduplication or database acceptance.",
+      "evidence_urls": [
+        "https://developers.pinpointhq.com/docs/jobs-json-endpoint"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Complete backend contracts, isolated database replay/verification, TEST cloud validation, reuse review and approval-gated rollout."
+    },
+    {
+      "slot": 14,
+      "platform": "Manatal",
+      "status": "experimental_local_validated",
+      "access": "**Public candidate.** `https://api.manatal.com/open/v3/career-page/{client_slug}/jobs/`; paginated career-page API. Full account API is separate and token protected.",
+      "blocker": "Not live. Empty-identity validation is not historical/cross-source deduplication or database acceptance. Both sampled listings omit posting dates; freshness unverified.",
+      "evidence_urls": [
+        "https://developers.manatal.com/reference/career-page_jobs_list"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Complete backend contracts, isolated database replay/verification, TEST cloud validation, reuse review and approval-gated rollout."
+    },
+    {
+      "slot": 15,
+      "platform": "TalentLyft",
+      "status": "research_only",
+      "access": "**Public candidate, documentation conflict.** Public API overview says no token; endpoint schema mentions Bearer. `https://api.talentlyft.com/v2/public/{subdomain}/jobs`.",
+      "blocker": "Vendor tenant returned HTTP 200 without auth but zero rows. Need nonempty real US employer and provider clarification before support claim.",
+      "evidence_urls": [
+        "https://developers.talentlyft.com/",
+        "https://developers.talentlyft.com/public-api-reference/jobs"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 16,
+      "platform": "Trakstar Hire / Recruiterbox",
+      "status": "research_only",
+      "access": "**Public candidate.** Official frontend API `https://jsapi.recruiterbox.com/v1/openings?client_name={tenant}`; separate private account API.",
+      "blocker": "Demo HTTP 200/20 rows establishes transport only. Real employer, current support/reuse terms, US yield, timestamp policy and pagination validation needed.",
+      "evidence_urls": [
+        "https://apiv1.recruiterbox.com/frontend_api.html"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 17,
+      "platform": "Arbeitnow",
+      "status": "research_only",
+      "access": "**Public candidate with agreement question.** Keyless `/api/job-board-api`; backlink required. General terms restrict commercial copying while API section allows revocable use.",
+      "blocker": "HTTP 200/300 rows. Official product focuses Europe; no measured US yield. Seek commercial clarification; low priority for US-only catalog.",
+      "evidence_urls": [
+        "https://www.arbeitnow.com/blog/job-board-api",
+        "https://www.arbeitnow.com/terms"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 18,
+      "platform": "Bullhorn",
+      "status": "research_only",
+      "access": "**Public candidate requiring tenant setup.** Public API exposes limited fields on Published\u2013Approved jobs; public cluster/corporation token required.",
+      "blocker": "Employer/staffing agency US inventory possible. Need an authorized configured tenant, public-only field selection, complete paging, and reuse agreement. No live token tested.",
+      "evidence_urls": [
+        "https://bullhorn.github.io/Public-API/"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 19,
+      "platform": "JobScore",
+      "status": "research_only",
+      "access": "**Provisioning.** Employer publishes JSON/XML job feed; documentation places feed access on paid employer plans.",
+      "blocker": "US employer feed possible. Employer must supply/enable feed and permit reuse; no configured live feed tested.",
+      "evidence_urls": [
+        "https://support.jobscore.com/hc/en-us/articles/202001320-Developers-Guide-to-Job-Feed-APIs"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 20,
+      "platform": "Comeet",
+      "status": "research_only",
+      "access": "**Provisioning.** Careers API uses company UID and company token from employer settings. `details=true` adds descriptions.",
+      "blocker": "US tenant possible; need employer token, permission, full-detail responses and documented throttling handling.",
+      "evidence_urls": [
+        "https://developers.comeet.com/reference/careers-api-overview",
+        "https://developers.comeet.com/reference/careers-api-list-all-positions"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 21,
+      "platform": "Homerun",
+      "status": "research_only",
+      "access": "**Provisioning.** Employer can generate XML job feed for job boards; private API is unnecessary for basic listings.",
+      "blocker": "Need employer feed URL/permission and US inventory. Do not infer global access from a customer feed feature.",
+      "evidence_urls": [
+        "https://help.homerun.co/en/articles/5013627-how-to-generate-an-xml-feed"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 22,
+      "platform": "Teamtailor",
+      "status": "research_only",
+      "access": "**Provisioning.** Public read scope still requires employer API key; job-board partner route also exists.",
+      "blocker": "Need company key, version header, region-specific API host, US employer selection, and reuse agreement.",
+      "evidence_urls": [
+        "https://docs.teamtailor.com/",
+        "https://partner.teamtailor.com/job_boards/direct_apply/"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 23,
+      "platform": "BambooHR",
+      "status": "research_only",
+      "access": "**Provisioning.** Authenticated applicant-tracking jobs API requires caller permissions.",
+      "blocker": "Employer-scoped US jobs possible. Need employer authorization; filter open external jobs because account API includes other statuses.",
+      "evidence_urls": [
+        "https://documentation.bamboohr.com/reference/get-job-summaries"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 24,
+      "platform": "Breezy HR",
+      "status": "experimental_local_validated",
+      "access": "**Provisioning / public-route gap.** Official API requires account access token. No officially supported keyless `/json` feed established in this review.",
+      "blocker": "Not live. Empty-identity validation is not historical/cross-source deduplication or database acceptance.",
+      "evidence_urls": [
+        "https://developer.breezy.hr/reference/overview",
+        "https://help.breezy.hr/en/articles/15948850-can-i-generate-a-breezy-api-access-token"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Complete backend contracts, isolated database replay/verification, TEST cloud validation, reuse review and approval-gated rollout."
+    },
+    {
+      "slot": 25,
+      "platform": "JazzHR",
+      "status": "research_only",
+      "access": "**Provisioning.** Official partner Apply API documentation explicitly mentions global JSON feed of customer opt-in syndicated jobs.",
+      "blocker": "Promising US coverage; no production feed URL/partner access or redistribution grant provisioned. Do not assume account API provides global listings.",
+      "evidence_urls": [
+        "https://apidoc.jazzhrapis.com/custom-apply/"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 26,
+      "platform": "Jobvite",
+      "status": "research_only",
+      "access": "**Provisioning.** Customer XML feed available through support; Get Job API requires issued key/secret and costs extra.",
+      "blocker": "US employer inventory possible. Need authorized feed; published external/open filter and plan limits. API docs state 500 calls/day.",
+      "evidence_urls": [
+        "https://careers.jobvite.com/careersite/job_feed_api.html",
+        "https://careers.jobvite.com/Careers/careersites/FAQ.html"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 27,
+      "platform": "iCIMS",
+      "status": "research_only",
+      "access": "**Provisioning.** Job Portal API for vendors, authenticated customer portal search; Profiles API supplies details.",
+      "blocker": "Need customer/vendor authorization and US portal; search caching and paging must be respected.",
+      "evidence_urls": [
+        "https://developer-community.icims.com/applications/applicant-tracking/job-portal"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 28,
+      "platform": "Workday",
+      "status": "research_only",
+      "access": "**Provisioning / public-route gap.** Official tenant integrations require tenant security/access. Supported public aggregation feed not established.",
+      "blocker": "Potential US employer breadth, but tenant export/partner route needed. Undocumented career-site internal endpoints are not counted as supported adapters.",
+      "evidence_urls": [
+        "https://developer.workday.com/documentation/GUID-6c547385-848b-4005-ab2c-632f1d6b5688"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 29,
+      "platform": "SAP SuccessFactors",
+      "status": "research_only",
+      "access": "**Provisioning.** Recruiting OData JobRequisition API requires tenant permissions/configuration.",
+      "blocker": "US tenant possible. Need export authorization and external/public status filtering; no arbitrary cross-customer read access.",
+      "evidence_urls": [
+        "https://learning.sap.com/courses/sap-successfactors-recruiting-recruiter-experience-administration/describing-odata-and-apis-in-recruiting_a07e4fb5-25a3-48e7-b6c1-51560003dc7c"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 30,
+      "platform": "Dayforce",
+      "status": "research_only",
+      "access": "**Provisioning.** Official Get Job Postings API supports sharing career postings with external boards; tenant property enables API access.",
+      "blocker": "Need participating employer and configured integration. US content potential unmeasured.",
+      "evidence_urls": [
+        "https://dayforce.fluidtopics.net/r/documents/Dayforce-RESTful-Web-Services-Developer-Guide/RESTful-Get-Job-Postings?contentId=fvafCbV5Lxszc6kMItbARQ"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 31,
+      "platform": "Zoho Recruit",
+      "status": "research_only",
+      "access": "**Provisioning.** OAuth-authorized customer API with job-opening scopes.",
+      "blocker": "Need consenting US employer account, appropriate scope and public-only export.",
+      "evidence_urls": [
+        "https://www.zoho.com/recruit/developer-guide/apiv2/oauth-overview.html"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 32,
+      "platform": "Freshteam",
+      "status": "research_only",
+      "access": "**Provisioning.** Employer-domain `/api/job_postings` with API authorization.",
+      "blocker": "Need employer token and permission. Pagination/public-status filtering and US yield untested.",
+      "evidence_urls": [
+        "https://developers.freshteam.com/api/"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 33,
+      "platform": "CATS",
+      "status": "research_only",
+      "access": "**Provisioning.** Employer account API v3 uses token authentication; jobs/portals exposed within account.",
+      "blocker": "Need customer key, public-job constraints, permission and US tenant.",
+      "evidence_urls": [
+        "https://docs.catsone.com/api/v3/"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 34,
+      "platform": "Oracle Recruiting",
+      "status": "research_only",
+      "access": "**Provisioning / public-route gap.** Recruiting Job Requisitions REST API documented for Oracle HCM tenant.",
+      "blocker": "Need tenant access/export permission. Public CandidateExperience internal endpoint is not established here as an approved bulk ingestion contract.",
+      "evidence_urls": [
+        "https://docs.oracle.com/en/cloud/saas/human-resources/farws/api-recruiting-job-requisitions.html"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 35,
+      "platform": "Recruit CRM",
+      "status": "research_only",
+      "access": "**Provisioning.** Owner-managed API token; Business plan or higher, or formal partnership.",
+      "blocker": "Need authorized agency/employer and suitable published US jobs. Export semantics and limits untested.",
+      "evidence_urls": [
+        "https://help.recruitcrm.io/en/articles/4411980-recruit-crm-api-documentation"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 36,
+      "platform": "UKG",
+      "status": "research_only",
+      "access": "**Provisioning / route gap.** Published, approved interfaces and registered credentials required under developer policy.",
+      "blocker": "Need partner/customer consent and specific recruiting export contract. No open cross-employer feed verified.",
+      "evidence_urls": [
+        "https://developer.ukg.com/proplatform/docs/developer-policy"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 37,
+      "platform": "Paylocity",
+      "status": "research_only",
+      "access": "**Provisioning.** Official Recruiting Job Feed V2 returns published jobs using required GUID API key; JSON/XML.",
+      "blocker": "Need employer-supplied GUID, reuse permission and full-description/US validation.",
+      "evidence_urls": [
+        "https://recruiting.paylocity.com/Recruiting/v2/api/feed/documentation"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 38,
+      "platform": "ADP",
+      "status": "research_only",
+      "access": "**Provisioning.** Job Requisitions API is for a specific client; API subscription/access setup required.",
+      "blocker": "Need participating US employer, approved application, and external/open/visible filtering.",
+      "evidence_urls": [
+        "https://developers.adp.com/articles/preview/guide-job-requisitions-v1-api-guide-for-adp-recruiting-management-0?chapter=1",
+        "https://developers.adp.com/articles/preview/guide-job-requisitions-api-guide-for-adp-workforce-now-0?chapter=2"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 39,
+      "platform": "Fountain",
+      "status": "research_only",
+      "access": "**Provisioning.** Authenticated `/v2/funnels` lists account openings; filter `listing_status=public` where supported.",
+      "blocker": "US hourly-job breadth possible; need employer key, public/hiring filters, current tenant behavior and permission.",
+      "evidence_urls": [
+        "https://developer.fountain.com/reference/get_v2-funnels",
+        "https://developer.fountain.com/reference/overview"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 40,
+      "platform": "USAJOBS",
+      "status": "research_only",
+      "access": "**Provisioning.** Register for Search API key, registered User-Agent email and Authorization-Key headers.",
+      "blocker": "Strong US federal scope; preserve citizenship, clearance and eligibility requirements. API intended for job-board use, but key not provisioned/tested.",
+      "evidence_urls": [
+        "https://developer.usajobs.gov/guides/authentication",
+        "https://developer.usajobs.gov/api-reference/get-api-search"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 41,
+      "platform": "Jooble",
+      "status": "research_only",
+      "access": "**Provisioning / commercial volume.** REST search key is country-specific; US key through jooble.org.",
+      "blocker": "US supported. Official help states free lifetime quota 500 requests/key; sustained schedules need adequate entitlement. Avoid duplicate syndicated jobs.",
+      "evidence_urls": [
+        "https://jooblehelpcenter.freshdesk.com/en/support/solutions/articles/60001448238-rest-api-documentation"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 42,
+      "platform": "Adzuna",
+      "status": "research_only",
+      "access": "**Agreement.** Jobs Search API with app ID/key; US country supported.",
+      "blocker": "Commercial use requires arrangement after 14-day evaluation; attribution and termination/removal conditions matter. No key/licence confirmed.",
+      "evidence_urls": [
+        "https://developer.adzuna.com/overview",
+        "https://developer.adzuna.com/docs/terms_of_service"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 43,
+      "platform": "The Muse",
+      "status": "research_only",
+      "access": "**Provisioning / terms review.** JSON jobs API allows testing; registration required beyond testing.",
+      "blocker": "US locations available through filters. Need registered application, rate budget and redistribution terms checked before ongoing ingestion.",
+      "evidence_urls": [
+        "https://www.themuse.com/developers/api/v2"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 44,
+      "platform": "Careerjet",
+      "status": "research_only",
+      "access": "**Provisioning / publisher agreement.** Publisher site-specific API key; official v4 query endpoint uses Basic auth.",
+      "blocker": "US publisher use possible. Need approved site/key, query parameters and storage/redistribution terms; no credential tested.",
+      "evidence_urls": [
+        "https://www.careerjet.com/partners/api"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 45,
+      "platform": "Reed",
+      "status": "research_only",
+      "access": "**Provisioning.** Registered API key for Jobseeker search/details API.",
+      "blocker": "UK-focused; useful US volume not established. Lower priority for US-only ingestion.",
+      "evidence_urls": [
+        "https://www.reed.co.uk/developers/jobseeker"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 46,
+      "platform": "ZipRecruiter",
+      "status": "research_only",
+      "access": "**Agreement / route gap.** Current partner Jobs API manages partner postings; official Search MCP is interactive US/Canada search.",
+      "blocker": "Neither establishes permission for bulk backend republication. Need approved publisher export contract; do not equate job CRUD with global read access.",
+      "evidence_urls": [
+        "https://www.ziprecruiter.com/partner/documentation/job-api/",
+        "https://api.ziprecruiter.com/mcp/docs"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 47,
+      "platform": "LinkedIn",
+      "status": "research_only",
+      "access": "**Agreement / route gap.** Talent APIs reviewed are approved partner/customer job-posting integrations.",
+      "blocker": "US inventory valuable, but a supported bulk read/republication route is not established. Need explicit applicable agreement, not a write/post API.",
+      "evidence_urls": [
+        "https://learn.microsoft.com/en-us/linkedin/talent/apply-connect/create-apply-connect-jobs?view=li-lts-2026-04",
+        "https://www.linkedin.com/legal/l/job-posting-api-terms"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 48,
+      "platform": "Indeed",
+      "status": "research_only",
+      "access": "**Agreement / route gap.** Current docs direct publishers to front-end JavaScript Plugin; Job Sync/Update APIs manage partner/customer postings.",
+      "blocker": "US inventory valuable, but front-end embedding is not a backend ingestion feed. Need publisher agreement and suitable export entitlement.",
+      "evidence_urls": [
+        "https://docs.indeed.com/job-postings"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 49,
+      "platform": "Dice",
+      "status": "research_only",
+      "access": "**Agreement / route gap.** Official integrations reviewed import customer jobs into Dice; partner program available.",
+      "blocker": "US tech/C2C relevance; no approved bulk read/republication export established. Contact partner route if desired.",
+      "evidence_urls": [
+        "https://www.dice.com/support/employer-experience/integration-capabilities--instructions.html",
+        "https://www.dice.com/hiring/partners"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    },
+    {
+      "slot": 50,
+      "platform": "JOIN",
+      "status": "research_only",
+      "access": "**Provisioning / export validation.** Company API requires system-admin-generated token, scoped to company data.",
+      "blocker": "Need participating employer, confirmed published-job export, US inventory and permission; no global/public feed established.",
+      "evidence_urls": [
+        "https://docs.join.com/reference/quickstart"
+      ],
+      "accepted_unique_us_jobs": null,
+      "next_action": "Validate current provider access and real US employer feed; implement adapter only after non-demo probe."
+    }
+  ]
+}

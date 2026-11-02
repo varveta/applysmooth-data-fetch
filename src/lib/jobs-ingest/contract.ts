@@ -11,7 +11,7 @@ import { z } from "zod";
  * when the source states it; every non-structured value carries evidence.
  */
 
-export const EXPERIMENTAL_SOURCE_IDS = ["pinpoint", "breezy"] as const;
+export const EXPERIMENTAL_SOURCE_IDS = ["pinpoint", "breezy", "manatal"] as const;
 export const SOURCE_IDS = [
   "greenhouse", "lever", "ashby", "smartrecruiters", "workable", "personio",
   "recruitee", "jobicy", "himalayas", "weworkremotely", "remoteok", "remotive",

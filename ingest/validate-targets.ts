@@ -21,6 +21,9 @@ type BoardReport = {
   rejected_count: number | null;
   quarantined_count: number | null;
   reason_counts: Partial<Record<GateReason, number>>;
+  us_eligible_count: number;
+  known_recent_posting_count: number;
+  unknown_posting_date_count: number;
   requests: number;
   bytes: number;
   duration_ms: number;
@@ -46,7 +49,7 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
     const boardStarted = Date.now();
     const report: BoardReport = { board: `${target.source}:${target.tenant}`, company: target.company,
       success: false, fetched_count: null, accepted_count: null, rejected_count: null,
-      quarantined_count: null, reason_counts: {}, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
+      quarantined_count: null, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, unknown_posting_date_count: 0, requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
     // Count the work even if a later page fails and loadBoard never returns.
     const get: typeof getJson = async (url, opts) => {
       let response;
@@ -70,6 +73,10 @@ export async function validateTargets(manifest: unknown, options: ValidationOpti
         if (seen.has(job.id)) continue;
         seen.add(job.id);
         const gate = evaluateGates(job, { now, open: true, lastSeenAt: now.toISOString(), duplicateOf: null });
+        if (job.usEligibility === "us") report.us_eligible_count++;
+        if (job.postedAt === null) report.unknown_posting_date_count++;
+        else if (!gate.reasons.includes("posting_too_old") && !gate.reasons.includes("posted_at_in_future"))
+          report.known_recent_posting_count++;
         for (const reason of gate.reasons)
           report.reason_counts[reason] = (report.reason_counts[reason] ?? 0) + 1;
       }
