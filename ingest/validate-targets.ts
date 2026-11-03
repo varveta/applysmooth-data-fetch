@@ -1,0 +1,157 @@
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { z } from "zod";
+import { SOURCE_IDS, type CatalogRow } from "@/lib/jobs-ingest/contract";
+import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
+import { evaluateGates, type GateReason } from "@/lib/jobs-ingest/gates";
+import { loadBoard } from "./lib/load-board";
+import { getJson } from "./lib/http";
+import { safeReason } from "./lib/diagnostics";
+import { prepareBoardForPublication, TargetSchema } from "./stateless";
+import { publicationChecker, type PublicationChecker, type PublicationVerificationReport } from "./lib/prepublication-verification";
+
+export const FRESH_POSTING_DAYS = 15;
+const withinFreshWindow = (date: string | null, now: Date) => {
+  if (!date) return false;
+  const age = now.getTime() - Date.parse(date);
+  return age >= 0 && age <= FRESH_POSTING_DAYS * 86_400_000;
+};
+
+const ManifestSchema = z.object({ targets: z.array(TargetSchema).min(1).max(500) });
+type ValidationOptions = { get?: typeof getJson; now?: Date; source?: string;
+  checker?: PublicationChecker; onAccepted?: (rows: CatalogRow[]) => void };
+type BoardReport = {
+  board: string;
+  company: string;
+  success: boolean;
+  fetched_count: number | null;
+  accepted_count: number | null;
+  rejected_count: number | null;
+  quarantined_count: number | null;
+  quality_accepted_count: number;
+  deduplicated_count: number;
+  reason_counts: Partial<Record<GateReason, number>>;
+  us_eligible_count: number;
+  known_recent_posting_count: number;
+  posted_within_15_days_count: number;
+  accepted_posted_within_15_days_count: number;
+  unknown_posting_date_count: number;
+  requests: number;
+  verification_requests: number;
+  prepublication?: PublicationVerificationReport;
+  bytes: number;
+  duration_ms: number;
+  writes: 0;
+  error?: string;
+  discovery?: unknown;
+};
+
+/** Read-only online admission. No collector client, credentials, activation or database access. */
+export async function validateTargets(manifest: unknown, options: ValidationOptions = {}) {
+  let { targets } = ManifestSchema.parse(manifest);
+  if (new Set(targets.map((target) => `${target.source}:${target.tenant}`)).size !== targets.length)
+    throw new Error("Duplicate source/tenant in validation manifest");
+  if (options.source !== undefined) {
+    const source = z.enum(SOURCE_IDS).parse(options.source);
+    targets = targets.filter((target) => target.source === source);
+    if (!targets.length) throw new Error("Source is absent from validation manifest");
+  }
+  const now = options.now ?? new Date();
+  const started = Date.now();
+  const checker = publicationChecker(options.checker);
+  const boards: BoardReport[] = [];
+  for (const target of targets) {
+    const boardStarted = Date.now();
+    const verificationStarted = checker.metrics.requests;
+    const report: BoardReport = { board: `${target.source}:${target.tenant}`, company: target.company,
+      success: false, fetched_count: null, accepted_count: null, rejected_count: null,
+      quarantined_count: null, quality_accepted_count: 0, deduplicated_count: 0, reason_counts: {}, us_eligible_count: 0, known_recent_posting_count: 0, posted_within_15_days_count: 0, accepted_posted_within_15_days_count: 0, unknown_posting_date_count: 0, requests: 0, verification_requests: 0, bytes: 0, duration_ms: 0, writes: 0 };
+    // Count the work even if a later page fails and loadBoard never returns.
+    const get: typeof getJson = async (url, opts) => {
+      let response;
+      try { response = await (options.get ?? getJson)(url, opts); }
+      catch (error) { report.requests++; throw error; }
+      report.requests += response.attempts;
+      if (response.ok) report.bytes += response.bytes;
+      return response;
+    };
+    try {
+      const fetched = await loadBoard(target, get);
+      const prepared = await prepareBoardForPublication(target, fetched.body, now, {
+        source: target.source, tenant: target.tenant, complete: true, identities: [],
+      }, checker);
+      // Reasons describe quality gates before cross-posting deduplication. Several
+      // reasons can apply to one job; these counts must not be summed as jobs.
+      const adapter = ADAPTERS[target.source];
+      const seen = new Set<string>();
+      for (const raw of adapter.parseListing(fetched.body)) {
+        const id = adapter.postingId(raw);
+        if (seen.has(id)) continue;
+        seen.add(id);
+        let job;
+        try { job = adapter.normalize(raw, target.tenant, target.company); }
+        catch (error) {
+          if (!(error instanceof UnverifiedPostingError)) throw error;
+          report.reason_counts.normalize_failed = (report.reason_counts.normalize_failed ?? 0) + 1;
+          continue;
+        }
+        const gate = evaluateGates(job, { now, open: true, lastSeenAt: now.toISOString(), duplicateOf: null });
+        if (gate.status === "accepted") report.quality_accepted_count++;
+        if (job.usEligibility === "us") report.us_eligible_count++;
+        if (withinFreshWindow(job.postedAt, now)) report.posted_within_15_days_count++;
+        if (job.postedAt === null) report.unknown_posting_date_count++;
+        else if (!gate.reasons.includes("posting_too_old") && !gate.reasons.includes("posted_at_in_future"))
+          report.known_recent_posting_count++;
+        for (const reason of gate.reasons)
+          report.reason_counts[reason] = (report.reason_counts[reason] ?? 0) + 1;
+      }
+      options.onAccepted?.(prepared.rows);
+      report.success = true;
+      report.fetched_count = prepared.fetched_count;
+      report.accepted_count = prepared.rows.length;
+      report.accepted_posted_within_15_days_count = prepared.rows.filter(row => withinFreshWindow(row.posted_at, now)).length;
+      // Empty identity snapshots: eligible rows removed by within-board deduplication.
+      report.deduplicated_count = report.quality_accepted_count - prepared.rows.length -
+        (prepared.prepublication?.quarantined_count ?? 0) - prepared.identity_resolution.quarantined;
+      report.rejected_count = prepared.gates.rejected ?? 0;
+      report.quarantined_count = prepared.gates.quarantined ?? 0;
+      if (prepared.prepublication) report.prepublication = prepared.prepublication;
+      if ("discovery" in fetched) report.discovery = fetched.discovery;
+    } catch (error) { report.error = safeReason(error); }
+    report.verification_requests = checker.metrics.requests - verificationStarted;
+    report.duration_ms = Date.now() - boardStarted;
+    boards.push(report);
+  }
+  return { mode: "read-only-validation" as const, success: boards.every((board) => board.success),
+    started_at: now.toISOString(), duration_ms: Date.now() - started, writes: 0 as const,
+    fresh_posting_window_days: FRESH_POSTING_DAYS,
+    freshness_basis: "original_posted_at; future and unknown dates excluded" as const,
+    identity_basis: "empty_snapshot" as const, live_ingestion_verified: false as const,
+    reason_count_basis: "pre_deduplication_quality_gates; reasons may overlap" as const,
+    boards };
+}
+
+export async function runValidation(manifestPath: string, options: ValidationOptions & { outputDirectory?: string } = {}) {
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const report = await validateTargets(manifest, options);
+  const outputDirectory = options.outputDirectory ?? "ingest/data";
+  mkdirSync(outputDirectory, { recursive: true });
+  const reportPath = join(outputDirectory, `source-validation-test${options.source ? `-${options.source}` : ""}.json`);
+  writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n");
+  return { report, reportPath, exitCode: report.success ? 0 : 1 };
+}
+
+async function main() {
+  const manifestPath = process.argv[2];
+  if (!manifestPath || process.argv.length < 3 || process.argv.length > 4)
+    throw new Error("Usage: tsx ingest/validate-targets.ts <manifest.json> [source]");
+  const result = await runValidation(manifestPath, { source: process.argv[3] });
+  console.log(JSON.stringify(result.report));
+  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+    `## TEST source validation\n\nResult: **${result.report.success ? "passed" : "failed"}** · Boards: ${result.report.boards.length} · Database writes: **0**\n\nCounts use empty identity snapshots. This verifies fetching and local preparation, not live ingestion. See the JSON artifact for per-board results and overlapping gate reasons.\n`);
+  process.exitCode = result.exitCode;
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  main().catch((error) => { console.error(JSON.stringify({ success: false, writes: 0, error: safeReason(error) })); process.exitCode = 1; });

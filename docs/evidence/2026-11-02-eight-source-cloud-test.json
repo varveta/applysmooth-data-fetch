@@ -1,0 +1,626 @@
+{
+  "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41520833751",
+  "collector_commit": "9c40f58dd64ed42aa17da69b8ced29e94d191c8a",
+  "overall_conclusion": "failure",
+  "successful_source_count": 7,
+  "reports": [
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "getonboard",
+      "started_at": "2026-11-02T20:38:50.063Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:38:50.063Z",
+        "duration_ms": 3386,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "getonboard:public",
+            "company": "Get on Board",
+            "success": true,
+            "fetched_count": 29,
+            "accepted_count": 1,
+            "rejected_count": 14,
+            "quarantined_count": 14,
+            "quality_accepted_count": 1,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "us_eligibility_unknown": 25,
+              "not_us": 3,
+              "posting_too_old": 13
+            },
+            "us_eligible_count": 1,
+            "known_recent_posting_count": 16,
+            "posted_within_15_days_count": 7,
+            "accepted_posted_within_15_days_count": 1,
+            "unknown_posting_date_count": 0,
+            "requests": 3,
+            "bytes": 223378,
+            "duration_ms": 3386,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 3,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 3,
+      "verification_requests": 5,
+      "boards": [
+        {
+          "board": "getonboard:public",
+          "fetch_success": true,
+          "accepted": 1,
+          "checked": 1,
+          "outcomes": {
+            "open": 1
+          },
+          "unverified": false
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "teamtailor",
+      "started_at": "2026-11-02T20:39:16.940Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:39:16.940Z",
+        "duration_ms": 752,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "teamtailor:varnish-software",
+            "company": "Varnish Software",
+            "success": true,
+            "fetched_count": 4,
+            "accepted_count": 2,
+            "rejected_count": 2,
+            "quarantined_count": 0,
+            "quality_accepted_count": 2,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "not_us": 2,
+              "posting_too_old": 1
+            },
+            "us_eligible_count": 2,
+            "known_recent_posting_count": 3,
+            "posted_within_15_days_count": 3,
+            "accepted_posted_within_15_days_count": 2,
+            "unknown_posting_date_count": 0,
+            "requests": 1,
+            "bytes": 39409,
+            "duration_ms": 752,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 1,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 1,
+      "verification_requests": 3,
+      "boards": [
+        {
+          "board": "teamtailor:varnish-software",
+          "fetch_success": true,
+          "accepted": 2,
+          "checked": 2,
+          "outcomes": {
+            "open": 2
+          },
+          "unverified": false
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "pinpoint",
+      "started_at": "2026-11-02T20:37:41.687Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:37:41.687Z",
+        "duration_ms": 5229,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "pinpoint:groupo",
+            "company": "Group O",
+            "success": true,
+            "fetched_count": 15,
+            "accepted_count": 11,
+            "rejected_count": 4,
+            "quarantined_count": 0,
+            "quality_accepted_count": 11,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "posting_too_old": 4
+            },
+            "us_eligible_count": 15,
+            "known_recent_posting_count": 11,
+            "posted_within_15_days_count": 3,
+            "accepted_posted_within_15_days_count": 3,
+            "unknown_posting_date_count": 0,
+            "requests": 16,
+            "bytes": 2076579,
+            "duration_ms": 5229,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 16,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 16,
+      "verification_requests": 27,
+      "boards": [
+        {
+          "board": "pinpoint:groupo",
+          "fetch_success": true,
+          "accepted": 11,
+          "checked": 11,
+          "outcomes": {
+            "open": 11
+          },
+          "unverified": false
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "remotebackendjobs",
+      "started_at": "2026-11-02T20:38:44.996Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": false,
+        "started_at": "2026-11-02T20:38:44.996Z",
+        "duration_ms": 728,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "remotebackendjobs:public",
+            "company": "Remote Backend Jobs",
+            "success": false,
+            "fetched_count": null,
+            "accepted_count": null,
+            "rejected_count": null,
+            "quarantined_count": null,
+            "quality_accepted_count": 0,
+            "deduplicated_count": 0,
+            "reason_counts": {},
+            "us_eligible_count": 0,
+            "known_recent_posting_count": 0,
+            "posted_within_15_days_count": 0,
+            "accepted_posted_within_15_days_count": 0,
+            "unknown_posting_date_count": 0,
+            "requests": 1,
+            "bytes": 0,
+            "duration_ms": 728,
+            "writes": 0,
+            "error": "HTTP 403"
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": false,
+      "fetch_requests": 1,
+      "verification_requests": 0,
+      "boards": [
+        {
+          "board": "remotebackendjobs:public",
+          "fetch_success": false,
+          "accepted": null,
+          "checked": 0,
+          "outcomes": {},
+          "unverified": true
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "breezy",
+      "started_at": "2026-11-02T20:37:31.924Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:37:31.924Z",
+        "duration_ms": 28413,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "breezy:embraer",
+            "company": "Embraer",
+            "success": true,
+            "fetched_count": 65,
+            "accepted_count": 45,
+            "rejected_count": 20,
+            "quarantined_count": 0,
+            "quality_accepted_count": 45,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "posting_too_old": 20
+            },
+            "us_eligible_count": 65,
+            "known_recent_posting_count": 45,
+            "posted_within_15_days_count": 19,
+            "accepted_posted_within_15_days_count": 19,
+            "unknown_posting_date_count": 0,
+            "requests": 66,
+            "bytes": 1703941,
+            "duration_ms": 25717,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 66,
+              "capped": false
+            }
+          },
+          {
+            "board": "breezy:subscribe",
+            "company": "SUBSCRIBE",
+            "success": true,
+            "fetched_count": 6,
+            "accepted_count": 0,
+            "rejected_count": 6,
+            "quarantined_count": 0,
+            "quality_accepted_count": 0,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "posting_too_old": 6
+            },
+            "us_eligible_count": 6,
+            "known_recent_posting_count": 0,
+            "posted_within_15_days_count": 0,
+            "accepted_posted_within_15_days_count": 0,
+            "unknown_posting_date_count": 0,
+            "requests": 7,
+            "bytes": 121368,
+            "duration_ms": 2696,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 7,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 73,
+      "verification_requests": 111,
+      "boards": [
+        {
+          "board": "breezy:embraer",
+          "fetch_success": true,
+          "accepted": 45,
+          "checked": 45,
+          "outcomes": {
+            "open": 45
+          },
+          "unverified": false
+        },
+        {
+          "board": "breezy:subscribe",
+          "fetch_success": true,
+          "accepted": 0,
+          "checked": 0,
+          "outcomes": {},
+          "unverified": true
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "manatal",
+      "started_at": "2026-11-02T20:38:06.659Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:38:06.659Z",
+        "duration_ms": 775,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "manatal:primary-care-collaborative",
+            "company": "Primary Care Collaborative",
+            "success": true,
+            "fetched_count": 1,
+            "accepted_count": 1,
+            "rejected_count": 0,
+            "quarantined_count": 0,
+            "quality_accepted_count": 1,
+            "deduplicated_count": 0,
+            "reason_counts": {},
+            "us_eligible_count": 1,
+            "known_recent_posting_count": 0,
+            "posted_within_15_days_count": 0,
+            "accepted_posted_within_15_days_count": 0,
+            "unknown_posting_date_count": 1,
+            "requests": 1,
+            "bytes": 5911,
+            "duration_ms": 502,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 1,
+              "capped": false
+            }
+          },
+          {
+            "board": "manatal:trolley-2",
+            "company": "Trolley",
+            "success": true,
+            "fetched_count": 1,
+            "accepted_count": 0,
+            "rejected_count": 0,
+            "quarantined_count": 1,
+            "quality_accepted_count": 0,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "us_eligibility_unknown": 1
+            },
+            "us_eligible_count": 0,
+            "known_recent_posting_count": 0,
+            "posted_within_15_days_count": 0,
+            "accepted_posted_within_15_days_count": 0,
+            "unknown_posting_date_count": 1,
+            "requests": 1,
+            "bytes": 4658,
+            "duration_ms": 273,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 1,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 2,
+      "verification_requests": 2,
+      "boards": [
+        {
+          "board": "manatal:primary-care-collaborative",
+          "fetch_success": true,
+          "accepted": 1,
+          "checked": 1,
+          "outcomes": {
+            "open": 1
+          },
+          "unverified": false
+        },
+        {
+          "board": "manatal:trolley-2",
+          "fetch_success": true,
+          "accepted": 0,
+          "checked": 0,
+          "outcomes": {},
+          "unverified": true
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "trakstar",
+      "started_at": "2026-11-02T20:38:24.388Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:38:24.388Z",
+        "duration_ms": 2762,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "trakstar:elevate97",
+            "company": "Elevate97",
+            "success": true,
+            "fetched_count": 2,
+            "accepted_count": 1,
+            "rejected_count": 1,
+            "quarantined_count": 0,
+            "quality_accepted_count": 1,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "description_too_short": 1,
+              "posting_too_old": 1
+            },
+            "us_eligible_count": 2,
+            "known_recent_posting_count": 1,
+            "posted_within_15_days_count": 1,
+            "accepted_posted_within_15_days_count": 1,
+            "unknown_posting_date_count": 0,
+            "requests": 3,
+            "bytes": 273467,
+            "duration_ms": 1499,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 3,
+              "capped": false
+            }
+          },
+          {
+            "board": "trakstar:valtasgroup",
+            "company": "Valtas Group",
+            "success": true,
+            "fetched_count": 2,
+            "accepted_count": 2,
+            "rejected_count": 0,
+            "quarantined_count": 0,
+            "quality_accepted_count": 2,
+            "deduplicated_count": 0,
+            "reason_counts": {},
+            "us_eligible_count": 2,
+            "known_recent_posting_count": 2,
+            "posted_within_15_days_count": 2,
+            "accepted_posted_within_15_days_count": 2,
+            "unknown_posting_date_count": 0,
+            "requests": 3,
+            "bytes": 348922,
+            "duration_ms": 1263,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 3,
+              "capped": false
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 6,
+      "verification_requests": 9,
+      "boards": [
+        {
+          "board": "trakstar:elevate97",
+          "fetch_success": true,
+          "accepted": 1,
+          "checked": 1,
+          "outcomes": {
+            "open": 1
+          },
+          "unverified": false
+        },
+        {
+          "board": "trakstar:valtasgroup",
+          "fetch_success": true,
+          "accepted": 2,
+          "checked": 2,
+          "outcomes": {
+            "open": 2
+          },
+          "unverified": false
+        }
+      ]
+    },
+    {
+      "mode": "read-only-source-and-link-verification",
+      "source": "yubhub",
+      "started_at": "2026-11-02T20:39:09.505Z",
+      "validation": {
+        "mode": "read-only-validation",
+        "success": true,
+        "started_at": "2026-11-02T20:39:09.505Z",
+        "duration_ms": 121384,
+        "writes": 0,
+        "fresh_posting_window_days": 15,
+        "freshness_basis": "original_posted_at; future and unknown dates excluded",
+        "identity_basis": "empty_snapshot",
+        "live_ingestion_verified": false,
+        "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+        "boards": [
+          {
+            "board": "yubhub:public",
+            "company": "YubHub",
+            "success": true,
+            "fetched_count": 100,
+            "accepted_count": 70,
+            "rejected_count": 28,
+            "quarantined_count": 2,
+            "quality_accepted_count": 70,
+            "deduplicated_count": 0,
+            "reason_counts": {
+              "missing_company": 28,
+              "posting_too_old": 23,
+              "missing_title": 5,
+              "normalize_failed": 2
+            },
+            "us_eligible_count": 98,
+            "known_recent_posting_count": 70,
+            "posted_within_15_days_count": 51,
+            "accepted_posted_within_15_days_count": 51,
+            "unknown_posting_date_count": 5,
+            "requests": 101,
+            "bytes": 2582631,
+            "duration_ms": 121384,
+            "writes": 0,
+            "discovery": {
+              "policy": "observations",
+              "pages": 101,
+              "capped": true
+            }
+          }
+        ]
+      },
+      "writes": 0,
+      "production_ready": false,
+      "success": true,
+      "fetch_requests": 101,
+      "verification_requests": 171,
+      "boards": [
+        {
+          "board": "yubhub:public",
+          "fetch_success": true,
+          "accepted": 70,
+          "checked": 70,
+          "outcomes": {
+            "open": 70
+          },
+          "unverified": false
+        }
+      ]
+    }
+  ],
+  "shared_database_writes": 0
+}

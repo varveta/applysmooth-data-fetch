@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { hostLimiter, pool } from "./lib/http";
 import { runVerification, verifier, type VerifyJob } from "./verify";
 import { ashbyFixture, greenhouseFixture, leverFixture } from "./synthetic-fixtures";
+import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
+import * as boardLoader from "./lib/load-board";
 
 const fixtures = { greenhouse: greenhouseFixture, lever: leverFixture, ashby: ashbyFixture };
 const runId = "c2f5c7ab-11e6-4b70-b803-f76bd7d98df5";
@@ -87,6 +90,110 @@ describe("source-specific evidence", () => {
   it.each(["greenhouse", "lever"] as const)("treats %s HTTP 410 as closed", async (source) => {
     mockFetch.mockResolvedValueOnce(json({}, 410));
     expect((await verifier().check(job(source))).status).toBe("closed");
+  });
+});
+
+describe("Getwork direct detail verification", () => {
+  const detail = {
+    id: "gh-example-123", title: "Software Engineer",
+    company: { name: "Example", slug: "example" }, active: true,
+    getwork_url: "https://getwork.dev/jobs/gh-example-123/",
+    apply_url: "https://careers.example.com/jobs/123?gh_jid=123",
+    url: "https://careers.example.com/jobs/123?gh_jid=123",
+    location: "Remote, United States", countries: ["US"], remote: "remote",
+    untrusted_description: "Develop and maintain services with our engineering team. ".repeat(10),
+    employment_type: "full_time", published_at: "2026-11-01T12:00:00Z",
+    first_seen_at: "2026-11-01T13:00:00Z", last_seen_at: "2026-11-02T13:00:00Z",
+  };
+  const queued: VerifyJob = { id: "catalog-getwork", source: "getwork", tenant: "public",
+    source_job_id: detail.id, apply_url: detail.apply_url, reason: "uncertain" };
+  const endpoint = `https://getwork.dev/api/jobs/${detail.id}/`;
+  const preview = () => verifier({ allowExperimental: true });
+
+  it("verifies a known job outside the newest discovery window directly, then checks its apply link", async () => {
+    const listing = vi.spyOn(boardLoader, "loadBoard").mockResolvedValue({ body: [], attempts: 1, bytes: 2 });
+    mockFetch.mockResolvedValueOnce(json(detail)).mockResolvedValueOnce(new Response("Apply"));
+    const checker = preview();
+    expect(await checker.check(queued)).toMatchObject({ id: queued.id, status: "open", stage: "verify_link" });
+    expect(listing).not.toHaveBeenCalled();
+    expect(mockFetch.mock.calls.map(([url]) => String(url))).toEqual([endpoint, queued.apply_url]);
+    expect(mockFetch.mock.calls[0][1]).toMatchObject({ redirect: "error" });
+    expect(checker.metrics.requests).toBe(2);
+  });
+  it("keeps the TEST guard before all direct requests and closure evidence", async () => {
+    mockFetch.mockResolvedValue(json({ ...detail, active: false }));
+    expect(await verifier().check(queued)).toMatchObject({ status: "uncertain", stage: "verify_source", detail: expect.stringContaining("TEST-only") });
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+  it.each([
+    { source_job_id: "../jobs" }, { source_job_id: "gh-example-123?limit=50" },
+    { source_job_id: "gh-example-123/" }, { tenant: "another" },
+  ])("rejects invalid queued identity before any request (%j)", async (patch) => {
+    expect((await preview().check({ ...queued, ...patch })).status).toBe("uncertain");
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+  it.each([
+    { id: "gh-other-456", getwork_url: "https://getwork.dev/jobs/gh-other-456/" },
+    { id: "gh-other-456", getwork_url: "https://getwork.dev/jobs/gh-other-456/", active: false },
+    { getwork_url: "https://getwork.dev/jobs/gh-other-456/" },
+    { getwork_url: "https://unrelated.example.com/jobs/gh-example-123/" },
+    { apply_url: "https://careers.example.com/jobs/123?gh_jid=456" },
+    { apply_url: "https://careers.example.com/jobs/456", active: false },
+    { apply_url: null, url: "https://careers.example.com/jobs/456" },
+  ])("withholds confirmation and closure for mismatched identity or changed links (%j)", async (patch) => {
+    mockFetch.mockResolvedValueOnce(json({ ...detail, ...patch }));
+    expect(await preview().check(queued)).toMatchObject({ status: "uncertain", stage: "verify_source" });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+  it("accepts the unchanged original URL fallback when apply_url is null", async () => {
+    mockFetch.mockResolvedValueOnce(json({ ...detail, apply_url: null }));
+    expect(await preview().source(queued)).toMatchObject({ status: "open", http_status: 200 });
+  });
+  it.each([
+    { countries: [], location: "Remote" },
+    { countries: ["CA"], location: "Toronto, Canada" },
+    { countries: ["CA"], location: "Remote, United States" },
+  ])("does not confirm unknown or non-US eligibility from a formerly US job (%j)", async (patch) => {
+    mockFetch.mockResolvedValueOnce(json({ ...detail, ...patch,
+      untrusted_description: `${detail.untrusted_description} Our company has clients in the United States.` }));
+    expect(await preview().check(queued)).toMatchObject({ status: "uncertain", stage: "verify_source", detail: expect.stringContaining("eligibility") });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+  it("accepts explicit inactive status only from a complete matching record", async () => {
+    mockFetch.mockResolvedValueOnce(json({ ...detail, active: false }));
+    expect(await preview().check(queued)).toMatchObject({ status: "closed", stage: "verify_source", http_status: 200,
+      detail: "Getwork explicitly reports inactive posting" });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    { id: detail.id, active: false },
+    { ...detail, untrusted_description: undefined },
+    { ...detail, company: { name: "", slug: "example" } },
+    { ...detail, published_at: "not a date" },
+    { ...detail, active: "false" },
+  ])("keeps malformed full records or inactive tombstones uncertain", async (body) => {
+    mockFetch.mockResolvedValueOnce(json(body));
+    expect(await preview().check(queued)).toMatchObject({ status: "uncertain", stage: "verify_source" });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+  it.each([201, 301, 403, 404, 410, 429, 500, 503])("never infers closure or retries Getwork HTTP %s", async (status) => {
+    mockFetch.mockResolvedValueOnce(json(detail, status));
+    const checker = preview();
+    expect(await checker.check(queued)).toMatchObject({ status: "uncertain", stage: "verify_source", http_status: status });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(checker.metrics.requests).toBe(1);
+  });
+  it("keeps timeouts and malformed JSON uncertain without link requests", async () => {
+    mockFetch.mockRejectedValueOnce(new DOMException("timed out", "TimeoutError"));
+    expect((await preview().check(queued)).status).toBe("uncertain");
+    mockFetch.mockResolvedValueOnce(new Response("<html>error</html>"));
+    expect((await preview().check(queued)).status).toBe("uncertain");
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+  it("rejects oversized detail responses before parsing or checking the employer link", async () => {
+    mockFetch.mockResolvedValueOnce(json({ ...detail, ignored: "x".repeat(2_000_000) }));
+    expect(await preview().check(queued)).toMatchObject({ status: "uncertain", stage: "verify_source" });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -338,6 +445,20 @@ describe("request pacing and endpoint reporting", () => {
 
 
 describe("new source closure safeguards", () => {
+  it("keeps unverified originals uncertain without hiding healthy observation peers", async () => {
+    vi.spyOn(boardLoader, "loadBoard").mockResolvedValue({ body: ["healthy", "unverified"], bytes: 10, attempts: 1 });
+    vi.spyOn(ADAPTERS.yubhub, "parseListing").mockImplementation(body => body as string[]);
+    vi.spyOn(ADAPTERS.yubhub, "normalize").mockImplementation(raw => {
+      if (raw === "unverified") throw new UnverifiedPostingError("Missing original");
+      return { ...ADAPTERS.ashby.normalize(ashbyFixture, "example"), sourceJobId: "healthy", applyUrl: job().apply_url };
+    });
+    mockFetch.mockResolvedValue(new Response("Apply"));
+    const checker = verifier({ allowExperimental: true });
+    const base = { ...job(), source: "yubhub" as const, tenant: "public" };
+    expect((await checker.check({ ...base, source_job_id: "healthy" })).status).toBe("open");
+    expect((await checker.check({ ...base, source_job_id: "unverified" })).status).toBe("uncertain");
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
   it.each(["workable", "personio", "recruitee", "jobicy", "himalayas", "weworkremotely", "remoteok", "remotive"] as const)(
     "never treats %s endpoint failure as Lever closure", async (source) => {
       mockFetch.mockResolvedValue(json({}, 404));

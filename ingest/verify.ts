@@ -1,8 +1,11 @@
+import { isTestOnlySource } from "./lib/source-activation";
 import { isIP } from "node:net";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
-import { SOURCE_IDS, type NormalizedJob } from "@/lib/jobs-ingest/contract";
+import { UnverifiedPostingError } from "@/lib/jobs-ingest/normalization-error";
+import { SOURCE_IDS, isExperimentalSource, type NormalizedJob } from "@/lib/jobs-ingest/contract";
+import { GETWORK_ORIGIN, GetworkPosting, getworkId, getworkJobUrl, getworkTenant } from "@/lib/jobs-ingest/getwork";
 import { assertRunnerContext, clientFromEnv, type RequestMetrics } from "./lib/collector-client";
 import { CollectorError, errorLine, eventLine, safeReason, type Stage } from "./lib/diagnostics";
 import { getJson, hostLimiter, USER_AGENT } from "./lib/http";
@@ -62,6 +65,8 @@ function dnsNotFound(error: unknown): boolean {
 
 export function verifier(options: {
   perHost?: number; concurrency?: number; queuedJobs?: VerifyJob[];
+  /** Read-only preview only; the live verification runner never opts in. */
+  allowExperimental?: boolean;
   boardCounts?: ReadonlyMap<string, number>;
   cache?: ReturnType<typeof createVerificationCache>;
 } = {}) {
@@ -76,15 +81,41 @@ export function verifier(options: {
   const ashbyBoards = options.cache?.ashbyBoards ?? createVerificationCache().ashbyBoards;
   const observationBoards = options.cache?.observationBoards ?? createVerificationCache().observationBoards;
   const metrics = { requests: 0 };
-  const read = async (url: string) => limiter.run(url, async () => {
+  const read = async (url: string, opts: { maxBytes?: number; redirect?: RequestRedirect } = {}) => limiter.run(url, async () => {
     // A failed daily check is uncertain; next run retries. No minute-long backoff per job.
-    const result = await getJson(url, { attempts: 1, timeoutMs: 15_000 });
+    const result = await getJson(url, { ...opts, attempts: 1, timeoutMs: 15_000 });
     metrics.requests += result.attempts;
     return result;
   });
   const jobicyStatus = createJobicyVerifier(options.queuedJobs ?? [], read);
   const source = async (job: VerifyJob): Promise<Check> => {
+    if (isTestOnlySource(job.source) && !options.allowExperimental) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
     if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
+    if (job.source === "getwork") {
+      if (!getworkTenant.safeParse(job.tenant).success || !getworkId.safeParse(job.source_job_id).success)
+        return { status: "uncertain", detail: "Invalid Getwork verification identity" };
+      // Discovery is a rolling newest-20 window. Verify the known identity directly;
+      // leaving that window is neither disappearance nor a reason to reload the feed.
+      const response = await read(`${GETWORK_ORIGIN}/api/jobs/${job.source_job_id}/`, { maxBytes: 2_000_000, redirect: "error" });
+      if (!response.ok || response.status !== 200)
+        return { status: "uncertain", ...(response.status ? { http_status: response.status } : {}),
+          detail: response.ok ? `Getwork detail HTTP ${response.status}; confirmation withheld`
+            : `Getwork detail: ${safeReason(new Error(response.error))}; closure withheld` };
+      try {
+        const raw = GetworkPosting.parse(response.body);
+        if (raw.id !== job.source_job_id) throw new Error("Identity mismatch");
+        getworkJobUrl(raw.getwork_url, raw.id);
+        if ((raw.apply_url ?? raw.url) !== job.apply_url)
+          return { status: "uncertain", http_status: 200, detail: "Source application URL changed; confirmation withheld" };
+        // Only a complete, identity-matched inactive record proves closure. A 404,
+        // redirect or malformed tombstone is not documented closure evidence.
+        if (!raw.active) return { status: "closed", http_status: 200, detail: "Getwork explicitly reports inactive posting" };
+        const posting = ADAPTERS.getwork.normalize(raw, job.tenant);
+        if (posting.usEligibility !== "us")
+          return { status: "uncertain", http_status: 200, detail: "Source posting eligibility changed or is conflicting; confirmation withheld" };
+        return { status: "open", http_status: 200, detail: "Getwork detail confirms posting" };
+      } catch { return { status: "uncertain", http_status: 200, detail: "Getwork detail validation failed; closure withheld" }; }
+    }
     if (job.source === "ashby") {
       let pending = ashbyBoards.get(job.tenant);
       if (!pending) {
@@ -127,7 +158,14 @@ export function verifier(options: {
           const adapter = ADAPTERS[job.source];
           const postings = new Map<string, NormalizedJob>();
           for (const raw of adapter.parseListing(response.body)) {
-            const normalized = adapter.normalize(raw, job.tenant);
+            // Configured display company is not in the verification queue. This
+            // placeholder is used only to validate the provider record, never persisted.
+            let normalized: NormalizedJob;
+            try { normalized = adapter.normalize(raw, job.tenant, job.tenant); }
+            catch (error) {
+              if (!(error instanceof UnverifiedPostingError)) throw error;
+              continue;
+            }
             if (postings.has(normalized.sourceJobId)) throw new Error("Duplicate source identity");
             postings.set(normalized.sourceJobId, normalized);
           }
@@ -138,6 +176,8 @@ export function verifier(options: {
       try {
         const posting = (await pending).get(job.source_job_id);
         if (!posting) return { status: "uncertain", detail: "Absent from observation feed; closure withheld" };
+        if (isExperimentalSource(job.source) && posting.applyUrl !== job.apply_url)
+          return { status: "uncertain", detail: "Source application URL changed; confirmation withheld" };
         if (posting.sourceExpiresAt && Date.parse(posting.sourceExpiresAt) <= Date.now())
           return { status: "closed", http_status: 200, detail: "Source explicitly reports expired posting" };
         if (posting.usEligibility !== "us")

@@ -1,3 +1,4 @@
+import { isTestOnlySource } from "./lib/source-activation";
 import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
@@ -5,11 +6,13 @@ import { SOURCE_IDS, type SourceId } from "@/lib/jobs-ingest/contract";
 import { loadBoard } from "./lib/load-board";
 import { assertRunnerContext, clientFromEnv } from "./lib/collector-client";
 import { errorLine, safeReason } from "./lib/diagnostics";
-import { prepareBoard, runStateless, TargetSchema } from "./stateless";
+import { prepareBoardForPublication, runStateless, TargetSchema } from "./stateless";
 
 export function resolveMode(source: SourceId, requested: string, activeJson: string) {
   const mode = z.enum(["auto", "dry-run", "publish"]).parse(requested);
   const active = z.array(z.enum(SOURCE_IDS)).parse(JSON.parse(activeJson));
+  if (isTestOnlySource(source) && (mode === "publish" || (mode === "auto" && active.includes(source))))
+    throw new Error("TEST-only source cannot publish");
   if (mode === "publish" && !active.includes(source))
     throw new Error("Source has not been activated for publication");
   return mode === "publish" || (mode === "auto" && active.includes(source)) ? "publish" : "dry-run";
@@ -51,12 +54,14 @@ export async function runSource(source: SourceId, mode: "dry-run" | "publish") {
         const boardStarted = Date.now();
         try {
           const fetched = await loadBoard(target);
-          const prepared = prepareBoard(target, fetched.body, new Date(), {
+          const prepared = await prepareBoardForPublication(target, fetched.body, new Date(), {
             source, tenant: target.tenant, complete: true, identities: [],
           });
           log(JSON.stringify({ stage: "dry_run", board, fetched_count: prepared.fetched_count,
             accepted_count: prepared.rows.length, gates: prepared.gates,
             requests: fetched.attempts, bytes: fetched.bytes, duration_ms: Date.now() - boardStarted,
+            ...(prepared.prepublication ? { prepublication: prepared.prepublication,
+              verification_requests: prepared.prepublication.requests } : {}),
             ...("discovery" in fetched ? { discovery: fetched.discovery } : {}),
             writes: 0 }));
         } catch (error) {

@@ -1,0 +1,318 @@
+{
+  "kind": "latest-cloud-source-and-backend-checkpoint",
+  "reviewed_at": "2026-11-02",
+  "collector_run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+  "collector_commit": "ce8f183152a832deea4136306b95114ba9b9bd9a",
+  "overall_conclusion": "failure",
+  "selected_in_cloud_run": 10,
+  "fully_passed_platforms": 8,
+  "accepted_rows_on_fully_passed_platforms": 734,
+  "accepted_rows_across_successful_fetches": 754,
+  "verified_open": 752,
+  "uncertain": 2,
+  "reports": [
+    {
+      "source": "breezy",
+      "started_at": "2026-11-02T20:57:04.641Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 71,
+      "accepted_count": 45,
+      "rejected_count": 26,
+      "quarantined_count": 0,
+      "accepted_posted_within_15_days_count": 19,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 45,
+      "outcomes": {
+        "open": 45
+      },
+      "fetch_requests": 73,
+      "verification_requests": 111,
+      "errors": [],
+      "unverified_boards": [
+        "breezy:subscribe"
+      ],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "getonboard",
+      "started_at": "2026-11-02T20:58:04.755Z",
+      "success": false,
+      "fetch_success": false,
+      "fetched_count": null,
+      "accepted_count": null,
+      "rejected_count": null,
+      "quarantined_count": null,
+      "accepted_posted_within_15_days_count": 0,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 0,
+      "outcomes": {},
+      "fetch_requests": 1,
+      "verification_requests": 0,
+      "errors": [
+        "HTTP 403"
+      ],
+      "unverified_boards": [
+        "getonboard:public"
+      ],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "getwork",
+      "started_at": "2026-11-02T21:01:36.686Z",
+      "success": false,
+      "fetch_success": true,
+      "fetched_count": 20,
+      "accepted_count": 20,
+      "rejected_count": 0,
+      "quarantined_count": 0,
+      "accepted_posted_within_15_days_count": 20,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 20,
+      "outcomes": {
+        "uncertain": 2,
+        "open": 18
+      },
+      "fetch_requests": 21,
+      "verification_requests": 47,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false,
+      "uncertain_reasons": null,
+      "uncertain_reason_note": "Saved aggregate report contains two uncertain results but no per-job reason details; no cause is inferred."
+    },
+    {
+      "source": "manatal",
+      "started_at": "2026-11-02T20:57:35.755Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 2,
+      "accepted_count": 1,
+      "rejected_count": 0,
+      "quarantined_count": 1,
+      "accepted_posted_within_15_days_count": 0,
+      "unknown_posting_date_count_before_deduplication": 2,
+      "checked": 1,
+      "outcomes": {
+        "open": 1
+      },
+      "fetch_requests": 2,
+      "verification_requests": 2,
+      "errors": [],
+      "unverified_boards": [
+        "manatal:trolley-2"
+      ],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "pinpoint",
+      "started_at": "2026-11-02T20:57:04.145Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 15,
+      "accepted_count": 11,
+      "rejected_count": 4,
+      "quarantined_count": 0,
+      "accepted_posted_within_15_days_count": 3,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 11,
+      "outcomes": {
+        "open": 11
+      },
+      "fetch_requests": 16,
+      "verification_requests": 27,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "railsjobs",
+      "started_at": "2026-11-02T21:03:21.433Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 12,
+      "accepted_count": 7,
+      "rejected_count": 1,
+      "quarantined_count": 4,
+      "accepted_posted_within_15_days_count": 1,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 7,
+      "outcomes": {
+        "open": 7
+      },
+      "fetch_requests": 1,
+      "verification_requests": 8,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "spacejobs",
+      "started_at": "2026-11-02T21:02:51.536Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 600,
+      "accepted_count": 595,
+      "rejected_count": 2,
+      "quarantined_count": 3,
+      "accepted_posted_within_15_days_count": 0,
+      "unknown_posting_date_count_before_deduplication": 597,
+      "checked": 595,
+      "outcomes": {
+        "open": 595
+      },
+      "fetch_requests": 1,
+      "verification_requests": 596,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false,
+      "accepted_unknown_posting_date_count": 595
+    },
+    {
+      "source": "teamtailor",
+      "started_at": "2026-11-02T21:01:15.824Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 4,
+      "accepted_count": 2,
+      "rejected_count": 2,
+      "quarantined_count": 0,
+      "accepted_posted_within_15_days_count": 2,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 2,
+      "outcomes": {
+        "open": 2
+      },
+      "fetch_requests": 1,
+      "verification_requests": 3,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "trakstar",
+      "started_at": "2026-11-02T20:57:48.097Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 4,
+      "accepted_count": 3,
+      "rejected_count": 1,
+      "quarantined_count": 0,
+      "accepted_posted_within_15_days_count": 3,
+      "unknown_posting_date_count_before_deduplication": 0,
+      "checked": 3,
+      "outcomes": {
+        "open": 3
+      },
+      "fetch_requests": 6,
+      "verification_requests": 9,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false
+    },
+    {
+      "source": "yubhub",
+      "started_at": "2026-11-02T20:58:33.001Z",
+      "success": true,
+      "fetch_success": true,
+      "fetched_count": 100,
+      "accepted_count": 70,
+      "rejected_count": 28,
+      "quarantined_count": 2,
+      "accepted_posted_within_15_days_count": 51,
+      "unknown_posting_date_count_before_deduplication": 5,
+      "checked": 70,
+      "outcomes": {
+        "open": 70
+      },
+      "fetch_requests": 101,
+      "verification_requests": 171,
+      "errors": [],
+      "unverified_boards": [],
+      "writes": 0,
+      "production_ready": false
+    }
+  ],
+  "current_test_sources": [
+    "breezy",
+    "getwork",
+    "manatal",
+    "pinpoint",
+    "railsjobs",
+    "spacejobs",
+    "teamtailor",
+    "trakstar",
+    "yubhub"
+  ],
+  "deferred_sources": [
+    "getonboard",
+    "remotebackendjobs"
+  ],
+  "collector_local_checks": {
+    "tests_passed": 474,
+    "typecheck": "passed",
+    "evidence_basis": "Parent-reported latest local checks."
+  },
+  "backend": {
+    "commit": "00f018357b05af7f2ce48cbec58767904c93c828",
+    "evidence_basis": "Parent-verified workflow state and local fix checks; no network lookup during this documentation update.",
+    "full_ci": {
+      "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524185960",
+      "conclusion": "success"
+    },
+    "isolated_acceptance": {
+      "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41524186125",
+      "conclusion": "failure",
+      "full_success": false,
+      "failure": "The isolated harness attempted a 595-row SpaceJobs read in one request; request URL length and the search API 100-ID limit require bounded chunking.",
+      "local_fix": {
+        "status": "ready_uncommitted",
+        "mock_tests_passed": 13,
+        "typecheck": "passed",
+        "lint": "passed",
+        "cloud_rerun_success": false
+      }
+    },
+    "historical_full_isolated_success": {
+      "source_count": 4,
+      "accepted_rows": 59,
+      "sources": [
+        "pinpoint",
+        "breezy",
+        "manatal",
+        "trakstar"
+      ],
+      "run_url": "https://github.com/Sathvik-Chowdary-Veerapaneni/applysmooth/actions/runs/41515300570",
+      "scope": "Historical first-four acceptance only; not proof of current eleven-source end-to-end success."
+    }
+  },
+  "implemented_experimental_platforms": 11,
+  "new_production_platforms": 0,
+  "shared_database_writes": 0,
+  "retained_catalog_comparison": {
+    "accepted_sample_rows": 797,
+    "sample_platforms": 11,
+    "matched_rows": 7,
+    "no_retained_catalog_match_estimate": 790,
+    "proven_historical_unique_jobs": null,
+    "evidence_file": "2026-11-02-eleven-source-overlap.json",
+    "scope": "Earlier local sample includes both now-deferred platforms and Pinpoint 10, not latest cloud Pinpoint 11. No-match is not proof of incremental, historically unique, fresh or live jobs."
+  },
+  "limitations": [
+    "Cloud TEST checks source identity and HTTP application availability, not production ingestion.",
+    "Eight platform passes cover all their accepted rows; zero-accepted peer boards remain explicitly unverified.",
+    "Getwork uncertainty details are unavailable in the saved aggregate artifact.",
+    "SpaceJobs has 595 accepted rows with unknown original publication dates; zero count as proven 15-day freshness.",
+    "Expanded isolated HTTP/Supabase acceptance has not passed; its ready local harness fix is not a successful cloud rerun.",
+    "Disposable isolated database activity is separate from shared/production Supabase; shared database writes remain zero."
+  ]
+}

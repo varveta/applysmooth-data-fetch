@@ -73,6 +73,8 @@ export async function getJson(
     maxBytes?: number;
     baseDelayMs?: number;
     responseType?: "json" | "text";
+    accept?: string;
+    redirect?: RequestRedirect;
   } = {},
 ): Promise<FetchResult> {
   const attempts = opts.attempts ?? 4;
@@ -92,9 +94,9 @@ export async function getJson(
       (0.75 + Math.random() / 2);
     try {
       const res = await fetch(url, {
-        headers: { "User-Agent": USER_AGENT, Accept: opts.responseType === "text" ? "application/xml, text/xml, application/rss+xml" : "application/json" },
+        headers: { "User-Agent": USER_AGENT, Accept: opts.accept ?? (opts.responseType === "text" ? "application/xml, text/xml, application/rss+xml" : "application/json") },
         signal: AbortSignal.timeout(opts.timeoutMs ?? 60_000),
-        redirect: "follow",
+        redirect: opts.redirect ?? "follow",
       });
       if (!res.ok) {
         const retryable =

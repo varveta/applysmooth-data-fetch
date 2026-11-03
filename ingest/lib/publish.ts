@@ -198,7 +198,7 @@ export function createCatalogResolver(db: Store) {
     const row = toCatalogRow(job, {
       firstSeenAt: anchor?.firstSeenAt ?? firstSeenAt,
       duplicates,
-      attribution: ADAPTERS[job.source].attribution(job.tenant),
+      attribution: ADAPTERS[job.source].attribution(job.tenant, job),
     });
     if (anchor) {
       row.id = anchor.catalogId;

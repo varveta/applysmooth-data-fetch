@@ -1,0 +1,363 @@
+{
+  "observed_at_utc": "2026-11-02T21:13:56Z",
+  "mode": "read-only",
+  "external_writes": 0,
+  "secret_values_recorded": false,
+  "scope": [
+    "spacejobs:public",
+    "railsjobs:public"
+  ],
+  "vercel": {
+    "project": {
+      "id": "prj_8IuYGMTJAxHUrhafvIfApYDX1Lor",
+      "name": "applysmooth",
+      "team_id": "team_suA7n06vMkAL0E7g3933FlPS",
+      "team_slug": "abhinaya-veerapaneni-s-projects",
+      "repository": "Sathvik-Chowdary-Veerapaneni/applysmooth",
+      "production_branch": "PROD"
+    },
+    "test_preview": {
+      "branch": "TEST",
+      "alias": "applysmooth-git-test-abhinaya-veerapaneni-s-projects.vercel.app",
+      "deployment_id": "dpl_JoDn6hPJnf41q9H4rJo6xuiR5g1x",
+      "url": "https://applysmooth-7qy70rq3i-abhinaya-veerapaneni-s-projects.vercel.app",
+      "sha": "ef0400472e1c416a3a7ded2826ce7dbf371316d9",
+      "state": "READY",
+      "proven_current_collector_endpoint": false
+    },
+    "candidate_preview": {
+      "branch": "feat/experimental-source-contracts",
+      "deployment_id": "dpl_AztD5CQbCPPeWq9e35MpX8anYWfh",
+      "url": "https://applysmooth-rndtarf8b-abhinaya-veerapaneni-s-projects.vercel.app",
+      "sha": "00f018357b05af7f2ce48cbec58767904c93c828",
+      "state": "READY",
+      "proven_current_collector_endpoint": false,
+      "origin": "Existing automatic Git Preview deployment; no manual writer deployment or endpoint activation performed."
+    },
+    "selected_settings": {
+      "JOBS_COLLECTOR_BOARDS_TEST": {
+        "exit_code": 0,
+        "error": null,
+        "key": "JOBS_COLLECTOR_BOARDS",
+        "target": [
+          "preview"
+        ],
+        "gitBranch": "TEST",
+        "type": "sensitive",
+        "value": null
+      },
+      "JOBS_COLLECTOR_BOARDS_DEFAULT": {
+        "exit_code": 0,
+        "error": null,
+        "key": "JOBS_COLLECTOR_BOARDS",
+        "target": [
+          "preview"
+        ],
+        "gitBranch": null,
+        "type": "encrypted",
+        "value": "ashby:openai"
+      },
+      "JOBS_COLLECTOR_ALLOW_SHARED_DB": {
+        "exit_code": 0,
+        "error": null,
+        "key": "JOBS_COLLECTOR_ALLOW_SHARED_DB",
+        "target": [
+          "preview"
+        ],
+        "gitBranch": null,
+        "type": "encrypted",
+        "value": "qhilcyvwvesqfuykdows"
+      },
+      "JOBS_COLLECTOR_ENABLED": {
+        "exit_code": 0,
+        "error": null,
+        "key": "JOBS_COLLECTOR_ENABLED",
+        "target": [
+          "preview"
+        ],
+        "gitBranch": null,
+        "type": "encrypted",
+        "value": "true"
+      },
+      "NEXT_PUBLIC_SUPABASE_URL": {
+        "exit_code": 0,
+        "error": null,
+        "key": "NEXT_PUBLIC_SUPABASE_URL",
+        "target": [
+          "production",
+          "preview"
+        ],
+        "gitBranch": null,
+        "type": "encrypted",
+        "value": "https://qhilcyvwvesqfuykdows.supabase.co"
+      }
+    },
+    "environment_list_access": {
+      "connector": "403 forbidden",
+      "same_project_cli": "success",
+      "secret_values_requested": false,
+      "selected_nonsecret_settings_only": true
+    },
+    "writer_endpoint_status": "GitHub environment secret is write-only; no selected local copy found. TEST branch mapping verified, but actual endpoint binding not proven.",
+    "runtime_log_check": {
+      "requested_window": "55m",
+      "matching_log_groups": 0,
+      "limitation": "Hobby runtime retention one hour; older requested window rejected; no inference that no collector requests occurred."
+    }
+  },
+  "github": {
+    "repository": "varveta/applysmooth-data-fetch",
+    "owner_type": "User",
+    "default_branch": "main",
+    "variables": {
+      "repository": {
+        "total_count": 2,
+        "selected": [
+          {
+            "name": "JOBS_ACTIVE_SOURCES",
+            "value": "[\"ashby\", \"greenhouse\", \"lever\", \"smartrecruiters\", \"workable\", \"personio\", \"recruitee\", \"jobicy\", \"himalayas\", \"weworkremotely\", \"remoteok\", \"remotive\"]",
+            "created_at": "2026-10-28T04:47:10Z",
+            "updated_at": "2026-10-28T04:47:10Z"
+          },
+          {
+            "name": "JOBS_SOURCE_NOT_BEFORE",
+            "value": "{\"jobicy\": \"2026-10-28T05:30:00Z\", \"remotive\": \"2026-10-29T04:30:00Z\"}",
+            "created_at": "2026-10-28T04:44:03Z",
+            "updated_at": "2026-10-28T04:44:03Z"
+          }
+        ]
+      },
+      "test_environment": {
+        "total_count": 0,
+        "selected": []
+      },
+      "organization": {
+        "http_error": "Not Found",
+        "exit_code": 1
+      }
+    },
+    "collector_secret_metadata": {
+      "repository": {
+        "exit_code": 0,
+        "total_count": 0,
+        "selected_metadata": []
+      },
+      "test_environment": {
+        "exit_code": 0,
+        "total_count": 5,
+        "selected_metadata": [
+          {
+            "name": "COLLECTOR_ENDPOINT",
+            "created_at": "2026-10-24T16:08:59Z",
+            "updated_at": "2026-10-28T04:44:03Z"
+          },
+          {
+            "name": "COLLECTOR_TOKEN",
+            "created_at": "2026-10-24T16:07:45Z",
+            "updated_at": "2026-10-24T16:07:45Z"
+          },
+          {
+            "name": "COLLECTOR_VERCEL_BYPASS",
+            "created_at": "2026-10-24T16:07:45Z",
+            "updated_at": "2026-10-24T16:07:45Z"
+          }
+        ]
+      }
+    },
+    "organization_variables_note": "Repository owner type is User; organization variable inheritance is not applicable. Organization endpoint returned 404 because there is no matching organization scope.",
+    "effective_variable_scope": "repository; test environment contains zero variables"
+  },
+  "database": {
+    "project_id": "qhilcyvwvesqfuykdows",
+    "project_url": "https://qhilcyvwvesqfuykdows.supabase.co",
+    "migration_summary": {
+      "applied_migrations": 86,
+      "latest_version": "20261028135055",
+      "expansion_applied": false
+    },
+    "source_history_counts": [
+      {
+        "source": "spacejobs",
+        "catalog_all_tenants": 0,
+        "catalog_public": 0,
+        "tombstones": 0,
+        "identities": 0,
+        "aliases": 0,
+        "seeds": 0,
+        "boards": 0,
+        "runs": 0
+      },
+      {
+        "source": "railsjobs",
+        "catalog_all_tenants": 0,
+        "catalog_public": 0,
+        "tombstones": 0,
+        "identities": 0,
+        "aliases": 0,
+        "seeds": 0,
+        "boards": 0,
+        "runs": 0
+      }
+    ],
+    "unmapped_tombstones": 0,
+    "latest_migrations": [
+      {
+        "version": "20261028135055",
+        "name": "job_catalog_renew_on_reseen"
+      },
+      {
+        "version": "20261028050721",
+        "name": "job_collector_shared_lease_lock"
+      },
+      {
+        "version": "20261028043706",
+        "name": "job_verification_retry_cooldown"
+      },
+      {
+        "version": "20261028042755",
+        "name": "job_source_expansion"
+      },
+      {
+        "version": "20261028010000",
+        "name": "job_collector_public_readers"
+      },
+      {
+        "version": "20261027050000",
+        "name": "job_collector_scoped_identities"
+      },
+      {
+        "version": "20261027040000",
+        "name": "job_collector_identity_quarantine"
+      },
+      {
+        "version": "20261027030000",
+        "name": "job_collector_lifecycle_api"
+      }
+    ],
+    "expansion_constraint_count": 0,
+    "function_baseline_comparison": [
+      {
+        "signature": "job_collector_lifecycle_run(boolean,text[])",
+        "definition_md5": "ee2626e9f570d8a2e9ed3890040c5189",
+        "security_definer": true,
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "repository_baseline": "supabase/migrations/20261028020000_job_source_expansion.sql",
+        "body_exact_match": true,
+        "body_whitespace_comments_normalized_match": true,
+        "baseline_body_sha256": "c80d060de298c2100804b2a43b38f7c6918aa614f0baeb7ba508452347b82cc2",
+        "hosted_body_sha256": "c80d060de298c2100804b2a43b38f7c6918aa614f0baeb7ba508452347b82cc2"
+      },
+      {
+        "signature": "job_collector_source_supported(text)",
+        "definition_md5": "cfb69b10f1be6aa25d3022175504ac3c",
+        "security_definer": false,
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "repository_baseline": "supabase/migrations/20261028020000_job_source_expansion.sql",
+        "body_exact_match": true,
+        "body_whitespace_comments_normalized_match": true,
+        "baseline_body_sha256": "052b79baadc79313f93f2bf5025ea7118468fea365a759cc518807fd88cf99c3",
+        "hosted_body_sha256": "052b79baadc79313f93f2bf5025ea7118468fea365a759cc518807fd88cf99c3"
+      },
+      {
+        "signature": "job_collector_verify_queue(integer,text[])",
+        "definition_md5": "af4c22f5a6c9b2983f46e087d9fc99d0",
+        "security_definer": true,
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "repository_baseline": "supabase/migrations/20261028030000_job_verification_retry_cooldown.sql",
+        "body_exact_match": true,
+        "body_whitespace_comments_normalized_match": true,
+        "baseline_body_sha256": "3477cec6f4ab9c9b9dff0bdcbdd94b6ec4359d1ebddf6e35ce559951bb6eca9e",
+        "hosted_body_sha256": "3477cec6f4ab9c9b9dff0bdcbdd94b6ec4359d1ebddf6e35ce559951bb6eca9e"
+      },
+      {
+        "signature": "job_collector_verify_results(uuid,jsonb,text[])",
+        "definition_md5": "2079a595def280032105bcdfc88bff92",
+        "security_definer": true,
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "repository_baseline": "supabase/migrations/20261028020000_job_source_expansion.sql",
+        "body_exact_match": true,
+        "body_whitespace_comments_normalized_match": true,
+        "baseline_body_sha256": "4b3339969bdb12a034e22582ca773aa4f57d63ee05ded1856b18854228f4ce39",
+        "hosted_body_sha256": "4b3339969bdb12a034e22582ca773aa4f57d63ee05ded1856b18854228f4ce39"
+      }
+    ]
+  },
+  "migration": {
+    "path": "supabase/migrations/20261102193000_job_experimental_source_contracts.sql",
+    "sha256": "9ecab3145f99de5b2604de59b2fc4863f50ddf72ff169f9c8802ebdf8a4d8fe2",
+    "recommended_apply_method": "Single reviewed SQL document via supabase.apply_migration after approval. Do not db push or repair existing migration versions.",
+    "function_changes": "Each of the four copied bodies changes only its supported source list; exact hosted baseline body equality verified."
+  },
+  "proposal_validation": {
+    "mode": "disposable filesystem copy of current collector including current uncommitted changes",
+    "pnpm_test": "passed",
+    "test_files": 36,
+    "tests": 504,
+    "existing_tests": 474,
+    "additional_proposal_checks": 30,
+    "dedicated_guard_checks": 17,
+    "pnpm_typecheck": "passed",
+    "initial_patch_apply_check": "passed",
+    "conditional_patch_apply_check": "passed after initial patch",
+    "initial_patch_sha256": "5dc0e6c8c4dbf4e9b4ecf59f3474e576b3c0419d891e89e66ca8ac0c3829190f",
+    "actual_activation_files_changed": false,
+    "external_writes": 0,
+    "network_used": false
+  },
+  "cloud_source_link_checks": {
+    "run_id": 41523776620,
+    "url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41523776620",
+    "spacejobs": {
+      "conclusion": "success",
+      "accepted": 595
+    },
+    "railsjobs": {
+      "conclusion": "success",
+      "accepted": 7
+    },
+    "getonboard": {
+      "conclusion": "failure",
+      "http_status": 403,
+      "initial_scope": false
+    }
+  },
+  "latest_disposable_patch_validation": {
+    "base_commit": "92e3d074027082af1db1c18fa78b9c3bac754949",
+    "includes_uncommitted_scope": [
+      "remotefirstjobs",
+      "getwork_prepublication"
+    ],
+    "test_count": 533,
+    "test_files": 38,
+    "typecheck": "passed",
+    "initial_patch_sha256": "5dc0e6c8c4dbf4e9b4ecf59f3474e576b3c0419d891e89e66ca8ac0c3829190f",
+    "prepatch_file_manifest_sha256": "ec7cb52611052b4f652e3f923be10835913001d649654d05ab55e16a5ea3b4c2",
+    "conditional_getonboard_patch_apply_check": "passed",
+    "network_requests": 0,
+    "database_writes": 0
+  },
+  "writer_readiness_pr": {
+    "url": "https://github.com/varveta/applysmooth-data-fetch/pull/18",
+    "commit": "7548bbfd88dc7593b93c9753824344b5de959511",
+    "state": "merged_diagnostic_only_approved",
+    "local_tests": 343,
+    "ci_run": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41529720399",
+    "ci": "success",
+    "environment_branch_policy": "main_only",
+    "expected_boards": 49,
+    "operation": "board_identities",
+    "posting_ids": [],
+    "dispatched": true,
+    "purpose": "Confirm endpoint match and current configured-board coverage without extracting secrets or writing catalog/identity/run/lease/storage data.",
+    "merge_commit": "d6208c0abb36b4df505c3fef6e01f3a135712d3b",
+    "run_url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41532514498",
+    "result": {
+      "endpoint_matches_verified_TEST_alias": false,
+      "configuration_matches_audited_boards": true,
+      "credentials_present": true,
+      "checked_boards": 0,
+      "success": false
+    },
+    "production_activation_approved": false
+  }
+}

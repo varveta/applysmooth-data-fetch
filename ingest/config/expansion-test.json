@@ -1,0 +1,69 @@
+{
+  "targets": [
+    {
+      "source": "pinpoint",
+      "tenant": "groupo",
+      "company": "Group O"
+    },
+    {
+      "source": "breezy",
+      "tenant": "embraer",
+      "company": "Embraer"
+    },
+    {
+      "source": "breezy",
+      "tenant": "subscribe",
+      "company": "SUBSCRIBE"
+    },
+    {
+      "source": "manatal",
+      "tenant": "primary-care-collaborative",
+      "company": "Primary Care Collaborative"
+    },
+    {
+      "source": "manatal",
+      "tenant": "trolley-2",
+      "company": "Trolley"
+    },
+    {
+      "source": "trakstar",
+      "tenant": "elevate97",
+      "company": "Elevate97"
+    },
+    {
+      "source": "trakstar",
+      "tenant": "valtasgroup",
+      "company": "Valtas Group"
+    },
+    {
+      "source": "yubhub",
+      "tenant": "public",
+      "company": "YubHub"
+    },
+    {
+      "source": "teamtailor",
+      "tenant": "varnish-software",
+      "company": "Varnish Software"
+    },
+    {
+      "source": "getwork",
+      "tenant": "public",
+      "company": "getwork.dev"
+    },
+    {
+      "source": "spacejobs",
+      "tenant": "public",
+      "company": "SpaceJobs.Now"
+    },
+    {
+      "source": "railsjobs",
+      "tenant": "public",
+      "company": "Rails Job Board"
+    },
+    {
+      "source": "remotefirstjobs",
+      "tenant": "public",
+      "company": "Remote First Jobs"
+    }
+  ]
+}

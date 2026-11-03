@@ -1,0 +1,19 @@
+{
+  "targets": [
+    {
+      "source": "pinpoint",
+      "tenant": "groupo",
+      "company": "Group O"
+    },
+    {
+      "source": "breezy",
+      "tenant": "embraer",
+      "company": "Embraer"
+    },
+    {
+      "source": "breezy",
+      "tenant": "subscribe",
+      "company": "SUBSCRIBE"
+    }
+  ]
+}

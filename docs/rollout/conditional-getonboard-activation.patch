@@ -1,0 +1,52 @@
+--- a/ingest/lib/source-activation.ts
++++ b/ingest/lib/source-activation.ts
+@@ -1,6 +1,6 @@
+ import { isExperimentalSource, type SourceId } from "@/lib/jobs-ingest/contract";
+
+ /** Approved publication scope; runtime JOBS_ACTIVE_SOURCES remains required. */
+-export const APPROVED_PUBLIC_FEEDS = ["spacejobs", "railsjobs"] as const;
++export const APPROVED_PUBLIC_FEEDS = ["spacejobs", "railsjobs", "getonboard"] as const;
+ export const isTestOnlySource = (source: SourceId) =>
+   isExperimentalSource(source) && !(APPROVED_PUBLIC_FEEDS as readonly string[]).includes(source);
+--- a/ingest/config/sources.json
++++ b/ingest/config/sources.json
+@@ -334,6 +334,16 @@
+           "company": "Rails Job Board"
+         }
+       ]
++    },
++    "getonboard": {
++      "schedule_utc": "32 6 * * *",
++      "targets": [
++        {
++          "source": "getonboard",
++          "tenant": "public",
++          "company": "Get on Board"
++        }
++      ]
+     }
+   }
+ }
+--- /dev/null
++++ b/.github/workflows/jobs-getonboard.yml
+@@ -0,0 +1,20 @@
++name: Jobs - getonboard
++on:
++  workflow_dispatch:
++    inputs:
++      mode:
++        description: Auto publishes only explicitly activated sources
++        type: choice
++        options: [auto, dry-run, publish]
++        default: dry-run
++  schedule:
++    - cron: '32 6 * * *'
++permissions:
++  contents: read
++jobs:
++  source:
++    uses: ./.github/workflows/source-pipeline.yml
++    with:
++      source: getonboard
++      mode: ${{ github.event_name == 'schedule' && 'auto' || inputs.mode }}
++    secrets: inherit

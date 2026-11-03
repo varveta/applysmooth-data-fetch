@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { validateTargets } from "../../../ingest/validate-targets";
 import { ATS_ADAPTERS, parsePersonioXml } from "./ats-adapters";
 
 const description = "<p>Build dependable software systems with TypeScript and SQL.</p>";
@@ -116,4 +117,17 @@ describe("public ATS normalization", () => {
     expect(() => ATS_ADAPTERS.recruitee.parseListing({ offers: [recruitee, recruitee] })).toThrow(/Duplicate/);
     expect(() => parsePersonioXml(personio(position + position))).toThrow(/Duplicate/);
   });
+});
+
+
+it("rejects empty Personio descriptions per job while retaining valid peers", async () => {
+  const good = position.replace(description, description.repeat(12));
+  const empty = position.replace("00123", "00456").replace(/<jobDescriptions>[\s\S]*?<\/jobDescriptions>/, "<jobDescriptions/>");
+  const report = await validateTargets({ targets: [{ source: "personio", tenant: "example", company: "Example" }] }, {
+    now: new Date("2026-11-02T00:00:00Z"),
+    get: async () => ({ ok: true, status: 200, body: personio(good + empty), bytes: 100, attempts: 1 }),
+  });
+  expect(report.boards[0]).toMatchObject({ success: true, fetched_count: 2, accepted_count: 1,
+    rejected_count: 1, reason_counts: { description_too_short: 1 } });
+  expect(() => parsePersonioXml(personio(empty.replace("<jobDescriptions/>", "<jobDescriptions>unexpected text</jobDescriptions>")))).toThrow();
 });

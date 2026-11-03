@@ -1,0 +1,107 @@
+{
+  "mode": "read-only-current-catalog-comparison",
+  "observed_at": "2026-11-02T20:01:12Z",
+  "project": "qhilcyvwvesqfuykdows",
+  "shared_database_writes": 0,
+  "configured_production_platforms": 12,
+  "platforms_with_active_catalog_rows": 11,
+  "platforms_without_stored_rows": [
+    "personio"
+  ],
+  "stored_rows": 7620,
+  "active_nonexpired_rows": 7085,
+  "active_row_scope": "status=published and expires_at>now; not the anonymous seven-day delay",
+  "sample_basis": "59 accepted rows from local source preview at 2026-11-02T19:34:36.333Z",
+  "comparison_method": [
+    "Application URL: lowercase, remove fragment and query, trim trailing slash; compare hashes against every retained catalog row.",
+    "Company and title: lowercase, trim and collapse whitespace; compare pair hashes against every retained catalog row."
+  ],
+  "limitations": [
+    "Retained current catalog only; not deleted history.",
+    "Different URLs or changed company/title strings can hide duplicate jobs.",
+    "No duplicate suppression or source activation changed.",
+    "Freshness uses original dates within 15 days, excluding future and unknown dates."
+  ],
+  "sources": [
+    {
+      "source": "pinpoint",
+      "sampled_accepted": 10,
+      "original_posted_within_15_days": 2,
+      "same_application_url_any_stored": 0,
+      "same_company_title_any_stored": 0,
+      "same_application_url_visible": 0
+    },
+    {
+      "source": "breezy",
+      "sampled_accepted": 45,
+      "original_posted_within_15_days": 19,
+      "same_application_url_any_stored": 0,
+      "same_company_title_any_stored": 0,
+      "same_application_url_visible": 0
+    },
+    {
+      "source": "manatal",
+      "sampled_accepted": 1,
+      "original_posted_within_15_days": 0,
+      "same_application_url_any_stored": 0,
+      "same_company_title_any_stored": 0,
+      "same_application_url_visible": 0
+    },
+    {
+      "source": "trakstar",
+      "sampled_accepted": 3,
+      "original_posted_within_15_days": 3,
+      "same_application_url_any_stored": 0,
+      "same_company_title_any_stored": 0,
+      "same_application_url_visible": 0
+    }
+  ],
+  "personio_validation": {
+    "mode": "read-only-validation",
+    "success": true,
+    "started_at": "2026-11-02T20:02:17.319Z",
+    "duration_ms": 852,
+    "writes": 0,
+    "fresh_posting_window_days": 15,
+    "freshness_basis": "original_posted_at; future and unknown dates excluded",
+    "identity_basis": "empty_snapshot",
+    "live_ingestion_verified": false,
+    "reason_count_basis": "pre_deduplication_quality_gates; reasons may overlap",
+    "boards": [
+      {
+        "board": "personio:ailylabs",
+        "company": "Aily Labs",
+        "success": true,
+        "fetched_count": 6,
+        "accepted_count": 0,
+        "rejected_count": 6,
+        "quarantined_count": 0,
+        "quality_accepted_count": 0,
+        "deduplicated_count": 0,
+        "reason_counts": {
+          "posting_too_old": 5,
+          "not_us": 3
+        },
+        "us_eligible_count": 3,
+        "known_recent_posting_count": 1,
+        "posted_within_15_days_count": 0,
+        "accepted_posted_within_15_days_count": 0,
+        "unknown_posting_date_count": 0,
+        "requests": 1,
+        "bytes": 50224,
+        "duration_ms": 852,
+        "writes": 0
+      }
+    ]
+  },
+  "personio_latest_schedule": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41498457799",
+  "greenhouse_latest_schedule": {
+    "url": "https://github.com/varveta/applysmooth-data-fetch/actions/runs/41490393421",
+    "failed_boards": [
+      "greenhouse:roblox",
+      "greenhouse:andurilindustries"
+    ],
+    "reason": "Collector retries exhausted: HTTP 502",
+    "other_boards_completed": true
+  }
+}
