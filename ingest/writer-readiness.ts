@@ -7,6 +7,13 @@ import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
 import { TargetSchema } from "./stateless";
 
 export const VERIFIED_TEST_ENDPOINT = "https://applysmooth-git-test-abhinaya-veerapaneni-s-projects.vercel.app/api/jobs-collector";
+/** Verified READY deployments in the existing ApplySmooth project; never user-supplied URLs. */
+export const VERIFIED_WRITER_ENDPOINTS = [
+  VERIFIED_TEST_ENDPOINT,
+  "https://applysmooth-kx2xfotcv-abhinaya-veerapaneni-s-projects.vercel.app/api/jobs-collector",
+  "https://applysmooth-2xgzzeca4-abhinaya-veerapaneni-s-projects.vercel.app/api/jobs-collector",
+  "https://applysmooth-6cmkedi0i-abhinaya-veerapaneni-s-projects.vercel.app/api/jobs-collector",
+] as const;
 export const MAX_RESPONSE_BYTES = 8192;
 export const REQUEST_TIMEOUT_MS = 10_000;
 /** Audited active configuration and persisted database scopes on November 2, 2026. */
@@ -80,7 +87,9 @@ export async function runWriterReadiness(options: {
   log?: (line: string) => void;
 }) {
   const log = options.log ?? console.log;
+  const matchedEndpoint = VERIFIED_WRITER_ENDPOINTS.find(endpoint => endpoint === options.endpoint);
   const report = {
+    verified_writer_candidate: matchedEndpoint ? VERIFIED_WRITER_ENDPOINTS.indexOf(matchedEndpoint) : null,
     endpoint_matches_verified_TEST_alias: options.endpoint === VERIFIED_TEST_ENDPOINT,
     configuration_matches_audited_boards: matchesAuditedConfiguration(options.config, options.activeSourcesJson),
     credentials_present: typeof options.token === "string" && options.token.length >= 32,
@@ -88,7 +97,7 @@ export async function runWriterReadiness(options: {
     success: false,
   };
   const finish = () => { log(JSON.stringify(report)); return report; };
-  if (!report.endpoint_matches_verified_TEST_alias || !report.configuration_matches_audited_boards || !report.credentials_present)
+  if (!matchedEndpoint || !report.configuration_matches_audited_boards || !report.credentials_present)
     return finish();
   const fetcher = options.fetcher ?? fetch;
   const wait = options.wait ?? sleep;
@@ -100,14 +109,14 @@ export async function runWriterReadiness(options: {
     let valid = false;
     report.checked_boards++;
     try {
-      const response = await fetcher(VERIFIED_TEST_ENDPOINT, {
+      const response: Response = await fetcher(matchedEndpoint, {
         method: "POST", redirect: "error", signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${options.token}`,
           ...(options.bypass ? { "x-vercel-protection-bypass": options.bypass } : {}) },
         body: JSON.stringify({ operation: "board_identities", run_id, source, tenant, posting_ids: [] }),
       });
       status = response.status;
-      if (response.status !== 200 || response.redirected || (response.url && response.url !== VERIFIED_TEST_ENDPOINT))
+      if (response.status !== 200 || response.redirected || (response.url && response.url !== matchedEndpoint))
         await response.body?.cancel();
       else {
         const snapshot = SnapshotSchema.parse(await boundedSnapshot(response));

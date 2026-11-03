@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import {
-  AUDITED_BOARDS, MAX_RESPONSE_BYTES, VERIFIED_TEST_ENDPOINT,
+  AUDITED_BOARDS, MAX_RESPONSE_BYTES, VERIFIED_TEST_ENDPOINT, VERIFIED_WRITER_ENDPOINTS,
   matchesAuditedConfiguration, runWriterReadiness, trustedReadinessRunner,
 } from "./writer-readiness";
 
@@ -24,7 +24,7 @@ function setup(fetcher = vi.fn<typeof fetch>(async (_url, init) => Response.json
 it("reads exactly the 49 configured boards serially with empty identity scope and no retries", async () => {
   const { options, logs, fetcher, wait } = setup();
   const report = await runWriterReadiness(options);
-  expect(report).toEqual({ endpoint_matches_verified_TEST_alias: true, configuration_matches_audited_boards: true,
+  expect(report).toEqual({ verified_writer_candidate: 0, endpoint_matches_verified_TEST_alias: true, configuration_matches_audited_boards: true,
     credentials_present: true, expected_boards: 49, checked_boards: 49, passed_boards: 49, failed_boards: 0, success: true });
   expect(fetcher).toHaveBeenCalledTimes(49);
   expect(wait).toHaveBeenCalledTimes(48);
@@ -170,4 +170,16 @@ describe("trusted scope", () => {
     expect(workflow).not.toMatch(/\n  (schedule|push|pull_request):/);
     expect(workflow).not.toMatch(/upload-artifact|cache\/restore|ingest\/scheduled|permissions:[\s\S]*contents: write/);
   });
+});
+
+it.each(VERIFIED_WRITER_ENDPOINTS.slice(1))("checks only the exact matched deployed writer", async endpoint => {
+  const { options, fetcher, logs } = setup();
+  expect(await runWriterReadiness({ ...options, endpoint })).toMatchObject({
+    verified_writer_candidate: VERIFIED_WRITER_ENDPOINTS.indexOf(endpoint), passed_boards: 49, success: true,
+  });
+  expect(fetcher.mock.calls.every(([url]) => url === endpoint)).toBe(true);
+  expect(logs.join("\n")).not.toContain(endpoint);
+  fetcher.mockClear();
+  expect(await runWriterReadiness({ ...options, endpoint: endpoint + "?extra=1" })).toMatchObject({success: false});
+  expect(fetcher).not.toHaveBeenCalled();
 });
