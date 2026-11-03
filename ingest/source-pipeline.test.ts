@@ -1,6 +1,7 @@
+import { APPROVED_PUBLIC_FEEDS, isTestOnlySource } from "./lib/source-activation";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { SOURCE_IDS, isExperimentalSource } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
 import { resolveMode, targetsFor, sourceNotBefore } from "./source-pipeline";
 
 it("requires explicit activation before publishing while allowing secret-free testing", () => {
@@ -11,7 +12,7 @@ it("requires explicit activation before publishing while allowing secret-free te
   expect(() => resolveMode("jobicy", "auto", '["unknown"]')).toThrow();
 });
 
-describe.each(SOURCE_IDS.filter(source => !isExperimentalSource(source)))("%s independent pipeline", (source) => {
+describe.each(SOURCE_IDS.filter(source => !isTestOnlySource(source)))("%s independent pipeline", (source) => {
   it("has only its own distinct configured boards and an isolated workflow", () => {
     const targets = targetsFor(source);
     expect(targets.every((target) => target.source === source)).toBe(true);
@@ -40,4 +41,16 @@ it("skips early polling without blocking other sources or future eligible runs",
   expect(sourceNotBefore("ashby", budget, new Date("2026-10-28T05:00:00Z"))).toBeNull();
   expect(sourceNotBefore("remotive", budget, new Date("2026-10-29T05:00:00Z"))).toBeNull();
   expect(() => sourceNotBefore("remotive", '{"remotive":"invalid"}')).toThrow();
+});
+
+it.each(APPROVED_PUBLIC_FEEDS)("requires separate runtime activation for approved %s", source => {
+  expect(resolveMode(source, "auto", "[]")).toBe("dry-run");
+  expect(() => resolveMode(source, "publish", "[]")).toThrow("not been activated");
+  expect(resolveMode(source, "auto", JSON.stringify([source]))).toBe("publish");
+  expect(resolveMode(source, "dry-run", JSON.stringify([source]))).toBe("dry-run");
+  expect(targetsFor(source).map(target => target.tenant)).toEqual(["public"]);
+});
+it.each(SOURCE_IDS.filter(isTestOnlySource))("keeps unapproved %s blocked even if runtime activation is misconfigured", source => {
+  expect(() => resolveMode(source, "publish", JSON.stringify([source]))).toThrow("TEST-only");
+  expect(() => resolveMode(source, "auto", JSON.stringify([source]))).toThrow("TEST-only");
 });

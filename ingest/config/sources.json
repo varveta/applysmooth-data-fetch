@@ -314,6 +314,26 @@
           "company": "Group O"
         }
       ]
+    },
+    "spacejobs": {
+      "schedule_utc": "37 6 * * *",
+      "targets": [
+        {
+          "source": "spacejobs",
+          "tenant": "public",
+          "company": "SpaceJobs.Now"
+        }
+      ]
+    },
+    "railsjobs": {
+      "schedule_utc": "42 6 * * *",
+      "targets": [
+        {
+          "source": "railsjobs",
+          "tenant": "public",
+          "company": "Rails Job Board"
+        }
+      ]
     }
   }
 }

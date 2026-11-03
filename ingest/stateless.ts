@@ -1,10 +1,11 @@
+import { isTestOnlySource } from "./lib/source-activation";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { ADAPTERS } from "@/lib/jobs-ingest/adapters";
 import { toCatalogRow } from "@/lib/jobs-ingest/catalog";
-import { SOURCE_IDS, isExperimentalSource, type CatalogRow, type NormalizedJob } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS, type CatalogRow, type NormalizedJob } from "@/lib/jobs-ingest/contract";
 import { dedupe } from "@/lib/jobs-ingest/dedupe";
 import { evaluateGates, type GateStatus } from "@/lib/jobs-ingest/gates";
 import { sha256 } from "@/lib/jobs-ingest/text";
@@ -234,7 +235,7 @@ export async function runStateless(options: {
   log?: (line: string) => void;
 }) {
   const targets = z.array(TargetSchema).min(1).parse(options.targets);
-  if (targets.some(target => isExperimentalSource(target.source)))
+  if (targets.some(target => isTestOnlySource(target.source)))
     throw new CollectorError("TEST-only source cannot publish");
   if (new Set(targets.map((t) => `${t.source}:${t.tenant}`)).size !== targets.length)
     throw new CollectorError("Duplicate configured board");

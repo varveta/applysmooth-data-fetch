@@ -1,7 +1,8 @@
+import { isTestOnlySource } from "./lib/source-activation";
 import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
-import { SOURCE_IDS, isExperimentalSource, type SourceId } from "@/lib/jobs-ingest/contract";
+import { SOURCE_IDS, type SourceId } from "@/lib/jobs-ingest/contract";
 import { loadBoard } from "./lib/load-board";
 import { assertRunnerContext, clientFromEnv } from "./lib/collector-client";
 import { errorLine, safeReason } from "./lib/diagnostics";
@@ -10,7 +11,7 @@ import { prepareBoardForPublication, runStateless, TargetSchema } from "./statel
 export function resolveMode(source: SourceId, requested: string, activeJson: string) {
   const mode = z.enum(["auto", "dry-run", "publish"]).parse(requested);
   const active = z.array(z.enum(SOURCE_IDS)).parse(JSON.parse(activeJson));
-  if (isExperimentalSource(source) && (mode === "publish" || (mode === "auto" && active.includes(source))))
+  if (isTestOnlySource(source) && (mode === "publish" || (mode === "auto" && active.includes(source))))
     throw new Error("TEST-only source cannot publish");
   if (mode === "publish" && !active.includes(source))
     throw new Error("Source has not been activated for publication");

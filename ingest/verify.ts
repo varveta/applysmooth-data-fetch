@@ -1,3 +1,4 @@
+import { isTestOnlySource } from "./lib/source-activation";
 import { isIP } from "node:net";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
@@ -88,7 +89,7 @@ export function verifier(options: {
   });
   const jobicyStatus = createJobicyVerifier(options.queuedJobs ?? [], read);
   const source = async (job: VerifyJob): Promise<Check> => {
-    if (isExperimentalSource(job.source) && !options.allowExperimental) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
+    if (isTestOnlySource(job.source) && !options.allowExperimental) return { status: "uncertain", detail: "TEST-only source has no approved closure verification" };
     if (job.source === "jobicy") return jobicyStatus(job.source_job_id);
     if (job.source === "getwork") {
       if (!getworkTenant.safeParse(job.tenant).success || !getworkId.safeParse(job.source_job_id).success)
