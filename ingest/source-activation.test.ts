@@ -13,6 +13,11 @@ vi.mock("./lib/load-board", async importOriginal => ({
 
 const description = `<p>${"Build reliable software and maintain production services. ".repeat(12)}</p>`;
 const fixtures = {
+  remotefirstjobs: {
+    id: "software-engineer-123", url: "https://remotefirstjobs.com/companies/example/jobs/software-engineer-123",
+    title: "Software Engineer", company_name: "Example", description, locations: ["United States"],
+    published_at: "2026-11-02T09:00:00", category: "software-development",
+  },
   spacejobs: {
     referencenumber: "2570d7e745f1", title: "Software Engineer", company: "Example Employer",
     url: "https://spacejobs.now/jobs/software-engineer-2570d7e745f1?utm_source=job-feed&utm_medium=job-feed&utm_campaign=us",
@@ -25,7 +30,7 @@ const fixtures = {
     guid: "https://jobs.rubyonrails.org/jobs/1-software-engineer",
   },
 };
-const approved = ["spacejobs", "railsjobs"] as const;
+const approved = ["spacejobs", "railsjobs", "remotefirstjobs"] as const;
 const now = new Date("2026-11-02T21:00:00Z");
 const getBoard = vi.mocked(loadBoard);
 const target = (source: SourceId) => ({ source, tenant: "public", company: "Example feed" });
@@ -84,7 +89,9 @@ describe.each(approved)("approved %s entry guards", source => {
   });
 
   it("withholds confirmation when a still-valid provider application URL changes", async () => {
-    const raw = source === "spacejobs"
+    const raw = source === "remotefirstjobs"
+      ? { ...fixtures.remotefirstjobs, url: fixtures.remotefirstjobs.url.replace("/example/", "/another/") }
+      : source === "spacejobs"
       ? { ...fixtures.spacejobs, url: fixtures.spacejobs.url.replace("software-engineer-", "senior-engineer-") }
       : { ...fixtures.railsjobs, link: fixtures.railsjobs.link.replace("software-engineer", "senior-engineer"),
         guid: fixtures.railsjobs.guid.replace("software-engineer", "senior-engineer") };
@@ -95,7 +102,9 @@ describe.each(approved)("approved %s entry guards", source => {
   });
 
   it("withholds confirmation when US eligibility becomes unclear or excluded", async () => {
-    const raw = source === "spacejobs"
+    const raw = source === "remotefirstjobs"
+      ? { ...fixtures.remotefirstjobs, locations: ["Canada"] }
+      : source === "spacejobs"
       ? { ...fixtures.spacejobs, country: "CA", eligiblecountries: "CA", location: "Toronto, Canada" }
       : { ...fixtures.railsjobs, description: `<p>Location: Remote US</p>${description}<p>We cannot hire candidates in the United States.</p>` };
     getBoard.mockResolvedValue(board([raw]));
