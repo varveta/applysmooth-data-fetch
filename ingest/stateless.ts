@@ -42,17 +42,23 @@ const CompleteAck = z.object({
 // legitimate large row may exceed the target, but must still fit the hard limit.
 export const MAX_PUBLISH_BATCH_ROWS = 25;
 export const TARGET_PUBLISH_BATCH_BYTES = 250_000;
+// Greenhouse's concurrent unchanged-row updates exceeded the live 8s database
+// statement budget. Keep each transaction smaller and one board in flight.
+export const GREENHOUSE_MAX_PUBLISH_BATCH_ROWS = 5;
+export const GREENHOUSE_TARGET_PUBLISH_BATCH_BYTES = 50_000;
 
 /** Include the complete envelope, batch number, JSON escaping and UTF-8 in both limits. */
 export function splitBatches(identity: BoardIdentity, rows: CatalogRow[]): PublishBatch[] {
+  const maxRows = identity.source === "greenhouse" ? GREENHOUSE_MAX_PUBLISH_BATCH_ROWS : MAX_PUBLISH_BATCH_ROWS;
+  const targetBytes = identity.source === "greenhouse" ? GREENHOUSE_TARGET_PUBLISH_BATCH_BYTES : TARGET_PUBLISH_BATCH_BYTES;
   const batches: PublishBatch[] = [];
   const make = (batch_no: number): PublishBatch => ({ operation: "publish_batch", ...identity, batch_no, rows: [] });
   let batch = make(0);
   let bytes = Buffer.byteLength(JSON.stringify(batch));
   for (const row of rows) {
     const size = Buffer.byteLength(JSON.stringify(row));
-    if (batch.rows.length && (batch.rows.length >= MAX_PUBLISH_BATCH_ROWS ||
-        bytes + size + 1 > TARGET_PUBLISH_BATCH_BYTES)) {
+    if (batch.rows.length && (batch.rows.length >= maxRows ||
+        bytes + size + 1 > targetBytes)) {
       batches.push(batch);
       batch = make(batches.length);
       bytes = Buffer.byteLength(JSON.stringify(batch));
@@ -245,7 +251,10 @@ export async function runStateless(options: {
   const started = Date.now();
   const checker = publicationChecker(options.checker);
   let fetchRequests = 0, fetchedBytes = 0;
-  const failures = await pool(targets, (t) => new URL(ADAPTERS[t.source].listUrl(t.tenant)).host, 8, 4, async (target) => {
+  // Apply even to mixed/manual runs: a second Greenhouse board must not publish
+  // while the first board is still writing. Other source-only runs are unchanged.
+  const concurrency = targets.some((t) => t.source === "greenhouse") ? 1 : 8;
+  const failures = await pool(targets, (t) => new URL(ADAPTERS[t.source].listUrl(t.tenant)).host, concurrency, 4, async (target) => {
     const board = `${target.source}:${target.tenant}`;
     const identity = { run_id, source: target.source, tenant: target.tenant };
     let stage: Stage = "fetch";

@@ -51,10 +51,17 @@ export function collectorClient(config: {
               throw error; // Body-read timeout/network failure must retry the same bytes too.
             }
           }
-          await response.body?.cancel();
           reason = `HTTP ${response.status}`;
-          // In particular, complete_board 409 is terminal: never blindly retry it.
-          if (response.status !== 408 && response.status !== 429 && response.status < 500)
+          let retryable = [408, 429, 503].includes(response.status);
+          if (response.status === 504) {
+            // A gateway's generic 504 is not proof of a database timeout. Only
+            // retry the fixed timeout code emitted by our authenticated backend.
+            try { retryable = (await response.json())?.error === "database_timeout"; }
+            catch { retryable = false; }
+          }
+          if (!response.bodyUsed) await response.body?.cancel();
+          // Deterministic 4xx, generic 500/502 and unknown 5xx fail immediately.
+          if (!retryable)
             throw new CollectorError(reason);
           const retryAfter = response.headers.get("retry-after");
           if (retryAfter) {
@@ -65,6 +72,9 @@ export function collectorClient(config: {
         } catch (error) {
           if (error instanceof CollectorError) throw error;
           reason = safeReason(error);
+          const transportFailure = error instanceof TypeError ||
+            (error instanceof DOMException && ["TimeoutError", "AbortError"].includes(error.name));
+          if (!transportFailure) throw new CollectorError(reason);
         }
         if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, wait));
       }
