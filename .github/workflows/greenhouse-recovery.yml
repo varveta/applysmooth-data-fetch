@@ -1,0 +1,19 @@
+name: Greenhouse recovery
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Validate or publish Greenhouse while its scheduled workflow is paused
+        type: choice
+        options: [dry-run, publish]
+        default: dry-run
+permissions:
+  contents: read
+jobs:
+  source:
+    if: github.repository == 'varveta/applysmooth-data-fetch' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/source-pipeline.yml
+    with:
+      source: greenhouse
+      mode: ${{ inputs.mode }}
+    secrets: inherit

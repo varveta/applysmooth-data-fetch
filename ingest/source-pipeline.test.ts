@@ -35,6 +35,26 @@ it("keeps all writers in the existing serialized queue and retains source report
   expect(workflow).toContain("path: ingest/data/source-*.json");
 });
 
+it("allows manual Greenhouse recovery without enabling its scheduled workflow", () => {
+  const workflow = readFileSync(".github/workflows/greenhouse-recovery.yml", "utf8");
+  expect(workflow).toContain("workflow_dispatch:");
+  expect(workflow).not.toMatch(/^\s+(schedule|push|pull_request|workflow_call):/m);
+  expect(workflow).toContain("options: [dry-run, publish]");
+  expect(workflow).toContain("default: dry-run");
+  expect(workflow).toContain("github.repository == 'varveta/applysmooth-data-fetch'");
+  expect(workflow).toContain("github.ref == 'refs/heads/main'");
+  expect(workflow).toContain("github.event_name == 'workflow_dispatch'");
+  expect(workflow).toContain("uses: ./.github/workflows/source-pipeline.yml");
+  expect(workflow).toContain("source: greenhouse");
+  expect(workflow).not.toContain("inputs.source");
+  expect(workflow).toContain("mode: ${{ inputs.mode }}");
+  expect(workflow).toContain("secrets: inherit");
+  const runner = readFileSync(".github/workflows/source-pipeline.yml", "utf8");
+  expect(runner).toContain("environment: test");
+  expect(runner).toContain("group: collector-online");
+  expect(runner).toContain("github.ref == 'refs/heads/main'");
+});
+
 it("skips early polling without blocking other sources or future eligible runs", () => {
   const budget = '{"remotive":"2026-10-29T04:30:00Z"}';
   expect(sourceNotBefore("remotive", budget, new Date("2026-10-28T05:00:00Z"))).toBe("2026-10-29T04:30:00Z");

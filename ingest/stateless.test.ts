@@ -210,10 +210,10 @@ describe("stateless board processing", () => {
     listings = { jobs: manyJobs(53).map((job) => ({ ...job, content: greenhouseFixture.content })) };
     await run();
     const batches = bodies.map((body) => JSON.parse(body)).filter((body) => body.operation === "publish_batch");
-    expect(batches.map((batch) => batch.rows.length)).toEqual([25, 25, 3]);
-    expect(batches.map((batch) => batch.batch_no)).toEqual([0, 1, 2]);
+    expect(batches.map((batch) => batch.rows.length)).toEqual([...Array(10).fill(5), 3]);
+    expect(batches.map((batch) => batch.batch_no)).toEqual(Array.from({ length: 11 }, (_, i) => i));
     expect(new Set(batches.flatMap((batch) => batch.rows.map((row: Payload) => row.id))).size).toBe(53);
-    expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ batches_expected: 3, accepted_count: 53, fetched_count: 53 });
+    expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ batches_expected: 11, accepted_count: 53, fetched_count: 53 });
   });
 
   it("keeps retries byte-identical across row-bounded transactions", async () => {
@@ -229,9 +229,9 @@ describe("stateless board processing", () => {
     };
     await run();
     expect(bodies[0]).toBe(bodies[1]);
-    expect(committed.size).toBe(2);
-    expect([...committed.values()].map((body) => JSON.parse(body).rows.length)).toEqual([25, 1]);
-    expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ batches_expected: 2, accepted_count: 26 });
+    expect(committed.size).toBe(6);
+    expect([...committed.values()].map((body) => JSON.parse(body).rows.length)).toEqual([5, 5, 5, 5, 5, 1]);
+    expect(JSON.parse(bodies.at(-1)!)).toMatchObject({ batches_expected: 6, accepted_count: 26 });
   });
 
   it("keeps a large legitimate row alone without reducing the protocol allowance", () => {
@@ -248,6 +248,40 @@ describe("stateless board processing", () => {
     expect(batches.flatMap((batch) => batch.rows)).toEqual(rows);
     expect(Buffer.byteLength(JSON.stringify(batches[1]))).toBeGreaterThan(TARGET_PUBLISH_BATCH_BYTES);
     expect(Buffer.byteLength(JSON.stringify(batches[1]))).toBeLessThanOrEqual(MAX_BATCH_BYTES);
+  });
+
+  it("limits Greenhouse batch bytes without changing other sources' budgets", () => {
+    const base = prepareBoard(target, { jobs: [greenhouseFixture] }, now,
+      { source: target.source, tenant: target.tenant, complete: true, identities: [] }).rows[0];
+    const rows = Array.from({ length: 6 }, (_, i) => ({ ...base, id: `synthetic-${i}`, description: "x".repeat(24_000) }));
+    const greenhouse = splitBatches({ run_id: runId, source: "greenhouse", tenant: "example" }, rows);
+    expect(greenhouse.every((batch) => Buffer.byteLength(JSON.stringify(batch)) <= 50_000)).toBe(true);
+    expect(greenhouse.flatMap((batch) => batch.rows)).toEqual(rows);
+    expect(splitBatches({ run_id: runId, source: "ashby", tenant: "example" }, rows)).toHaveLength(1);
+  });
+
+  it("finishes one Greenhouse board before starting the next board's writes", async () => {
+    let active = 0, maximum = 0;
+    const remote = {
+      metrics: { requests: 0, payload_bytes: 0 },
+      async call(body: unknown) {
+        const request = body as Payload;
+        await Promise.resolve();
+        if (request.operation === "board_identities") {
+          maximum = Math.max(maximum, ++active);
+          return { source: request.source, tenant: request.tenant, complete: true, identities: [] };
+        }
+        if (request.operation === "publish_batch") return {
+          accepted: request.rows.length,
+          results: request.rows.map((row: Payload) => ({ id: row.id, outcome: "unchanged" })),
+        };
+        active--;
+        return complete;
+      },
+    };
+    await run([{ ...target, tenant: "one" }, { ...target, tenant: "two" }], remote);
+    expect(maximum).toBe(1);
+    expect(active).toBe(0);
   });
 
   it("fails before publication if a single row cannot fit", () => {
