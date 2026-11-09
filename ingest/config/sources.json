@@ -1,7 +1,7 @@
 {
   "sources": {
     "ashby": {
-      "schedule_utc": "17 4,10,16,22 * * *",
+      "schedule_utc": "17 4 * * *",
       "targets": [
         {
           "source": "ashby",
@@ -56,7 +56,7 @@
       ]
     },
     "greenhouse": {
-      "schedule_utc": "27 4,10,16,22 * * *",
+      "schedule_utc": "27 10 * * *",
       "targets": [
         {
           "source": "greenhouse",
@@ -171,7 +171,7 @@
       ]
     },
     "lever": {
-      "schedule_utc": "37 4,10,16,22 * * *",
+      "schedule_utc": "37 12 * * *",
       "targets": [
         {
           "source": "lever",
@@ -201,7 +201,7 @@
       ]
     },
     "smartrecruiters": {
-      "schedule_utc": "7 5,17 * * *",
+      "schedule_utc": "7 18 * * *",
       "targets": [
         {
           "source": "smartrecruiters",
@@ -216,7 +216,7 @@
       ]
     },
     "workable": {
-      "schedule_utc": "17 5,17 * * *",
+      "schedule_utc": "17 20 * * *",
       "targets": [
         {
           "source": "workable",
@@ -231,7 +231,7 @@
       ]
     },
     "personio": {
-      "schedule_utc": "27 5,17 * * *",
+      "schedule_utc": "27 14 * * *",
       "targets": [
         {
           "source": "personio",
@@ -241,7 +241,7 @@
       ]
     },
     "recruitee": {
-      "schedule_utc": "37 5,17 * * *",
+      "schedule_utc": "37 16 * * *",
       "targets": [
         {
           "source": "recruitee",
