@@ -1,7 +1,9 @@
 import { CollectorError, safeReason } from "./diagnostics";
 
+export class StalePublishFingerprintError extends CollectorError {}
+
 export const MAX_BATCH_BYTES = 900_000;
-export type RequestMetrics = { requests: number; payload_bytes: number };
+export type RequestMetrics = { requests: number; payload_bytes: number; calls?: number; response_json_bytes?: number; request_duration_ms?: number[]; timeouts?: number };
 
 /** Serialize once; every retry sends exactly the same bytes and identity. */
 export function collectorClient(config: {
@@ -17,7 +19,7 @@ export function collectorClient(config: {
   if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash)
     throw new CollectorError("Invalid collector endpoint");
   if (config.token.length < 32) throw new CollectorError("Missing collector credential");
-  const metrics: RequestMetrics = { requests: 0, payload_bytes: 0 };
+  const metrics: RequestMetrics = { requests: 0, payload_bytes: 0, calls: 0, response_json_bytes: 0, request_duration_ms: [], timeouts: 0 };
   return {
     metrics,
     async call(body: unknown, options: { attempts?: number } = {}): Promise<unknown> {
@@ -27,8 +29,10 @@ export function collectorClient(config: {
       const json = JSON.stringify(body);
       const bytes = Buffer.byteLength(json, "utf8");
       if (bytes > MAX_BATCH_BYTES) throw new CollectorError("Collector batch too large");
+      metrics.calls!++;
       let reason = "Collector unavailable";
       for (let attempt = 0; attempt < attempts; attempt++) {
+        const started = performance.now();
         let wait = (config.baseDelayMs ?? 1000) * 2 ** attempt;
         try {
           metrics.requests++;
@@ -45,7 +49,11 @@ export function collectorClient(config: {
             body: json,
           });
           if (response.ok) {
-            try { return await response.json(); }
+            try {
+              const data = await response.json();
+              metrics.response_json_bytes! += Buffer.byteLength(JSON.stringify(data));
+              return data;
+            }
             catch (error) {
               if (error instanceof SyntaxError) throw new CollectorError("Invalid collector JSON response");
               throw error; // Body-read timeout/network failure must retry the same bytes too.
@@ -53,11 +61,17 @@ export function collectorClient(config: {
           }
           reason = `HTTP ${response.status}`;
           let retryable = [408, 429, 503].includes(response.status);
+          if (response.status === 409) {
+            let stale = false;
+            try { stale = (await response.json())?.error === "stale_publish_fingerprint"; } catch {}
+            if (stale) throw new StalePublishFingerprintError("Stale publication fingerprint");
+          }
           if (response.status === 504) {
             // A gateway's generic 504 is not proof of a database timeout. Only
             // retry the fixed timeout code emitted by our authenticated backend.
             try { retryable = (await response.json())?.error === "database_timeout"; }
             catch { retryable = false; }
+            if (retryable) metrics.timeouts!++;
           }
           if (!response.bodyUsed) await response.body?.cancel();
           // Deterministic 4xx, generic 500/502 and unknown 5xx fail immediately.
@@ -75,7 +89,8 @@ export function collectorClient(config: {
           const transportFailure = error instanceof TypeError ||
             (error instanceof DOMException && ["TimeoutError", "AbortError"].includes(error.name));
           if (!transportFailure) throw new CollectorError(reason);
-        }
+          if (error instanceof DOMException) metrics.timeouts!++;
+        } finally { metrics.request_duration_ms!.push(performance.now() - started); }
         if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, wait));
       }
       throw new CollectorError(`Collector retries exhausted: ${reason}`);

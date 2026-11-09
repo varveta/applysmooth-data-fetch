@@ -1,3 +1,6 @@
+import { publicationFingerprint } from "@/lib/jobs-collector/publication-contract";
+import { planDeltaBatches, supportsDelta } from "./lib/delta-publish";
+import { StalePublishFingerprintError } from "./lib/collector-client";
 import { isTestOnlySource } from "./lib/source-activation";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -234,6 +237,7 @@ export async function prepareBoardForPublication(target: StatelessTarget, body: 
 export async function runStateless(options: {
   targets: StatelessTarget[];
   client: { call(body: unknown): Promise<unknown>; metrics: RequestMetrics };
+  deltaBoards?: ReadonlySet<string>;
   runId?: string;
   now?: Date;
   get?: typeof getJson;
@@ -276,9 +280,10 @@ export async function runStateless(options: {
         throw new CollectorError("Board fetch failed; failure recorded");
       }
       stage = "publish";
-      const snapshot = await options.client.call({ operation: "board_identities", ...identity,
+      const identityRequest = { operation: "board_identities", ...identity,
         ...(DISCOVERY_SOURCES.includes(target.source) ? { posting_ids: [...jobs.jobs.keys(), ...jobs.unverified] } : {}),
-      });
+      };
+      const snapshot = await options.client.call(identityRequest);
       if (target.source === "getwork") stage = "verify_link";
       const prepared = await prepareJobsForPublication(target, jobs, now,
         boardIdentities(snapshot, target.source, target.tenant), checker);
@@ -286,17 +291,47 @@ export async function runStateless(options: {
         ...(prepared.prepublication ? { prepublication: prepared.prepublication } : {}) }));
       stage = "publish";
       // Preflight every row before sending the first batch.
-      const batches = splitBatches(identity, prepared.rows);
+      const deltaBoards = options.deltaBoards ?? new Set((process.env.JOBS_COLLECTOR_DELTA_BOARDS ?? "").split(","));
+      const batches = planDeltaBatches(splitBatches(identity, prepared.rows),
+        boardIdentities(snapshot, target.source, target.tenant), deltaBoards.has(board) && supportsDelta(snapshot));
+      let refreshed = false;
+      let fullRows = 0, compactRows = 0;
       const outcomes = { inserted: 0, updated: 0, unchanged: 0 };
-      for (const batch of batches) {
-        const ack = PublishAck.parse(await options.client.call(batch));
-        const ids = new Set(batch.rows.map((row) => row.id));
+      for (const [index, plan] of batches.entries()) {
+        let batch = plan.request;
+        let rawAck: unknown;
+        try { rawAck = await options.client.call(batch); }
+        catch (error) {
+          if (!(error instanceof StalePublishFingerprintError) || batch.operation !== "mark_seen_batch" || refreshed) throw error;
+          // Only a confirmed atomic rejection permits a new payload at this number.
+          // Transport failures already replayed the identical bytes in the client.
+          const fresh = await options.client.call(identityRequest);
+          if (!supportsDelta(fresh)) throw new CollectorError("Delta support disappeared during run");
+          const owners = boardIdentities(fresh, target.source, target.tenant);
+          for (const pending of batches.slice(index)) {
+            if (pending.request.operation !== "mark_seen_batch") continue;
+            let needsFull = false;
+            for (const row of pending.fallback.rows) {
+              const owner = owners.get(`${target.source}:${target.tenant}:${row.source_job_id}`);
+              if (!owner || owner.id !== row.id) throw new CollectorError("Identity changed during delta publication");
+              if (!owner.mark_seen_eligible || owner.publish_fingerprint_version !== 1 ||
+                  owner.publish_fingerprint !== publicationFingerprint(row)) needsFull = true;
+            }
+            if (needsFull) pending.request = pending.fallback;
+          }
+          refreshed = true;
+          batch = plan.fallback;
+          rawAck = await options.client.call(batch);
+        }
+        const ack = PublishAck.parse(rawAck);
+        const ids = new Set(plan.fallback.rows.map((row) => row.id));
+        if (batch.operation === "mark_seen_batch") compactRows += ids.size; else fullRows += ids.size;
         if (ack.accepted !== ids.size || ack.results.length !== ids.size ||
             new Set(ack.results.map((result) => result.id)).size !== ids.size ||
             ack.results.some((result) => !ids.has(result.id)))
           throw new CollectorError("Publish acknowledgment mismatch; board not completed");
         for (const result of ack.results) outcomes[result.outcome]++;
-        log(JSON.stringify({ stage, board, run_id, batch_no: batch.batch_no, accepted: ack.accepted }));
+        log(JSON.stringify({ stage, board, run_id, operation: batch.operation, batch_no: batch.batch_no, accepted: ack.accepted }));
       }
       stage = "complete";
       const complete = CompleteAck.parse(await options.client.call({
@@ -305,13 +340,18 @@ export async function runStateless(options: {
         quarantined_posting_ids: prepared.quarantined_posting_ids.slice(0, 500),
         quarantined_count: prepared.quarantined_count,
       }));
-      log(JSON.stringify({ stage, board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, outcomes, ...complete }));
+      log(JSON.stringify({ stage, board, run_id, fetched_count: prepared.fetched_count, accepted_count: prepared.rows.length, outcomes, full_rows: fullRows, compact_rows: compactRows, ...complete }));
     } catch (error) {
       log(errorLine(stage, board, error));
       throw error;
     }
   });
+  const durations = [...(options.client.metrics.request_duration_ms ?? [])].sort((a, b) => a - b);
   const summary = {
+    response_json_bytes: options.client.metrics.response_json_bytes,
+    retries: options.client.metrics.calls === undefined ? undefined : options.client.metrics.requests - options.client.metrics.calls,
+    timeouts: options.client.metrics.timeouts,
+    http_p95_ms: durations.length ? durations[Math.ceil(durations.length * 0.95) - 1] : undefined,
     run_id, boards: targets.length, failed: failures.length, duration_ms: Date.now() - started,
     fetch_requests: fetchRequests, fetched_bytes: fetchedBytes,
     verification_requests: checker.metrics.requests,
