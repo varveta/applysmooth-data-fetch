@@ -45,7 +45,7 @@ export const RemoteFirstJobsPage = z.object({
     ctx.addIssue({ code: "custom", message: "Remote First Jobs page count mismatch" });
 });
 
-/** TEST only. Feed display terms and indexing restrictions require production review. */
+/** Own-site display with per-job credit; no onward submission to third-party job sites. */
 export const remotefirstjobs: SourceAdapter = {
   source: "remotefirstjobs",
   listUrl(tenant) {
