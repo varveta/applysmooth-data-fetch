@@ -6,18 +6,20 @@ Each source has its own workflow, failure status, JSON validation report and sch
 
 | Source | UTC schedule | Coverage and lifecycle |
 |---|---|---|
-| Ashby | 04:17, 10:17, 16:17, 22:17 | 10 employer boards |
-| Greenhouse | 04:27, 10:27, 16:27, 22:27 | 22 employer boards |
-| Lever | 04:37, 10:37, 16:37, 22:37 | 5 employer boards |
-| SmartRecruiters | 05:07, 17:07 | Expeditors and Socotec; every page and detail must validate |
-| Workable | 05:17, 17:17 | ESG USA and Jacobian |
-| Personio | 05:27, 17:27 | Aily Labs employer-enabled XML; current US examples are older than the freshness limit |
-| Recruitee | 05:37, 17:37 | Natuvion and Framestore; careers token required from February 10, 2027 |
+| Ashby | 04:17 | 10 employer boards |
+| Greenhouse | 10:27 | 22 employer boards |
+| Lever | 12:37 | 5 employer boards |
+| SmartRecruiters | 18:07 | Expeditors and Socotec; every page and detail must validate |
+| Workable | 20:17 | ESG USA and Jacobian |
+| Personio | 14:27 | Aily Labs employer-enabled XML; current US examples are older than the freshness limit |
+| Recruitee | 16:37 | Natuvion and Framestore; careers token required from February 10, 2027 |
 | Jobicy | 05:47 | US discovery, maximum 10 pages; rolling seven-day feed. Dedicated status API verifies older stored jobs |
 | Himalayas | 05:57 | US discovery, maximum 10 pages; country and timezone restrictions retained |
 | We Work Remotely | 06:07 | Public RSS; explicit country restrictions take precedence over broad region labels |
 | Remote OK | 06:17 | Public API; blank/unspecified remote geography is not US eligibility |
 | Remotive | 06:27 | Public API; 24-hour upstream delay; advised maximum four requests/day including manual validation |
+
+The seven previously multi-daily sources now run once daily in distinct UTC hours to reduce Vercel Fast Origin Transfer. Already-daily workflows, verification, lifecycle, and the guarded legacy Collector schedule remain unchanged. Restoring higher frequencies requires measured transfer headroom.
 
 GitHub schedules can start late. They run on GitHub infrastructure. Codex monitoring uses the local desktop app and is separate from collection.
 

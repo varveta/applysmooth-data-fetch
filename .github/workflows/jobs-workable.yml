@@ -8,7 +8,7 @@ on:
         options: [auto, dry-run, publish]
         default: dry-run
   schedule:
-    - cron: '17 5,17 * * *'
+    - cron: '17 20 * * *'
 permissions:
   contents: read
 jobs:
