@@ -5,6 +5,9 @@ import { SOURCE_IDS, type SourceId } from "@/lib/jobs-ingest/contract";
 import { CollectorError } from "./diagnostics";
 
 export const BoardIdentitySchema = z.object({
+  publish_fingerprint_version: z.number().int().positive().nullable().optional(),
+  publish_fingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+  mark_seen_eligible: z.boolean().optional(),
   id: z.string().min(1).max(250),
   source_job_id: z.string().min(1).max(120),
   first_seen_at: z.iso.datetime({ offset: true }),

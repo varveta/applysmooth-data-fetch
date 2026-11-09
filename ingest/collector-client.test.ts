@@ -43,3 +43,12 @@ it("does not retry an unexpected programming error", async () => {
   await expect(client().call(body)).rejects.toThrow();
   expect(fetch).toHaveBeenCalledTimes(1);
 });
+
+
+it("does not count a locally rejected oversized payload as a request or a retry", async () => {
+  const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
+  const remote = client();
+  await expect(remote.call({ data: "x".repeat(900_001) })).rejects.toThrow("Collector batch too large");
+  expect(remote.metrics.calls).toBe(0); expect(remote.metrics.requests).toBe(0);
+  expect(fetch).not.toHaveBeenCalled();
+});

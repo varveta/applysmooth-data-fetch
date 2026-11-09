@@ -42,6 +42,7 @@ jobs:
           COLLECTOR_RECOVERY_TENANT: ${{ inputs.recovery_tenant }}
           COLLECTOR_ACTIVE_SOURCES: ${{ vars.JOBS_ACTIVE_SOURCES || '[]' }}
           COLLECTOR_SOURCE_NOT_BEFORE: ${{ vars.JOBS_SOURCE_NOT_BEFORE || '{}' }}
+          JOBS_COLLECTOR_DELTA_BOARDS: ${{ vars.JOBS_COLLECTOR_DELTA_BOARDS || '' }}
           COLLECTOR_ENDPOINT: ${{ secrets.COLLECTOR_ENDPOINT }}
           COLLECTOR_TOKEN: ${{ secrets.COLLECTOR_TOKEN }}
           COLLECTOR_VERCEL_BYPASS: ${{ secrets.COLLECTOR_VERCEL_BYPASS }}
