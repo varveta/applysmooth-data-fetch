@@ -34,8 +34,19 @@ export function targetsFor(source: SourceId) {
   return targets;
 }
 
-export async function runSource(source: SourceId, mode: "dry-run" | "publish") {
+/** Narrow operational recovery; normal source runs always retain every board. */
+export function recoveryTargets(source: SourceId, tenant = "", event = process.env.GITHUB_EVENT_NAME) {
   const targets = targetsFor(source);
+  if (!tenant) return targets;
+  if (event !== "workflow_dispatch" || source !== "greenhouse" || tenant !== "asana")
+    throw new Error("Unsupported manual recovery target");
+  const selected = targets.filter(target => target.tenant === tenant);
+  if (selected.length !== 1) throw new Error("Recovery target is not configured");
+  return selected;
+}
+
+export async function runSource(source: SourceId, mode: "dry-run" | "publish", recoveryTenant = "") {
+  const targets = recoveryTargets(source, recoveryTenant);
   const started = Date.now();
   const events: unknown[] = [];
   const log = (line: string) => {
@@ -99,7 +110,7 @@ async function main() {
     return;
   }
   const mode = resolveMode(source, process.env.COLLECTOR_SOURCE_MODE ?? "dry-run", process.env.COLLECTOR_ACTIVE_SOURCES ?? "[]");
-  await runSource(source, mode);
+  await runSource(source, mode, process.env.COLLECTOR_RECOVERY_TENANT ?? "");
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
   main().catch((error) => { console.error(errorLine("complete", "run", error)); process.exitCode = 1; });

@@ -9,6 +9,10 @@ on:
         required: false
         default: auto
         type: string
+      recovery_tenant:
+        required: false
+        default: ''
+        type: string
 permissions:
   contents: read
 jobs:
@@ -35,6 +39,7 @@ jobs:
         env:
           SOURCE: ${{ inputs.source }}
           COLLECTOR_SOURCE_MODE: ${{ inputs.mode }}
+          COLLECTOR_RECOVERY_TENANT: ${{ inputs.recovery_tenant }}
           COLLECTOR_ACTIVE_SOURCES: ${{ vars.JOBS_ACTIVE_SOURCES || '[]' }}
           COLLECTOR_SOURCE_NOT_BEFORE: ${{ vars.JOBS_SOURCE_NOT_BEFORE || '{}' }}
           COLLECTOR_ENDPOINT: ${{ secrets.COLLECTOR_ENDPOINT }}

@@ -11,3 +11,9 @@ Synthetic tests cover batch limits, complete-board counts, identical retry paylo
 Use the manual-only **Greenhouse recovery** workflow on `main` for that controlled run, leaving **Jobs - greenhouse** disabled. It defaults to `dry-run`; an explicitly selected `publish` invokes the existing source runner for Greenhouse only, retaining its activation checks, TEST environment, repository/branch guards, and shared writer queue. It has no schedule. Inspect the saved source summary and verify both Toast and Anduril completed before restoring the regular workflow.
 
 If reverting the backend timeout response to generic 502, revert this stricter client policy first. Keep the smaller publication budget or pause Greenhouse while investigating a regression.
+
+## Recovery observation
+
+[Recovery run 42566844409](https://github.com/varveta/applysmooth-data-fetch/actions/runs/42566844409) completed 21 of 22 boards, including Toast and Anduril. Asana acknowledged all 21 accepted jobs, but its final completion request received HTTP 500. Accessible Vercel request logs and Supabase collector error logs did not identify the cause. This is not evidence that the original database timeouts recurred, nor justification to retry every HTTP 500.
+
+The manual recovery workflow now offers `board: asana` to recover only that configured board after its existing lease expires. It uses a fresh run and current upstream snapshot, not a reconstructed completion payload for the failed run. The runner rejects partial selection outside a manual Greenhouse/Asana run, and normal workflows continue processing every configured board. Keep the scheduled workflow paused until the targeted recovery succeeds. Never alter database leases to accelerate recovery.

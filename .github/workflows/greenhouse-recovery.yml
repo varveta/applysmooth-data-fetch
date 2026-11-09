@@ -7,6 +7,11 @@ on:
         type: choice
         options: [dry-run, publish]
         default: dry-run
+      board:
+        description: Recover all boards or only the incomplete Asana board
+        type: choice
+        options: [all, asana]
+        default: all
 permissions:
   contents: read
 jobs:
@@ -16,4 +21,5 @@ jobs:
     with:
       source: greenhouse
       mode: ${{ inputs.mode }}
+      recovery_tenant: ${{ inputs.board == 'asana' && 'asana' || '' }}
     secrets: inherit

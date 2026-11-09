@@ -2,7 +2,7 @@ import { APPROVED_PUBLIC_FEEDS, isTestOnlySource } from "./lib/source-activation
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { SOURCE_IDS } from "@/lib/jobs-ingest/contract";
-import { resolveMode, targetsFor, sourceNotBefore } from "./source-pipeline";
+import { resolveMode, targetsFor, sourceNotBefore, recoveryTargets } from "./source-pipeline";
 
 it("requires explicit activation before publishing while allowing secret-free testing", () => {
   expect(resolveMode("jobicy", "auto", "[]")).toBe("dry-run");
@@ -41,6 +41,9 @@ it("allows manual Greenhouse recovery without enabling its scheduled workflow", 
   expect(workflow).not.toMatch(/^\s+(schedule|push|pull_request|workflow_call):/m);
   expect(workflow).toContain("options: [dry-run, publish]");
   expect(workflow).toContain("default: dry-run");
+  expect(workflow).toContain("options: [all, asana]");
+  expect(workflow).toContain("default: all");
+  expect(workflow).toContain("recovery_tenant: ${{ inputs.board == 'asana' && 'asana' || '' }}");
   expect(workflow).toContain("github.repository == 'varveta/applysmooth-data-fetch'");
   expect(workflow).toContain("github.ref == 'refs/heads/main'");
   expect(workflow).toContain("github.event_name == 'workflow_dispatch'");
@@ -53,6 +56,17 @@ it("allows manual Greenhouse recovery without enabling its scheduled workflow", 
   expect(runner).toContain("environment: test");
   expect(runner).toContain("group: collector-online");
   expect(runner).toContain("github.ref == 'refs/heads/main'");
+  expect(runner).toContain("COLLECTOR_RECOVERY_TENANT: ${{ inputs.recovery_tenant }}");
+});
+
+it("restricts partial recovery to manual Asana runs and preserves normal full-source runs", () => {
+  expect(recoveryTargets("greenhouse", "asana", "workflow_dispatch").map(target => target.tenant)).toEqual(["asana"]);
+  expect(recoveryTargets("greenhouse", "", "schedule")).toEqual(targetsFor("greenhouse"));
+  expect(recoveryTargets("lever", "", "workflow_dispatch")).toEqual(targetsFor("lever"));
+  expect(() => recoveryTargets("greenhouse", "asana", "schedule")).toThrow("Unsupported manual recovery target");
+  expect(() => recoveryTargets("greenhouse", "asana", "")).toThrow("Unsupported manual recovery target");
+  expect(() => recoveryTargets("lever", "asana", "workflow_dispatch")).toThrow("Unsupported manual recovery target");
+  expect(() => recoveryTargets("greenhouse", "unknown", "workflow_dispatch")).toThrow("Unsupported manual recovery target");
 });
 
 it("skips early polling without blocking other sources or future eligible runs", () => {
